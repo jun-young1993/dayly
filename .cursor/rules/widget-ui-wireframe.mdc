@@ -1,0 +1,118 @@
+---
+name: widget-ui-wireframe
+description: This is a new rule
+---
+
+# Overview
+
+Insert overview text here. The agent will only see this should they choose to apply the rule.
+
+
+# Cursor Rules — Showable D-Day Widget App
+# Purpose: Ensure all UI/UX and code decisions follow a "widget-first, shareable D-Day" concept.
+
+## 1. Core Product Principle
+- This app is NOT a general D-Day manager.
+- This app IS a "showable emotion widget + SNS share card generator".
+- The widget is the primary product. The app UI exists only to configure and share the widget.
+
+## 2. Widget-First UX Rule (Highest Priority)
+- Always design the Home Widget before designing any in-app screen.
+- In-app screens must never introduce features that cannot be reflected in the widget.
+- The widget must visually communicate emotion even without opening the app.
+
+## 3. Single Master Widget Layout (Large Widget)
+- Treat the Large widget as the canonical layout.
+- Small and Medium widgets are strict reductions of the Large widget.
+- Never design independent layouts for Small/Medium.
+
+### Widget Visual Hierarchy (Top → Bottom)
+1. Primary Sentence (Most Important)
+2. D-Day Number (Visual Accent)
+3. Target Date (Meta Information)
+4. Optional Emotional Divider (dots or thin line)
+5. App Name / Watermark (removable via premium)
+
+## 4. Primary Sentence Rules
+- The sentence must explain "WHY this date matters", not just the date.
+- Max 2 lines.
+- Center aligned by default.
+- Examples:
+  - "우리는 다시 만날 때까지 23일"
+  - "결혼식까지 42번의 아침"
+- Numbers must never appear before the sentence.
+
+## 5. D-Day Number Rules
+- Display formats allowed:
+  - "23일"
+  - "D-23"
+- Font size must be 1.6x–2.0x larger than the sentence.
+- Must use a different font family from the sentence.
+- This is the visual anchor of the widget.
+
+## 6. Date Display Rules
+- Always secondary.
+- Use reduced opacity (~60%).
+- Format example: "2026.02.14 (토)"
+- Must never compete visually with the D-Day number.
+
+## 7. Typography Rules
+- Sentence font: light or elegant (emotion-first).
+- Number font: bold, neutral, highly readable.
+- Never use a single font for both sentence and number.
+- Prioritize readability over decoration.
+
+## 8. Spacing & Layout Rules
+- Horizontal padding: minimum 16dp.
+- Vertical padding: minimum 20dp.
+- Line height: at least 1.4x.
+- Avoid edge-to-edge text at all costs.
+- Empty space is a feature, not wasted space.
+
+## 9. Background Rules
+Allowed background types:
+- Solid color
+- Soft gradient
+- Photo (with blur + dark overlay)
+
+Restrictions:
+- Background must never reduce text contrast.
+- Apply automatic contrast adjustment when using photos.
+- No noisy textures or patterns.
+
+## 10. Interaction Rules
+- Widget tap → Open Share Preview screen.
+- Long press:
+  - Android: style or sentence edit
+  - iOS: handled inside app settings
+- No interaction should lead to a generic dashboard.
+
+## 11. Sharing Rules
+- Every widget style must be exportable as an image.
+- SNS share cards must visually match the widget exactly.
+- Instagram Story ratio is the primary target.
+- Free version includes a small watermark.
+- Premium removes watermark.
+
+## 12. Feature Constraints
+- Only ONE active D-Day per widget.
+- Multiple D-Days require multiple widgets.
+- Do not introduce:
+  - Calendar views
+  - Task lists
+  - Notification-heavy logic
+- Simplicity is intentional.
+
+## 13. Implementation Guidance (Flutter)
+- Use a single Widget model as the source of truth.
+- Avoid duplicating UI logic between widget preview and share card.
+- Favor composition over inheritance in widget styling.
+- All styles must be serializable (for widget + share reuse).
+
+## 14. Decision Filter (If unsure)
+If a feature or UI decision does not:
+- Make the widget more emotional
+- Make sharing more attractive
+- Improve first-glance clarity
+
+→ Do NOT implement it.
