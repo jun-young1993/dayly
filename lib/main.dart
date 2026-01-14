@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:dayly/app.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(buildDaylyApp());
 }
