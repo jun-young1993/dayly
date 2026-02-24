@@ -12,13 +12,16 @@ class AuthGate extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // if (!snapshot.hasData) {
+        print('snapshot: ${snapshot.hasData}');
+        if (snapshot.hasData) {
+          return child;
+        }
         return SignInScreen(
           actions: [
-            ForgotPasswordAction((context, email) {}),
-            VerifyPhoneAction((context, _) {}),
-            AuthStateChangeAction((context, state) {}),
-            EmailLinkSignInAction((context) {})
+            AuthStateChangeAction((context, state) {
+              print('AuthStateChangeAction');
+              print(state.toString());
+            }),
           ],
           subtitleBuilder: (context, action) {
             final actionText = switch (action) {
@@ -44,8 +47,6 @@ class AuthGate extends StatelessWidget {
           },
         ); // To here.
         // }
-
-        return child;
       },
     );
   }
