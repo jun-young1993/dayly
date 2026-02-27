@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:dayly/models/dayly_widget_model.dart';
 import 'package:dayly/theme/dayly_theme_presets.dart';
@@ -6,6 +7,9 @@ import 'package:dayly/utils/dayly_sentence_templates.dart';
 import 'package:dayly/utils/dayly_share_export.dart';
 import 'package:dayly/widgets/dayly_widget_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SharePreviewScreenV2 extends StatefulWidget {
   const SharePreviewScreenV2({
@@ -78,7 +82,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              const Text('날짜가 아니라, “왜 중요한지”를 말해 주세요. (최대 2줄)'),
+              const Text('날짜가 아니라, "왜 중요한지"를 말해 주세요. (최대 2줄)'),
               const SizedBox(height: 12),
               TextField(
                 controller: controller,
@@ -163,16 +167,8 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                   spacing: 8,
                   runSpacing: 8,
                   children: DaylyCountdownMode.values.map((mode) {
-                    final label = switch (mode) {
-                      DaylyCountdownMode.days => '23일',
-                      DaylyCountdownMode.dMinus => 'D-23',
-                      DaylyCountdownMode.weeksDays => '3주 2일',
-                      DaylyCountdownMode.mornings => '42번의 아침',
-                      DaylyCountdownMode.nights => '42번의 밤',
-                      DaylyCountdownMode.hidden => '숫자 숨김',
-                    };
                     return ChoiceChip(
-                      label: Text(label),
+                      label: Text(_countdownModeLabel(mode)),
                       selected: _model.style.countdownMode == mode,
                       onSelected: (_) => Navigator.of(context).pop(mode),
                     );
@@ -240,17 +236,30 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
   }
 
   void _togglePremium() {
+    HapticFeedback.selectionClick();
     final nextPremium = !_model.style.isPremium;
     setState(() => _model = _model.copyWith(style: _model.style.copyWith(isPremium: nextPremium)));
   }
 
   void _toggleDivider() {
+    HapticFeedback.selectionClick();
     setState(() => _model = _model.copyWith(style: _model.style.copyWith(showDivider: !_model.style.showDivider)));
   }
 
+  String _formatDate(DateTime date) =>
+      '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+
+  String _countdownModeLabel(DaylyCountdownMode mode) => switch (mode) {
+        DaylyCountdownMode.days => '23일',
+        DaylyCountdownMode.dMinus => 'D-23',
+        DaylyCountdownMode.weeksDays => '3주 2일',
+        DaylyCountdownMode.mornings => '42번의 아침',
+        DaylyCountdownMode.nights => '42번의 밤',
+        DaylyCountdownMode.hidden => '숫자 숨김',
+      };
+
   @override
   Widget build(BuildContext context) {
-    final canShare = !_isSharing;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -258,93 +267,407 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
         Navigator.of(context).pop(_model);
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Share Preview'),
-          leading: IconButton(
-            tooltip: '뒤로',
-            onPressed: () => Navigator.of(context).pop(_model),
-            icon: const Icon(Icons.arrow_back),
-          ),
-          actions: <Widget>[
-            IconButton(
-              tooltip: '공유',
-              onPressed: canShare ? _shareCurrentPreview : null,
-              icon: _isSharing
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.ios_share),
+        backgroundColor: const Color(0xFF0A0E1A),
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: <Widget>[
+            // 배경 그라데이션
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[Color(0xFF0D1F3C), Color(0xFF0A0E1A)],
+                ),
+              ),
             ),
-          ],
-        ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Center(
-                    child: RepaintBoundary(
-                      key: _captureKey,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 420),
-                        child: DaylyWidgetCard(
-                          model: _model,
-                          size: DaylyWidgetSize.large,
+            // 장식 빛 — 우상단
+            Positioned(
+              top: -80.h,
+              right: -60.w,
+              child: Container(
+                width: 220.w,
+                height: 220.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: <Color>[
+                      const Color(0xFF6C63FF).withValues(alpha: 0.08),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  // 커스텀 상단 바
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(8.w, 8.h, 16.w, 0),
+                    child: Row(
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(_model),
+                          icon: Icon(Icons.close, color: Colors.white54, size: 22.sp),
+                        ),
+                        SizedBox(width: 4.w),
+                        Expanded(
+                          child: Text(
+                            'EDIT MOMENT',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ),
+                        if (_isSharing)
+                          SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white54,
+                            ),
+                          )
+                        else
+                          IconButton(
+                            onPressed: _shareCurrentPreview,
+                            tooltip: '공유',
+                            icon: Icon(Icons.ios_share, color: Colors.white54, size: 22.sp),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // 스크롤 컨텐츠
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          // 미리보기 레이블
+                          Text(
+                            'Preview',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white38,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          // 미리보기 글래스 카드
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20.r),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(20.r),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.10),
+                                  ),
+                                ),
+                                padding: EdgeInsets.all(16.w),
+                                child: Center(
+                                  child: RepaintBoundary(
+                                    key: _captureKey,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(maxWidth: 300.w),
+                                      child: DaylyWidgetCard(
+                                        model: _model,
+                                        size: DaylyWidgetSize.large,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 24.h),
+                          // 편집 옵션 레이블
+                          Text(
+                            'Edit Options',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white38,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          _GlassEditTile(
+                            icon: Icons.auto_awesome,
+                            label: '문장 템플릿',
+                            value: '관계 × 톤 × 이벤트로 자동 생성',
+                            onTap: _openTemplateGenerator,
+                          ),
+                          SizedBox(height: 8.h),
+                          _GlassEditTile(
+                            icon: Icons.edit_note,
+                            label: '문장 수정',
+                            value: _model.primarySentence,
+                            onTap: _editSentence,
+                          ),
+                          SizedBox(height: 8.h),
+                          _GlassEditTile(
+                            icon: Icons.event,
+                            label: '날짜',
+                            value: _formatDate(_model.targetDate),
+                            onTap: _editTargetDate,
+                          ),
+                          SizedBox(height: 8.h),
+                          _GlassEditTile(
+                            icon: Icons.palette_outlined,
+                            label: '테마',
+                            value: daylyThemeLabel(_model.style.themePreset),
+                            onTap: _pickThemePreset,
+                          ),
+                          SizedBox(height: 8.h),
+                          _GlassEditTile(
+                            icon: Icons.numbers,
+                            label: '표현 방식',
+                            value: _countdownModeLabel(_model.style.countdownMode),
+                            onTap: _pickCountdownMode,
+                          ),
+                          SizedBox(height: 8.h),
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: _GlassToggleTile(
+                                  icon: Icons.more_horiz,
+                                  label: '디바이더',
+                                  isOn: _model.style.showDivider,
+                                  onTap: _toggleDivider,
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: _GlassToggleTile(
+                                  icon: Icons.workspace_premium,
+                                  label: 'Premium',
+                                  isOn: _model.style.isPremium,
+                                  onTap: _togglePremium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 32.h),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 하단 공유 버튼
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      24.w,
+                      8.h,
+                      24.w,
+                      MediaQuery.of(context).padding.bottom + 16.h,
+                    ),
+                    child: GestureDetector(
+                      onTap: _isSharing
+                          ? null
+                          : () {
+                              HapticFeedback.mediumImpact();
+                              _shareCurrentPreview();
+                            },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16.r),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            height: 56.h,
+                            decoration: BoxDecoration(
+                              color: !_isSharing
+                                  ? Colors.white.withValues(alpha: 0.18)
+                                  : Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(16.r),
+                              border: Border.all(
+                                color: !_isSharing
+                                    ? Colors.white.withValues(alpha: 0.30)
+                                    : Colors.white.withValues(alpha: 0.08),
+                              ),
+                            ),
+                            child: Center(
+                              child: _isSharing
+                                  ? SizedBox(
+                                      width: 20.w,
+                                      height: 20.w,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white54,
+                                      ),
+                                    )
+                                  : Text(
+                                      'SHARE MOMENT',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: 2.5,
+                                      ),
+                                    ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// 글래스 편집 타일
+// ──────────────────────────────────────────────────────────────
+
+class _GlassEditTile extends StatelessWidget {
+  const _GlassEditTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+            child: Row(
+              children: <Widget>[
+                Icon(icon, color: Colors.white60, size: 20.sp),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        label,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white38,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        value,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: <Widget>[
-                    OutlinedButton.icon(
-                      onPressed: _openTemplateGenerator,
-                      icon: const Icon(Icons.auto_awesome),
-                      label: const Text('템플릿'),
+                Icon(Icons.chevron_right, color: Colors.white24, size: 18.sp),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// 글래스 토글 타일
+// ──────────────────────────────────────────────────────────────
+
+class _GlassToggleTile extends StatelessWidget {
+  const _GlassToggleTile({
+    required this.icon,
+    required this.label,
+    required this.isOn,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isOn;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: isOn
+                  ? Colors.white.withValues(alpha: 0.14)
+                  : Colors.white.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: isOn
+                    ? Colors.white.withValues(alpha: 0.25)
+                    : Colors.white.withValues(alpha: 0.10),
+              ),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  icon,
+                  color: isOn ? Colors.white : Colors.white38,
+                  size: 18.sp,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isOn ? Colors.white : Colors.white38,
+                      letterSpacing: 0.5,
                     ),
-                    OutlinedButton.icon(
-                      onPressed: _pickThemePreset,
-                      icon: const Icon(Icons.palette_outlined),
-                      label: const Text('테마'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _editSentence,
-                      icon: const Icon(Icons.edit_note),
-                      label: const Text('문장'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _editTargetDate,
-                      icon: const Icon(Icons.event),
-                      label: const Text('날짜'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _pickCountdownMode,
-                      icon: const Icon(Icons.numbers),
-                      label: const Text('표현'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _toggleDivider,
-                      icon: const Icon(Icons.more_horiz),
-                      label: Text(_model.style.showDivider ? '디바이더 On' : '디바이더 Off'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _togglePremium,
-                      icon: const Icon(Icons.workspace_premium),
-                      label: Text(_model.style.isPremium ? 'Premium' : 'Free'),
-                    ),
-                    FilledButton.icon(
-                      onPressed: canShare ? _shareCurrentPreview : null,
-                      icon: const Icon(Icons.ios_share),
-                      label: const Text('공유하기'),
-                    ),
-                  ],
+                  ),
+                ),
+                Text(
+                  isOn ? 'ON' : 'OFF',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isOn ? Colors.white60 : Colors.white24,
+                  ),
                 ),
               ],
             ),
@@ -354,6 +677,10 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
     );
   }
 }
+
+// ──────────────────────────────────────────────────────────────
+// 템플릿 시트
+// ──────────────────────────────────────────────────────────────
 
 class _TemplateSheet extends StatefulWidget {
   const _TemplateSheet({
@@ -414,7 +741,7 @@ class _TemplateSheetState extends State<_TemplateSheet> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
-            const Text('숫자 대신 “문장”을 고르는 경험을 만들어요.'),
+            const Text('숫자 대신 "문장"을 고르는 경험을 만들어요.'),
             const SizedBox(height: 14),
             const _SectionLabel(text: '관계'),
             const SizedBox(height: 8),
@@ -523,4 +850,3 @@ class _ChipSpec<T> {
   final T value;
   final String label;
 }
-
