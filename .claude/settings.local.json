@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter:*)",
+      "Bash(dart run:*)",
+      "Bash(where flutter:*)",
+      "Bash(adb logcat:*)",
+      "Bash(export:*)",
+      "Bash(\"$HOME/AppData/Local/Android/sdk/platform-tools/adb.exe\" logcat:*)",
+      "Bash(\"$HOME/AppData/Local/Android/sdk/platform-tools/adb.exe\" devices:*)",
+      "Bash(\"C:/Users/junyoung/AppData/Local/Android/sdk/platform-tools/adb.exe\" logcat:*)"
+    ]
+  }
+}

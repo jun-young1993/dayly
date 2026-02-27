@@ -3,6 +3,51 @@ import 'package:flutter/material.dart';
 import 'package:dayly/theme/dayly_palette.dart';
 import 'package:dayly/theme/dayly_theme_presets.dart';
 
+// ──────────────────────────────────────────────────────────────
+// 마일스톤 (체크리스트 항목)
+// ──────────────────────────────────────────────────────────────
+
+@immutable
+class DaylyMilestone {
+  const DaylyMilestone({
+    required this.title,
+    this.isDone = false,
+    this.dueDate,
+  });
+
+  final String title;
+  final bool isDone;
+  final DateTime? dueDate;
+
+  DaylyMilestone copyWith({
+    String? title,
+    bool? isDone,
+    DateTime? dueDate,
+  }) {
+    return DaylyMilestone(
+      title: title ?? this.title,
+      isDone: isDone ?? this.isDone,
+      dueDate: dueDate ?? this.dueDate,
+    );
+  }
+
+  Map<String, Object?> toJson() => <String, Object?>{
+        'title': title,
+        'isDone': isDone,
+        'dueDate': dueDate?.toIso8601String(),
+      };
+
+  static DaylyMilestone fromJson(Map<String, Object?> json) {
+    return DaylyMilestone(
+      title: (json['title'] as String?) ?? '',
+      isDone: (json['isDone'] as bool?) ?? false,
+      dueDate: json['dueDate'] != null
+          ? DateTime.tryParse(json['dueDate'] as String)
+          : null,
+    );
+  }
+}
+
 /// Display format for the D-Day number.
 ///
 /// Rule: only "23일" or "D-23" are allowed.
@@ -195,6 +240,8 @@ class DaylyWidgetModel {
     required this.primarySentence,
     required this.targetDate,
     required this.style,
+    this.note = '',
+    this.milestones = const <DaylyMilestone>[],
   });
 
   /// Rule-aligned starter content.
@@ -217,16 +264,25 @@ class DaylyWidgetModel {
   final DateTime targetDate;
   final DaylyWidgetStyle style;
 
+  /// 메모 (자유 텍스트)
+  final String note;
+
+  /// 마일스톤 체크리스트
+  final List<DaylyMilestone> milestones;
+
   Map<String, Object?> toJson() {
     return <String, Object?>{
       'primarySentence': primarySentence,
       'targetDate': targetDate.toIso8601String(),
       'style': style.toJson(),
+      'note': note,
+      'milestones': milestones.map((m) => m.toJson()).toList(),
     };
   }
 
   static DaylyWidgetModel fromJson(Map<String, Object?> json) {
     final styleJson = (json['style'] as Map?)?.cast<String, Object?>();
+    final milestonesRaw = (json['milestones'] as List?) ?? <dynamic>[];
     return DaylyWidgetModel(
       primarySentence: (json['primarySentence'] as String?) ?? '',
       targetDate: DateTime.tryParse((json['targetDate'] as String?) ?? '') ??
@@ -234,6 +290,11 @@ class DaylyWidgetModel {
       style: styleJson == null
           ? const DaylyWidgetStyle.defaults()
           : DaylyWidgetStyle.fromJson(styleJson),
+      note: (json['note'] as String?) ?? '',
+      milestones: milestonesRaw
+          .whereType<Map>()
+          .map((m) => DaylyMilestone.fromJson(m.cast<String, Object?>()))
+          .toList(),
     );
   }
 
@@ -241,11 +302,15 @@ class DaylyWidgetModel {
     String? primarySentence,
     DateTime? targetDate,
     DaylyWidgetStyle? style,
+    String? note,
+    List<DaylyMilestone>? milestones,
   }) {
     return DaylyWidgetModel(
       primarySentence: primarySentence ?? this.primarySentence,
       targetDate: targetDate ?? this.targetDate,
       style: style ?? this.style,
+      note: note ?? this.note,
+      milestones: milestones ?? this.milestones,
     );
   }
 }

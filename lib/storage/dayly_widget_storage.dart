@@ -22,7 +22,7 @@ Future<List<DaylyWidgetModel>> loadDaylyWidgets() async {
         .whereType<Map>()
         .map((m) => m.cast<String, Object?>())
         .map(DaylyWidgetModel.fromJson)
-        .toList(growable: false);
+        .toList();
   } catch (e, st) {
     debugPrint('loadDaylyWidgets failed: $e\n$st');
     return <DaylyWidgetModel>[];

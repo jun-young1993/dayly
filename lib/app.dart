@@ -1,23 +1,32 @@
-import 'package:dayly/auth_gate.dart';
-import 'package:flutter/material.dart';
 import 'package:dayly/screens/widget_grid_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// App root for Dayly.
 ///
-/// Core rule: widget-first. The primary entry is the Share Preview screen,
-/// which mirrors the widget and is the first thing users see.
+/// ScreenUtilInit 기준: 390×844 (iPhone 14 Pro 논리 해상도)
+/// 태블릿(splitScreenMode: true)에서도 비율 유지.
 Widget buildDaylyApp() {
-  return MaterialApp(
-    title: 'dayly',
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF111827),
+  return ScreenUtilInit(
+    designSize: const Size(390, 844),
+    minTextAdapt: true,
+    splitScreenMode: true,
+    builder: (_, child) => MaterialApp(
+      title: 'dayly',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
         brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF0A0E1A),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6C63FF),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF0D1F3C),
+          onSurface: Colors.white,
+        ),
       ),
+      home: child,
     ),
-    home: AuthGate(child: WidgetGridScreen()),
+    child: const WidgetGridScreen(),
   );
 }
