@@ -129,12 +129,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Future<void> _editNote() async {
     HapticFeedback.mediumImpact();
-    final controller = TextEditingController(text: _model.note);
     final result = await showDialog<String>(
       context: context,
-      builder: (ctx) => _NoteEditDialog(controller: controller),
+      builder: (ctx) => _NoteEditDialog(initialText: _model.note),
     );
-    controller.dispose();
     if (result == null) return;
     setState(() => _model = _model.copyWith(note: result));
   }
@@ -780,9 +778,28 @@ class _EditEventButton extends StatelessWidget {
 // 노트 편집 다이얼로그
 // ──────────────────────────────────────────────────────────────
 
-class _NoteEditDialog extends StatelessWidget {
-  const _NoteEditDialog({required this.controller});
-  final TextEditingController controller;
+class _NoteEditDialog extends StatefulWidget {
+  const _NoteEditDialog({required this.initialText});
+  final String initialText;
+
+  @override
+  State<_NoteEditDialog> createState() => _NoteEditDialogState();
+}
+
+class _NoteEditDialogState extends State<_NoteEditDialog> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialText);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

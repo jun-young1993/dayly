@@ -11,7 +11,11 @@
       "Bash(export:*)",
       "Bash(\"$HOME/AppData/Local/Android/sdk/platform-tools/adb.exe\" logcat:*)",
       "Bash(\"$HOME/AppData/Local/Android/sdk/platform-tools/adb.exe\" devices:*)",
-      "Bash(\"C:/Users/junyoung/AppData/Local/Android/sdk/platform-tools/adb.exe\" logcat:*)"
+      "Bash(\"C:/Users/junyoung/AppData/Local/Android/sdk/platform-tools/adb.exe\" logcat:*)",
+      "Bash(tail:*)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(curl:*)"
     ]
   }
 }

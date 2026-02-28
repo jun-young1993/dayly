@@ -401,12 +401,12 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                             ),
                           ),
                           SizedBox(height: 12.h),
-                          _GlassEditTile(
-                            icon: Icons.auto_awesome,
-                            label: '문장 템플릿',
-                            value: '관계 × 톤 × 이벤트로 자동 생성',
-                            onTap: _openTemplateGenerator,
-                          ),
+                          // _GlassEditTile(
+                          //   icon: Icons.auto_awesome,
+                          //   label: '문장 템플릿',
+                          //   value: '관계 × 톤 × 이벤트로 자동 생성',
+                          //   onTap: _openTemplateGenerator,
+                          // ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.edit_note,

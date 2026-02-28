@@ -228,7 +228,7 @@ class DaylyWidgetCard extends StatelessWidget {
           ),
         );
 
-        return ClipRRect(
+        Widget card = ClipRRect(
           borderRadius: BorderRadius.circular(isLarge ? 22 : 18),
           child: Stack(
             fit: StackFit.expand,
@@ -249,6 +249,14 @@ class DaylyWidgetCard extends StatelessWidget {
             ],
           ),
         );
+
+        // Stack(fit: StackFit.expand)는 bounded 제약이 필요하므로,
+        // unbounded 환경(예: ScrollView 내부)에서는 명시적 크기를 부여한다.
+        if (!constraints.hasBoundedHeight) {
+          card = SizedBox(height: maxH, child: card);
+        }
+
+        return card;
       },
     );
   }
