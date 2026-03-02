@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:227758929265:android:26eaac5618f2e13c1772d0",
         "android_client_info": {
-          "package_name": "com.example.dayly"
+          "package_name": "juny.dayly"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "227758929265-oo7hlst0h99koeji90jgfotfdfktun7k.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.dayly",
+            "package_name": "juny.dayly",
             "certificate_hash": "6784bd09c124e84a402452ecf8cbf3067b5769e0"
           }
         },
@@ -25,7 +25,7 @@
           "client_id": "227758929265-ugfkrfnnpj83j02e0mmrcrvga3mv198m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.dayly",
+            "package_name": "juny.dayly",
             "certificate_hash": "1b607ba49e3cc36193a57c93e7013058b9d44ff0"
           }
         },
@@ -50,7 +50,7 @@
               "client_id": "227758929265-agtf7em291p7nuldf1u6basvl17q694n.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.dayly"
+                "bundle_id": "juny.dayly"
               }
             }
           ]

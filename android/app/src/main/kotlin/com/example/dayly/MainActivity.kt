@@ -1,4 +1,4 @@
-package com.example.dayly
+package juny.dayly
 
 import io.flutter.embedding.android.FlutterActivity
 

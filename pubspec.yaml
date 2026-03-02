@@ -43,6 +43,11 @@ dependencies:
   firebase_core: ^4.3.0
   firebase_ui_oauth_google: ^2.0.1
   flutter_screenutil: ^5.9.3
+  flutter_ui_kit_google_mobile_ads:
+    git:
+      url: https://github.com/jun-young1993/flutter_ui_kit.git
+      path: packages/flutter_ui_kit_google_mobile_ads
+#  google_mobile_ads: ^7.0.0
 
 dev_dependencies:
   flutter_test:

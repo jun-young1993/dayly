@@ -15,7 +15,7 @@ String buildCountdownPhrase({
   final days = dayDiff.abs();
   switch (mode) {
     case DaylyCountdownMode.days:
-      return '$days일';
+      return dayDiff >= 0 ? '$days days left' : '$days days ago';
     case DaylyCountdownMode.dMinus:
       // Rule-friendly: keep "D-23" (no D+).
       // Request: future/upcoming => D- , past/after => D+
@@ -26,13 +26,13 @@ String buildCountdownPhrase({
     case DaylyCountdownMode.weeksDays:
       final weeks = days ~/ 7;
       final remainderDays = days % 7;
-      if (weeks <= 0) return '$days일';
-      if (remainderDays == 0) return '$weeks주';
-      return '$weeks주 $remainderDays일';
+      if (weeks <= 0) return '$days days';
+      if (remainderDays == 0) return '$weeks weeks';
+      return '$weeks weeks $remainderDays days';
     case DaylyCountdownMode.mornings:
-      return '$days번의 아침';
+      return '$days mornings';
     case DaylyCountdownMode.nights:
-      return '$days번의 밤';
+      return '$days nights';
     case DaylyCountdownMode.hidden:
       return '';
   }

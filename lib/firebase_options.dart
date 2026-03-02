@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '227758929265',
     projectId: 'dayly-6329b',
     storageBucket: 'dayly-6329b.firebasestorage.app',
-    iosBundleId: 'com.example.dayly',
+    iosBundleId: 'juny.dayly',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '227758929265',
     projectId: 'dayly-6329b',
     storageBucket: 'dayly-6329b.firebasestorage.app',
-    iosBundleId: 'com.example.dayly',
+    iosBundleId: 'juny.dayly',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

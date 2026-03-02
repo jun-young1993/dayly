@@ -159,7 +159,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const Text(
-                  '표현 방식',
+                  'Expression Style',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
@@ -198,7 +198,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const Text(
-                  '테마',
+                  'Theme',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
@@ -250,12 +250,12 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
       '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
 
   String _countdownModeLabel(DaylyCountdownMode mode) => switch (mode) {
-        DaylyCountdownMode.days => '23일',
+        DaylyCountdownMode.days => '23 days left', //23일
         DaylyCountdownMode.dMinus => 'D-23',
-        DaylyCountdownMode.weeksDays => '3주 2일',
-        DaylyCountdownMode.mornings => '42번의 아침',
-        DaylyCountdownMode.nights => '42번의 밤',
-        DaylyCountdownMode.hidden => '숫자 숨김',
+        DaylyCountdownMode.weeksDays => '3 weeks 23 days',
+        DaylyCountdownMode.mornings => '42 mornings',
+        DaylyCountdownMode.nights => '42 nights',
+        DaylyCountdownMode.hidden => 'hide numbers',
       };
 
   @override
@@ -336,7 +336,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                         else
                           IconButton(
                             onPressed: _shareCurrentPreview,
-                            tooltip: '공유',
+                            tooltip: 'Share',
                             icon: Icon(Icons.ios_share, color: Colors.white54, size: 22.sp),
                           ),
                       ],
@@ -410,28 +410,28 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.edit_note,
-                            label: '문장 수정',
+                            label: 'Sentence Editing',
                             value: _model.primarySentence,
                             onTap: _editSentence,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.event,
-                            label: '날짜',
+                            label: 'Date',
                             value: _formatDate(_model.targetDate),
                             onTap: _editTargetDate,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.palette_outlined,
-                            label: '테마',
+                            label: 'Theme',
                             value: daylyThemeLabel(_model.style.themePreset),
                             onTap: _pickThemePreset,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.numbers,
-                            label: '표현 방식',
+                            label: 'Expression Style',
                             value: _countdownModeLabel(_model.style.countdownMode),
                             onTap: _pickCountdownMode,
                           ),
@@ -441,7 +441,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                               Expanded(
                                 child: _GlassToggleTile(
                                   icon: Icons.more_horiz,
-                                  label: '디바이더',
+                                  label: 'Divider',
                                   isOn: _model.style.showDivider,
                                   onTap: _toggleDivider,
                                 ),
@@ -793,7 +793,7 @@ class _TemplateSheetState extends State<_TemplateSheet> {
                   DaylyCountdownMode.weeksDays => '3주 2일',
                   DaylyCountdownMode.mornings => '42번의 아침',
                   DaylyCountdownMode.nights => '42번의 밤',
-                  DaylyCountdownMode.hidden => '숨김',
+                  DaylyCountdownMode.hidden => 'hide numbers',
                 };
                 return ChoiceChip(
                   label: Text(label),
@@ -803,17 +803,17 @@ class _TemplateSheetState extends State<_TemplateSheet> {
               }).toList(),
             ),
             const SizedBox(height: 14),
-            const _SectionLabel(text: '이벤트(선택)'),
+            const _SectionLabel(text: 'Event(Optional)'),
             const SizedBox(height: 8),
             TextField(
               controller: _eventController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: '예) 결혼식 / 전역 / 시험 / 여행',
+                hintText: 'e.g. Wedding / Discharge / Exam / Trip',
               ),
             ),
             const SizedBox(height: 14),
-            const _SectionLabel(text: '미리보기'),
+            const _SectionLabel(text: 'Preview'),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
@@ -826,7 +826,7 @@ class _TemplateSheetState extends State<_TemplateSheet> {
             const SizedBox(height: 14),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(request),
-              child: const Text('이 문장 적용'),
+              child: const Text('Apply this sentence'),
             ),
           ],
         ),

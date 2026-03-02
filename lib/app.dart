@@ -1,6 +1,7 @@
 import 'package:dayly/screens/widget_grid_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_ui_kit_google_mobile_ads/flutter_ui_kit_google_mobile_ads.dart';
 
 /// App root for Dayly.
 ///
@@ -27,6 +28,11 @@ Widget buildDaylyApp() {
       ),
       home: child,
     ),
-    child: const WidgetGridScreen(),
+    child: Column(
+      children: [
+        Expanded(child: WidgetGridScreen()),
+        BannerAdWidget(androidId: 'ca-app-pub-4656262305566191/8847465750', iosId: 'ca-app-pub-4656262305566191/5810238878'),
+      ],
+    ),
   );
 }
