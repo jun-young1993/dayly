@@ -14,8 +14,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  // await MobileAds.instance.initialize();
-  GlobalAdConfig().initialize();
+  await GlobalAdConfig().initialize();
+  GlobalAdConfig().setAdVisibility(false);
   AppOpenAdManager.instance.configure(
     androidId: 'ca-app-pub-4656262305566191/4017810905',
     iosId: 'ca-app-pub-4656262305566191/9437357221'
