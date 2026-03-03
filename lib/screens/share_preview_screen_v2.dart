@@ -51,7 +51,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
       print('share failed: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('공유에 실패했어요. 다시 시도해 주세요.')),
+          const SnackBar(content: Text('Sharing failed. Please try again.')),
         );
       }
     } finally {
@@ -78,11 +78,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               const Text(
-                '문장 수정',
+                'Sentence Editing',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              const Text('날짜가 아니라, "왜 중요한지"를 말해 주세요. (최대 2줄)'),
+              const Text('Tell us why it matters, not just the date. (Max 2 lines)'),
               const SizedBox(height: 12),
               TextField(
                 controller: controller,
@@ -90,7 +90,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: '예) 우리는 다시 만날 때까지 23일',
+                  hintText: 'e.g. 23 days until we meet again',
                 ),
               ),
               const SizedBox(height: 12),
@@ -271,7 +271,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: <Widget>[
-            // 배경 그라데이션
+            // Background gradient
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -281,7 +281,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                 ),
               ),
             ),
-            // 장식 빛 — 우상단
+            // Decorative light — top right
             Positioned(
               top: -80.h,
               right: -60.w,
@@ -303,7 +303,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  // 커스텀 상단 바
+                  // Custom top bar
                   Padding(
                     padding: EdgeInsets.fromLTRB(8.w, 8.h, 16.w, 0),
                     child: Row(
@@ -342,14 +342,14 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                       ],
                     ),
                   ),
-                  // 스크롤 컨텐츠
+                  // Scroll content
                   Expanded(
                     child: SingleChildScrollView(
                       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
-                          // 미리보기 레이블
+                          // Preview label
                           Text(
                             'Preview',
                             style: GoogleFonts.montserrat(
@@ -360,7 +360,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                             ),
                           ),
                           SizedBox(height: 8.h),
-                          // 미리보기 글래스 카드
+                          // Preview glass card
                           ClipRRect(
                             borderRadius: BorderRadius.circular(20.r),
                             child: BackdropFilter(
@@ -390,7 +390,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                             ),
                           ),
                           SizedBox(height: 24.h),
-                          // 편집 옵션 레이블
+                          // Edit options label
                           Text(
                             'Edit Options',
                             style: GoogleFonts.montserrat(
@@ -462,7 +462,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                       ),
                     ),
                   ),
-                  // 하단 공유 버튼
+                  // Bottom share button
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       24.w,
@@ -531,7 +531,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
 }
 
 // ──────────────────────────────────────────────────────────────
-// 글래스 편집 타일
+// Glass edit tile
 // ──────────────────────────────────────────────────────────────
 
 class _GlassEditTile extends StatelessWidget {
@@ -604,7 +604,7 @@ class _GlassEditTile extends StatelessWidget {
 }
 
 // ──────────────────────────────────────────────────────────────
-// 글래스 토글 타일
+// Glass toggle tile
 // ──────────────────────────────────────────────────────────────
 
 class _GlassToggleTile extends StatelessWidget {
@@ -679,7 +679,7 @@ class _GlassToggleTile extends StatelessWidget {
 }
 
 // ──────────────────────────────────────────────────────────────
-// 템플릿 시트
+// Template sheet
 // ──────────────────────────────────────────────────────────────
 
 class _TemplateSheet extends StatefulWidget {
@@ -699,7 +699,7 @@ class _TemplateSheetState extends State<_TemplateSheet> {
   var _relationship = DaylyRelationshipType.couple;
   var _tone = DaylyTone.calm;
   late DaylyCountdownMode _mode;
-  final _eventController = TextEditingController(text: '결혼식');
+  final _eventController = TextEditingController(text: 'Wedding');
 
   @override
   void initState() {
@@ -737,22 +737,22 @@ class _TemplateSheetState extends State<_TemplateSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const Text(
-              '문장 템플릿',
+              'Sentence Template',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
-            const Text('숫자 대신 "문장"을 고르는 경험을 만들어요.'),
+            const Text('Choose a sentence instead of just numbers.'),
             const SizedBox(height: 14),
-            const _SectionLabel(text: '관계'),
+            const _SectionLabel(text: 'Relationship'),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: <_ChipSpec<DaylyRelationshipType>>[
-                _ChipSpec(DaylyRelationshipType.couple, '커플'),
-                _ChipSpec(DaylyRelationshipType.family, '가족'),
-                _ChipSpec(DaylyRelationshipType.solo, '혼자'),
-                _ChipSpec(DaylyRelationshipType.goal, '목표'),
+                _ChipSpec(DaylyRelationshipType.couple, 'Couple'),
+                _ChipSpec(DaylyRelationshipType.family, 'Family'),
+                _ChipSpec(DaylyRelationshipType.solo, 'Solo'),
+                _ChipSpec(DaylyRelationshipType.goal, 'Goal'),
               ].map((spec) {
                 return ChoiceChip(
                   label: Text(spec.label),
@@ -762,16 +762,16 @@ class _TemplateSheetState extends State<_TemplateSheet> {
               }).toList(),
             ),
             const SizedBox(height: 14),
-            const _SectionLabel(text: '톤'),
+            const _SectionLabel(text: 'Tone'),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: <_ChipSpec<DaylyTone>>[
-                _ChipSpec(DaylyTone.calm, '담백'),
-                _ChipSpec(DaylyTone.flutter, '설렘'),
-                _ChipSpec(DaylyTone.longing, '애틋'),
-                _ChipSpec(DaylyTone.playful, '장난'),
+                _ChipSpec(DaylyTone.calm, 'Calm'),
+                _ChipSpec(DaylyTone.flutter, 'Excited'),
+                _ChipSpec(DaylyTone.longing, 'Longing'),
+                _ChipSpec(DaylyTone.playful, 'Playful'),
               ].map((spec) {
                 return ChoiceChip(
                   label: Text(spec.label),
@@ -781,18 +781,18 @@ class _TemplateSheetState extends State<_TemplateSheet> {
               }).toList(),
             ),
             const SizedBox(height: 14),
-            const _SectionLabel(text: '표현 방식'),
+            const _SectionLabel(text: 'Expression Style'),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: DaylyCountdownMode.values.map((mode) {
                 final label = switch (mode) {
-                  DaylyCountdownMode.days => '23일',
+                  DaylyCountdownMode.days => '23 days',
                   DaylyCountdownMode.dMinus => 'D-23',
-                  DaylyCountdownMode.weeksDays => '3주 2일',
-                  DaylyCountdownMode.mornings => '42번의 아침',
-                  DaylyCountdownMode.nights => '42번의 밤',
+                  DaylyCountdownMode.weeksDays => '3 weeks 2 days',
+                  DaylyCountdownMode.mornings => '42 mornings',
+                  DaylyCountdownMode.nights => '42 nights',
                   DaylyCountdownMode.hidden => 'hide numbers',
                 };
                 return ChoiceChip(
