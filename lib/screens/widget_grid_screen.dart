@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:dayly/models/dayly_widget_model.dart';
+import 'package:dayly/repositories/notification_repository.dart';
 import 'package:dayly/screens/add_widget_bottom_sheet.dart';
 import 'package:dayly/screens/event_detail_screen.dart';
+import 'package:dayly/services/notification_permission_service.dart';
 import 'package:dayly/storage/dayly_widget_storage.dart';
 import 'package:dayly/utils/dayly_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,6 +44,9 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   var _isLoading = true;
   List<DaylyWidgetModel> _widgets = const <DaylyWidgetModel>[];
 
+  final _notifRepo = NotificationRepository.instance;
+  late final NotificationPermissionService _permissionService;
+
   static const _iconData = <IconData>[
     Icons.cake_outlined,
     Icons.flight_outlined,
@@ -66,6 +72,9 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   @override
   void initState() {
     super.initState();
+    _permissionService = NotificationPermissionService(
+      FlutterLocalNotificationsPlugin(),
+    );
     unawaited(_load());
   }
 
@@ -73,13 +82,32 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     debugPrint('[dayly] _load() start');
     final loaded = await loadDaylyWidgets();
     debugPrint('[dayly] _load() loaded ${loaded.length} widgets');
+
+    // 구버전 데이터(id 없음) 마이그레이션: id가 새로 생성된 경우 즉시 저장.
+    // fromJson()에서 id가 없으면 generateWidgetId()로 생성하므로
+    // 로드 후 다시 저장하면 id가 영속된다.
+    bool hasMigration = loaded.any((w) {
+      final json = w.toJson();
+      return (json['id'] as String?)?.isEmpty ?? true;
+    });
+    if (hasMigration) {
+      unawaited(saveDaylyWidgets(loaded));
+    }
+
+    final widgets = loaded.isEmpty
+        ? <DaylyWidgetModel>[DaylyWidgetModel.defaults()]
+        : List<DaylyWidgetModel>.of(loaded);
+
     if (!mounted) return;
     setState(() {
-      _widgets = loaded.isEmpty
-          ? <DaylyWidgetModel>[DaylyWidgetModel.defaults()]
-          : List<DaylyWidgetModel>.of(loaded);
+      _widgets = widgets;
       _isLoading = false;
     });
+
+    // 앱 시작 시 pending 알림과 Hive 상태 동기화.
+    // Android 재부팅 후 AlarmManager가 초기화되므로 반드시 복원 필요.
+    unawaited(_notifRepo.syncOnAppStart(widgets));
+
     debugPrint('[dayly] _load() done, _isLoading=$_isLoading');
   }
 
@@ -87,31 +115,52 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
 
   Future<void> _openDetail(int index) async {
     HapticFeedback.lightImpact();
+
+    // 삭제 케이스에서 widgetId가 필요하므로 미리 캡처.
+    final originalModel = _widgets[index];
+
     final result =
         await Navigator.of(context).push<({bool deleted, DaylyWidgetModel? model})>(
       MaterialPageRoute(
         builder: (_) => EventDetailScreen(
-          model: _widgets[index],
+          model: originalModel,
           gradient: _gradients[index % _gradients.length],
           iconData: _iconData[index % _iconData.length],
         ),
       ),
     );
     if (result == null) return;
+
     if (result.deleted) {
       setState(() => _widgets.removeAt(index));
+      // 기존 알림 전부 취소.
+      // cancel()은 Hive에서도 제거하므로 좀비 알림이 남지 않는다.
+      unawaited(_notifRepo.cancel(originalModel.id));
     } else if (result.model != null) {
       setState(() => _widgets[index] = result.model!);
+      // 수정된 모델로 알림 재예약.
+      // schedule() 내부에서 기존 알림 취소 후 재예약한다.
+      unawaited(_notifRepo.schedule(result.model!));
     }
     unawaited(_persist());
   }
 
   Future<void> _openAddWidgetSheet() async {
     HapticFeedback.mediumImpact();
+
+    // 첫 위젯 추가 시점에 권한 요청.
+    // context를 전달해 SCHEDULE_EXACT_ALARM 거부 시 안내 다이얼로그 표시.
+    if (_widgets.isEmpty) {
+      await _permissionService.request(context);
+      if (!mounted) return;
+    }
+
     final created = await showAddWidgetBottomSheet(context: context);
     if (created == null) return;
     setState(() => _widgets.add(created));
     unawaited(_persist());
+    // 새 위젯 알림 예약.
+    unawaited(_notifRepo.schedule(created));
   }
 
   bool get _isTablet => MediaQuery.of(context).size.width >= 600;

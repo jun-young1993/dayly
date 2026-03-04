@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:dayly/models/dayly_widget_model.dart';
+import 'package:dayly/models/dayly_widget_model.dart'; // generateWidgetId 포함
 import 'package:dayly/theme/dayly_theme_presets.dart';
 import 'package:dayly/utils/dayly_time.dart';
 import 'package:flutter/material.dart';
@@ -165,6 +165,7 @@ class _AddMomentScreenState extends State<_AddMomentScreen> {
 
     Navigator.of(context).pop(
       DaylyWidgetModel(
+        id: generateWidgetId(),
         primarySentence: _nameController.text.trim(),
         targetDate: _targetDate,
         style: style,

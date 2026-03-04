@@ -1,6 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- 알림 표시 권한 (Android 13 / API 33+에서 런타임 요청 필요) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- 정확한 알람 권한 (Android 12 / API 31+).
+         이 권한이 없으면 zonedSchedule이 silently fail → 알림 미수신의 주원인. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+
+    <!-- 재부팅 후 AlarmManager 복원 (flutter_local_notifications BootReceiver용) -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <application
         android:label="dayly"
         android:name="${applicationName}"

@@ -15,7 +15,8 @@
       "Bash(tail:*)",
       "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Read(//c/Users/junyoung/**)"
     ]
   }
 }

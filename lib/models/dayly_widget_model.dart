@@ -1,7 +1,18 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:dayly/theme/dayly_palette.dart';
 import 'package:dayly/theme/dayly_theme_presets.dart';
+
+/// widgetId 생성 — 타임스탬프 + 랜덤으로 충돌 가능성 최소화.
+/// 재설치 후에도 SharedPreferences에 저장된 id가 복원되므로
+/// 알림 ID 매핑이 유지된다.
+String generateWidgetId() {
+  final ts = DateTime.now().millisecondsSinceEpoch;
+  final rand = Random.secure().nextInt(0xFFFF);
+  return '${ts.toRadixString(16)}${rand.toRadixString(16).padLeft(4, '0')}';
+}
 
 // ──────────────────────────────────────────────────────────────
 // 마일스톤 (체크리스트 항목)
@@ -237,6 +248,7 @@ class DaylyWidgetStyle {
 @immutable
 class DaylyWidgetModel {
   const DaylyWidgetModel({
+    required this.id,
     required this.primarySentence,
     required this.targetDate,
     required this.style,
@@ -253,11 +265,16 @@ class DaylyWidgetModel {
       safeNow.day,
     ).add(const Duration(days: 23));
     return DaylyWidgetModel(
+      id: generateWidgetId(),
       primarySentence: '23 days',
       targetDate: defaultTarget,
       style: const DaylyWidgetStyle.defaults(),
     );
   }
+
+  /// 알림 시스템의 단일 진실 공급원.
+  /// SharedPreferences에 영속 저장되므로 재설치 후에도 동일 id 복원 가능.
+  final String id;
 
   /// Rule: max 2 lines in UI. Keep model as plain text, enforce in UI layer.
   final String primarySentence;
@@ -272,6 +289,7 @@ class DaylyWidgetModel {
 
   Map<String, Object?> toJson() {
     return <String, Object?>{
+      'id': id,
       'primarySentence': primarySentence,
       'targetDate': targetDate.toIso8601String(),
       'style': style.toJson(),
@@ -284,6 +302,10 @@ class DaylyWidgetModel {
     final styleJson = (json['style'] as Map?)?.cast<String, Object?>();
     final milestonesRaw = (json['milestones'] as List?) ?? <dynamic>[];
     return DaylyWidgetModel(
+      // 구버전 데이터(id 없음)는 새 id를 부여해 마이그레이션
+      id: (json['id'] as String?)?.isNotEmpty == true
+          ? json['id'] as String
+          : generateWidgetId(),
       primarySentence: (json['primarySentence'] as String?) ?? '',
       targetDate: DateTime.tryParse((json['targetDate'] as String?) ?? '') ??
           DateTime.now(),
@@ -299,6 +321,7 @@ class DaylyWidgetModel {
   }
 
   DaylyWidgetModel copyWith({
+    String? id,
     String? primarySentence,
     DateTime? targetDate,
     DaylyWidgetStyle? style,
@@ -306,6 +329,7 @@ class DaylyWidgetModel {
     List<DaylyMilestone>? milestones,
   }) {
     return DaylyWidgetModel(
+      id: id ?? this.id,
       primarySentence: primarySentence ?? this.primarySentence,
       targetDate: targetDate ?? this.targetDate,
       style: style ?? this.style,

@@ -51,7 +51,12 @@ dependencies:
     git:
       url: https://github.com/jun-young1993/flutter_ui_kit.git
       path: packages/flutter_ui_kit_google_mobile_ads
-#  google_mobile_ads: ^7.0.0
+
+  # 로컬 알림 시스템
+  flutter_local_notifications: ^18.0.1
+  hive_flutter: ^1.1.0
+  timezone: ^0.10.1
+  flutter_timezone: ^5.0.1
 
 dev_dependencies:
   flutter_test:
