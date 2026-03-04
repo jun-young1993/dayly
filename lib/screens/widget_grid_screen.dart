@@ -9,17 +9,29 @@ import 'package:dayly/utils/dayly_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// 글래스모피즘 다크 대시보드 — "YOUR MOMENTS" 리스트/그리드 뷰.
+/// 글래스모피즘 다크/라이트 대시보드 — "YOUR MOMENTS" 리스트/그리드 뷰.
 ///
 /// 특징:
-/// - 천천히 흐르는 애니메이션 배경 그라데이션
+/// - 천천히 흐르는 애니메이션 배경 그라데이션 (다크/라이트 모드 대응)
 /// - 모바일: 1열 리스트 / 태블릿(≥600dp): 2열 그리드 자동 전환
 /// - 카드 탭 시 HapticFeedback.lightImpact()
 /// - 모든 수치 flutter_screenutil (.sp / .w / .h / .r) 적용
 class WidgetGridScreen extends StatefulWidget {
-  const WidgetGridScreen({super.key});
+  const WidgetGridScreen({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+    required this.brand,
+    required this.onBrandToggled,
+  });
+
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  final DsBrand brand;
+  final ValueChanged<DsBrand> onBrandToggled;
 
   @override
   State<WidgetGridScreen> createState() => _WidgetGridScreenState();
@@ -106,8 +118,11 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
+      backgroundColor: cs.surface,
       body: _AnimatedGradientBackground(
         child: Stack(
           children: <Widget>[
@@ -117,8 +132,8 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               right: -80.w,
               child: _GlowCircle(
                 size: 280.w,
-                color: const Color(0xFF6C63FF),
-                opacity: 0.10,
+                color: cs.primary,
+                opacity: isDark ? 0.10 : 0.07,
               ),
             ),
             // 장식 빛 — 좌하단
@@ -128,24 +143,24 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               child: _GlowCircle(
                 size: 200.w,
                 color: const Color(0xFF4ECDC4),
-                opacity: 0.07,
+                opacity: isDark ? 0.07 : 0.05,
               ),
             ),
             SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildHeader(),
+                  _buildHeader(cs, isDark),
                   Expanded(
                     child: _isLoading
                         ? Center(
                             child: CircularProgressIndicator(
-                              color: Colors.white70,
+                              color: cs.primary,
                               strokeWidth: 2.0.w,
                             ),
                           )
                         : _widgets.isEmpty
-                            ? _buildEmptyState()
+                            ? _buildEmptyState(cs)
                             : _isTablet
                                 ? _buildTabletGrid()
                                 : _buildMobileList(),
@@ -165,31 +180,54 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme cs, bool isDark) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(24.w, 28.h, 24.w, 4.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: EdgeInsets.fromLTRB(24.w, 28.h, 16.w, 4.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
-            'YOUR MOMENTS',
-            style: GoogleFonts.montserrat(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 3.5,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'YOUR MOMENTS',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                    letterSpacing: 3.5,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  '${_widgets.length} event${_widgets.length == 1 ? '' : 's'}',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    color: cs.onSurface.withValues(alpha: 0.38),
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 6.h),
-          Text(
-            '${_widgets.length} event${_widgets.length == 1 ? '' : 's'}',
-            style: GoogleFonts.montserrat(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w400,
-              color: Colors.white38,
-              letterSpacing: 0.8,
-            ),
+          DsThemeToggle(
+            themeMode: widget.themeMode,
+            onChanged: widget.onThemeModeChanged,
+            sizedBoxDimension: 40,
+            iconSize: 18,
           ),
+          SizedBox(width: 8.w),
+          // DsBrandToggle(
+          //   brand: widget.brand,
+          //   onChanged: widget.onBrandToggled
+          // ),
+          // _BrandToggleButton(
+          //   label: widget.brandLabel,
+          //   onTap: widget.onBrandToggled,
+          // ),
+          SizedBox(width: 8.w),
         ],
       ),
     );
@@ -230,17 +268,18 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ColorScheme cs) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(Icons.add_circle_outline, color: Colors.white12, size: 48.sp),
+          Icon(Icons.add_circle_outline,
+              color: cs.onSurface.withValues(alpha: 0.12), size: 48.sp),
           SizedBox(height: 12.h),
           Text(
-            '+ 버튼으로 첫 D-Day를 추가하세요',
+            'Tap the + button to add your first D-Day.',
             style: GoogleFonts.montserrat(
-              color: Colors.white24,
+              color: cs.onSurface.withValues(alpha: 0.24),
               fontSize: 13.sp,
               letterSpacing: 0.5,
             ),
@@ -250,6 +289,12 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 }
+
+// ──────────────────────────────────────────────────────────────
+// 브랜드 토글 버튼 (A ↔ B)
+// ──────────────────────────────────────────────────────────────
+
+
 
 // ──────────────────────────────────────────────────────────────
 // 천천히 흐르는 애니메이션 배경 그라데이션 (8초 주기 왕복)
@@ -287,6 +332,9 @@ class _AnimatedGradientBackgroundState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, animChild) => Container(
@@ -294,18 +342,31 @@ class _AnimatedGradientBackgroundState
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: <Color>[
-              Color.lerp(
-                const Color(0xFF0D1F3C),
-                const Color(0xFF12103A),
-                _ctrl.value,
-              )!,
-              Color.lerp(
-                const Color(0xFF0A0E1A),
-                const Color(0xFF0A1422),
-                _ctrl.value,
-              )!,
-            ],
+            colors: isDark
+                ? <Color>[
+                    Color.lerp(
+                      const Color(0xFF0D1F3C),
+                      const Color(0xFF12103A),
+                      _ctrl.value,
+                    )!,
+                    Color.lerp(
+                      const Color(0xFF0A0E1A),
+                      const Color(0xFF0A1422),
+                      _ctrl.value,
+                    )!,
+                  ]
+                : <Color>[
+                    Color.lerp(
+                      cs.surfaceContainer,
+                      cs.surfaceContainerLow,
+                      _ctrl.value,
+                    )!,
+                    Color.lerp(
+                      cs.surfaceContainerLow,
+                      cs.surface,
+                      _ctrl.value,
+                    )!,
+                  ],
           ),
         ),
         child: animChild,
@@ -345,6 +406,9 @@ class _GlassmorphicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+
     final dayDiff = calculateDayDifference(
       now: DateTime.now(),
       target: model.targetDate,
@@ -356,16 +420,21 @@ class _GlassmorphicCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: isTablet ? EdgeInsets.zero : EdgeInsets.only(bottom: 12.h),
-        // Edge light: 그라데이션 테두리 (0.5px 초박형)
+        // Edge light: 그라데이션 테두리
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: <Color>[
-              Colors.white.withValues(alpha: 0.18),
-              Colors.white.withValues(alpha: 0.04),
-            ],
+            colors: isDark
+                ? <Color>[
+                    Colors.white.withValues(alpha: 0.18),
+                    Colors.white.withValues(alpha: 0.04),
+                  ]
+                : <Color>[
+                    Colors.white.withValues(alpha: 0.80),
+                    Colors.white.withValues(alpha: 0.20),
+                  ],
           ),
         ),
         child: Padding(
@@ -380,7 +449,9 @@ class _GlassmorphicCard extends StatelessWidget {
                   vertical: 14.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.07),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.07)
+                      : Colors.white.withValues(alpha: 0.60),
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
@@ -413,7 +484,7 @@ class _GlassmorphicCard extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white.withValues(alpha: 0.92),
+                              color: cs.onSurface.withValues(alpha: 0.92),
                             ),
                           ),
                           SizedBox(height: 4.h),
@@ -422,7 +493,7 @@ class _GlassmorphicCard extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w400,
-                              color: Colors.white38,
+                              color: cs.onSurface.withValues(alpha: 0.38),
                               letterSpacing: 0.3,
                             ),
                           ),
@@ -437,8 +508,8 @@ class _GlassmorphicCard extends StatelessWidget {
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: isPast
-                            ? Colors.white30
-                            : Colors.white.withValues(alpha: 0.75),
+                            ? cs.onSurface.withValues(alpha: 0.30)
+                            : cs.onSurface.withValues(alpha: 0.75),
                       ),
                     ),
                   ],
@@ -463,6 +534,8 @@ class _GlassFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
@@ -473,14 +546,18 @@ class _GlassFab extends StatelessWidget {
             width: 56.w,
             height: 56.w,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.70),
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.25),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.25)
+                    : Colors.black.withValues(alpha: 0.10),
                 width: 1.0,
               ),
             ),
-            child: Icon(Icons.add, color: Colors.white, size: 26.sp),
+            child: Icon(Icons.add, color: cs.onSurface, size: 26.sp),
           ),
         ),
       ),

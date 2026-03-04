@@ -174,18 +174,23 @@ class _AddMomentScreenState extends State<_AddMomentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
+      backgroundColor: cs.surface,
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: <Widget>[
           // 배경 그라데이션
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: <Color>[Color(0xFF0D1F3C), Color(0xFF0A0E1A)],
+                colors: isDark
+                    ? <Color>[const Color(0xFF0D1F3C), const Color(0xFF0A0E1A)]
+                    : <Color>[cs.surfaceContainerLow, cs.surface],
               ),
             ),
           ),
@@ -200,7 +205,7 @@ class _AddMomentScreenState extends State<_AddMomentScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: <Color>[
-                    const Color(0xFF6C63FF).withValues(alpha: 0.08),
+                    cs.primary.withValues(alpha: 0.08),
                     Colors.transparent,
                   ],
                 ),
@@ -261,13 +266,14 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.fromLTRB(8.w, 8.h, 16.w, 0),
       child: Row(
         children: <Widget>[
           IconButton(
             onPressed: onClose,
-            icon: Icon(Icons.close, color: Colors.white54, size: 22.sp),
+            icon: Icon(Icons.close, color: cs.onSurfaceVariant, size: 22.sp),
           ),
           SizedBox(width: 4.w),
           Text(
@@ -275,7 +281,7 @@ class _TopBar extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: cs.onSurface,
               letterSpacing: 2.0,
             ),
           ),
@@ -293,6 +299,8 @@ class _NameField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -301,7 +309,7 @@ class _NameField extends StatelessWidget {
           style: GoogleFonts.montserrat(
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
-            color: Colors.white38,
+            color: cs.onSurfaceVariant,
             letterSpacing: 0.8,
           ),
         ),
@@ -312,15 +320,21 @@ class _NameField extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.07),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.07)
+                    : Colors.white.withValues(alpha: 0.65),
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.10)
+                      : Colors.black.withValues(alpha: 0.06),
+                ),
               ),
               child: TextField(
                 controller: controller,
                 maxLines: 1,
                 style: GoogleFonts.montserrat(
-                  color: Colors.white,
+                  color: cs.onSurface,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -332,7 +346,7 @@ class _NameField extends StatelessWidget {
                   ),
                   hintText: 'e.g. Our First Anniversary',
                   hintStyle: GoogleFonts.montserrat(
-                    color: Colors.white24,
+                    color: cs.onSurface.withValues(alpha: 0.24),
                     fontSize: 14.sp,
                   ),
                 ),
@@ -359,6 +373,8 @@ class _DateSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -371,23 +387,25 @@ class _DateSection extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
-                color: Colors.white38,
+                color: cs.onSurfaceVariant,
                 letterSpacing: 0.8,
               ),
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.10),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.10)
+                    : cs.surfaceContainer,
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                border: Border.all(color: cs.outlineVariant),
               ),
               child: Text(
                 dDayLabel,
                 style: GoogleFonts.robotoMono(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white70,
+                  color: cs.onSurface.withValues(alpha: 0.70),
                 ),
               ),
             ),
@@ -401,17 +419,20 @@ class _DateSection extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.white.withValues(alpha: 0.60),
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.10)
+                      : Colors.black.withValues(alpha: 0.06),
+                ),
               ),
               child: Theme(
-                data: ThemeData.dark().copyWith(
-                  colorScheme: const ColorScheme.dark(
-                    primary: Color(0xFF6C63FF),
-                    onPrimary: Colors.white,
+                data: Theme.of(context).copyWith(
+                  colorScheme: Theme.of(context).colorScheme.copyWith(
                     surface: Colors.transparent,
-                    onSurface: Colors.white,
                   ),
                 ),
                 child: CalendarDatePicker(
@@ -442,6 +463,7 @@ class _IconSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -450,7 +472,7 @@ class _IconSection extends StatelessWidget {
           style: GoogleFonts.montserrat(
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
-            color: Colors.white38,
+            color: cs.onSurfaceVariant,
             letterSpacing: 0.8,
           ),
         ),
@@ -517,6 +539,8 @@ class _SaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         24.w,
@@ -535,13 +559,21 @@ class _SaveButton extends StatelessWidget {
               height: 56.h,
               decoration: BoxDecoration(
                 color: enabled
-                    ? Colors.white.withValues(alpha: 0.18)
-                    : Colors.white.withValues(alpha: 0.05),
+                    ? isDark
+                        ? Colors.white.withValues(alpha: 0.18)
+                        : cs.primary.withValues(alpha: 0.12)
+                    : isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
                   color: enabled
-                      ? Colors.white.withValues(alpha: 0.30)
-                      : Colors.white.withValues(alpha: 0.08),
+                      ? isDark
+                          ? Colors.white.withValues(alpha: 0.30)
+                          : cs.primary.withValues(alpha: 0.40)
+                      : isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : cs.outlineVariant,
                 ),
               ),
               child: Center(
@@ -550,7 +582,11 @@ class _SaveButton extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: enabled ? Colors.white : Colors.white24,
+                    color: enabled
+                        ? isDark
+                            ? Colors.white
+                            : cs.primary
+                        : cs.onSurface.withValues(alpha: 0.24),
                     letterSpacing: 2.5,
                   ),
                 ),

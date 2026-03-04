@@ -253,7 +253,7 @@ class DaylyWidgetModel {
       safeNow.day,
     ).add(const Duration(days: 23));
     return DaylyWidgetModel(
-      primarySentence: '우리는 다시 만날 때까지 23일',
+      primarySentence: '23 days',
       targetDate: defaultTarget,
       style: const DaylyWidgetStyle.defaults(),
     );

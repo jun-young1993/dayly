@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// 이벤트 상세 화면 — 글래스모피즘 다크 테마
+/// 이벤트 상세 화면 — 글래스모피즘 다크/라이트 테마
 ///
 /// pop 반환 타입: `_DetailResult`
 ///   - `(deleted: true,  model: null)`  → WidgetGridScreen에서 삭제
@@ -58,7 +58,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (mounted) setState(() => _remaining = Duration.zero);
       return;
     }
-    // 목표 날짜 자정까지 남은 시간
     final nowLocal = now.toLocal();
     final targetMidnight = DateTime(
       _model.targetDate.year,
@@ -160,13 +159,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _popWithResult();
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0A0E1A),
+        backgroundColor: cs.surface,
         body: Stack(
           children: <Widget>[
             // 배경 글로우 orb
@@ -258,11 +258,11 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
       child: Row(
         children: <Widget>[
-          // 뒤로가기
           _GlassIconBtn(icon: Icons.arrow_back_ios_new_rounded, onTap: onBack),
           const Spacer(),
           Text(
@@ -270,16 +270,15 @@ class _TopBar extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.white54,
+              color: cs.onSurface.withValues(alpha: 0.54),
               letterSpacing: 2.0,
             ),
           ),
           const Spacer(),
-          // 삭제 버튼
           _GlassIconBtn(
             icon: Icons.delete_outline_rounded,
             onTap: onDelete,
-            color: const Color(0xFFFF6B6B),
+            color: cs.error,
           ),
         ],
       ),
@@ -300,6 +299,8 @@ class _GlassIconBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
@@ -310,15 +311,19 @@ class _GlassIconBtn extends StatelessWidget {
             width: 40.w,
             height: 40.w,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.60),
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.14),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.14)
+                    : Colors.black.withValues(alpha: 0.06),
               ),
             ),
             child: Icon(
               icon,
-              color: color ?? Colors.white70,
+              color: color ?? cs.onSurface.withValues(alpha: 0.70),
               size: 18.sp,
             ),
           ),
@@ -353,6 +358,7 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return _GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -378,7 +384,7 @@ class _HeroCard extends StatelessWidget {
             style: GoogleFonts.robotoMono(
               fontSize: 52.sp,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: cs.onSurface,
               height: 1.0,
             ),
           ),
@@ -392,7 +398,7 @@ class _HeroCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: cs.onSurface.withValues(alpha: 0.9),
               letterSpacing: 0.5,
             ),
           ),
@@ -403,7 +409,7 @@ class _HeroCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 11.sp,
               fontWeight: FontWeight.w400,
-              color: Colors.white38,
+              color: cs.onSurface.withValues(alpha: 0.38),
               letterSpacing: 1.2,
             ),
           ),
@@ -433,6 +439,7 @@ class _TimerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 20.w),
@@ -468,7 +475,7 @@ class _TimerDisplay extends StatelessWidget {
             style: GoogleFonts.robotoMono(
               fontSize: 22.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.85),
+              color: cs.onSurface.withValues(alpha: 0.85),
               letterSpacing: 2.0,
             ),
           ),
@@ -495,12 +502,13 @@ class _TimerLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Text(
       label,
       style: GoogleFonts.montserrat(
         fontSize: 8.sp,
         fontWeight: FontWeight.w400,
-        color: Colors.white24,
+        color: cs.onSurface.withValues(alpha: 0.24),
         letterSpacing: 1.0,
       ),
     );
@@ -536,6 +544,8 @@ class _MilestonesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return _GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -551,7 +561,7 @@ class _MilestonesCard extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white70,
+                  color: cs.onSurface.withValues(alpha: 0.70),
                   letterSpacing: 1.8,
                 ),
               ),
@@ -573,7 +583,9 @@ class _MilestonesCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 4.h,
-              backgroundColor: Colors.white.withValues(alpha: 0.08),
+              backgroundColor: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : cs.outlineVariant.withValues(alpha: 0.40),
               valueColor: AlwaysStoppedAnimation<Color>(gradient[0]),
             ),
           ),
@@ -610,6 +622,7 @@ class _MilestoneItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -630,7 +643,7 @@ class _MilestoneItem extends StatelessWidget {
                 border: Border.all(
                   color: milestone.isDone
                       ? checkColor
-                      : Colors.white.withValues(alpha: 0.25),
+                      : cs.outlineVariant,
                   width: 1.5,
                 ),
               ),
@@ -648,12 +661,12 @@ class _MilestoneItem extends StatelessWidget {
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
                   color: milestone.isDone
-                      ? Colors.white38
-                      : Colors.white.withValues(alpha: 0.85),
+                      ? cs.onSurface.withValues(alpha: 0.38)
+                      : cs.onSurface.withValues(alpha: 0.85),
                   decoration: milestone.isDone
                       ? TextDecoration.lineThrough
                       : null,
-                  decorationColor: Colors.white38,
+                  decorationColor: cs.onSurface.withValues(alpha: 0.38),
                 ),
               ),
             ),
@@ -664,7 +677,7 @@ class _MilestoneItem extends StatelessWidget {
                 style: GoogleFonts.robotoMono(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white30,
+                  color: cs.onSurface.withValues(alpha: 0.30),
                 ),
               ),
           ],
@@ -685,6 +698,7 @@ class _NotesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: _GlassCard(
@@ -694,14 +708,14 @@ class _NotesCard extends StatelessWidget {
             Row(
               children: <Widget>[
                 Icon(Icons.edit_note_outlined,
-                    color: Colors.white54, size: 16.sp),
+                    color: cs.onSurfaceVariant, size: 16.sp),
                 SizedBox(width: 8.w),
                 Text(
                   'NOTES',
                   style: GoogleFonts.montserrat(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white70,
+                    color: cs.onSurface.withValues(alpha: 0.70),
                     letterSpacing: 1.8,
                   ),
                 ),
@@ -713,7 +727,9 @@ class _NotesCard extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w400,
-                color: note.isEmpty ? Colors.white24 : Colors.white70,
+                color: note.isEmpty
+                    ? cs.onSurface.withValues(alpha: 0.24)
+                    : cs.onSurface.withValues(alpha: 0.70),
                 height: 1.6,
               ),
             ),
@@ -734,6 +750,8 @@ class _EditEventButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
@@ -743,10 +761,14 @@ class _EditEventButton extends StatelessWidget {
           child: Container(
             height: 52.h,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.10)
+                  : Colors.white.withValues(alpha: 0.60),
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.20)
+                    : Colors.black.withValues(alpha: 0.08),
                 width: 1.0,
               ),
             ),
@@ -754,14 +776,14 @@ class _EditEventButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Icon(Icons.edit_outlined,
-                    color: Colors.white70, size: 18.sp),
+                    color: cs.onSurface.withValues(alpha: 0.70), size: 18.sp),
                 SizedBox(width: 8.w),
                 Text(
                   'EDIT EVENT',
                   style: GoogleFonts.montserrat(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white70,
+                    color: cs.onSurface.withValues(alpha: 0.70),
                     letterSpacing: 2.0,
                   ),
                 ),
@@ -803,6 +825,8 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Dialog(
       backgroundColor: Colors.transparent,
       child: ClipRRect(
@@ -812,24 +836,26 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
           child: Container(
             padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(
-              color: const Color(0xFF0D1F3C).withValues(alpha: 0.9),
+              color: cs.surfaceContainerHigh.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.08),
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Icon(Icons.edit_note_outlined,
-                    color: Colors.white54, size: 28.sp),
+                    color: cs.onSurfaceVariant, size: 28.sp),
                 SizedBox(height: 14.h),
                 Text(
                   'Edit Note',
                   style: GoogleFonts.montserrat(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: cs.onSurface,
                   ),
                 ),
                 SizedBox(height: 16.h),
@@ -840,38 +866,34 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
                   autofocus: true,
                   style: GoogleFonts.montserrat(
                     fontSize: 13.sp,
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: cs.onSurface.withValues(alpha: 0.85),
                     height: 1.5,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Write your note here...',
                     hintStyle: GoogleFonts.montserrat(
                       fontSize: 13.sp,
-                      color: Colors.white24,
+                      color: cs.onSurface.withValues(alpha: 0.24),
                     ),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.06),
+                    fillColor: isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : cs.surface,
                     contentPadding: EdgeInsets.all(14.w),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.14),
-                      ),
+                      borderSide: BorderSide(color: cs.outlineVariant),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.14),
-                      ),
+                      borderSide: BorderSide(color: cs.outlineVariant),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
+                      borderSide: BorderSide(color: cs.primary),
                     ),
                   ),
-                  cursorColor: Colors.white54,
+                  cursorColor: cs.primary,
                 ),
                 SizedBox(height: 20.h),
                 Row(
@@ -882,11 +904,11 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
                         child: Container(
                           height: 44.h,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.08),
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : cs.surfaceContainerLow,
                             borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.14),
-                            ),
+                            border: Border.all(color: cs.outlineVariant),
                           ),
                           child: Center(
                             child: Text(
@@ -894,7 +916,7 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white60,
+                                color: cs.onSurface.withValues(alpha: 0.60),
                               ),
                             ),
                           ),
@@ -909,10 +931,10 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
                         child: Container(
                           height: 44.h,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.12),
+                            color: cs.primary.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.25),
+                              color: cs.primary.withValues(alpha: 0.40),
                             ),
                           ),
                           child: Center(
@@ -921,7 +943,7 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: cs.primary,
                               ),
                             ),
                           ),
@@ -949,6 +971,8 @@ class _DeleteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Dialog(
       backgroundColor: Colors.transparent,
       child: ClipRRect(
@@ -958,24 +982,26 @@ class _DeleteDialog extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(
-              color: const Color(0xFF0D1F3C).withValues(alpha: 0.9),
+              color: cs.surfaceContainerHigh.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.08),
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Icon(Icons.delete_forever_outlined,
-                    color: const Color(0xFFFF6B6B), size: 36.sp),
+                    color: cs.error, size: 36.sp),
                 SizedBox(height: 14.h),
                 Text(
                   '이벤트를 삭제할까요?',
                   style: GoogleFonts.montserrat(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: cs.onSurface,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -984,7 +1010,7 @@ class _DeleteDialog extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 12.sp,
-                    color: Colors.white38,
+                    color: cs.onSurface.withValues(alpha: 0.38),
                   ),
                 ),
                 SizedBox(height: 24.h),
@@ -996,11 +1022,11 @@ class _DeleteDialog extends StatelessWidget {
                         child: Container(
                           height: 44.h,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.08),
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : cs.surfaceContainerLow,
                             borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.14),
-                            ),
+                            border: Border.all(color: cs.outlineVariant),
                           ),
                           child: Center(
                             child: Text(
@@ -1008,7 +1034,7 @@ class _DeleteDialog extends StatelessWidget {
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white60,
+                                color: cs.onSurface.withValues(alpha: 0.60),
                               ),
                             ),
                           ),
@@ -1022,10 +1048,10 @@ class _DeleteDialog extends StatelessWidget {
                         child: Container(
                           height: 44.h,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF6B6B).withValues(alpha: 0.2),
+                            color: cs.error.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
-                              color: const Color(0xFFFF6B6B).withValues(alpha: 0.5),
+                              color: cs.error.withValues(alpha: 0.50),
                             ),
                           ),
                           child: Center(
@@ -1034,7 +1060,7 @@ class _DeleteDialog extends StatelessWidget {
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFFFF6B6B),
+                                color: cs.error,
                               ),
                             ),
                           ),
@@ -1062,16 +1088,22 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: <Color>[
-            Colors.white.withValues(alpha: 0.16),
-            Colors.white.withValues(alpha: 0.04),
-          ],
+          colors: isDark
+              ? <Color>[
+                  Colors.white.withValues(alpha: 0.16),
+                  Colors.white.withValues(alpha: 0.04),
+                ]
+              : <Color>[
+                  Colors.white.withValues(alpha: 0.80),
+                  Colors.white.withValues(alpha: 0.20),
+                ],
         ),
       ),
       child: Padding(
@@ -1083,7 +1115,9 @@ class _GlassCard extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(20.w),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.white.withValues(alpha: 0.60),
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: child,
@@ -1106,6 +1140,7 @@ class _GlowOrb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: size,
       height: size,
@@ -1113,7 +1148,7 @@ class _GlowOrb extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: <Color>[
-            color.withValues(alpha: 0.12),
+            color.withValues(alpha: isDark ? 0.12 : 0.08),
             Colors.transparent,
           ],
         ),
