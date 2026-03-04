@@ -29,6 +29,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // flutter_local_notifications이 java.time API를 사용하므로 필수.
+        // 미설정 시 "core library desugaring" 빌드 오류 발생.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -71,6 +74,9 @@ flutter {
 }
 
 dependencies {
+  // core library desugaring — flutter_local_notifications 필수 의존성
+  coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
   // Import the Firebase BoM
   implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
 

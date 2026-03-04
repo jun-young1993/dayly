@@ -56,6 +56,10 @@
 - `SCHEDULE_EXACT_ALARM` — 정확한 시각 알람 (미설정 시 `zonedSchedule` silently fail)
 - `RECEIVE_BOOT_COMPLETED` — 재부팅 후 AlarmManager 복원
 
+#### `android/app/build.gradle.kts`
+- `isCoreLibraryDesugaringEnabled = true` — `flutter_local_notifications`가 `java.time` API 사용. 미설정 시 빌드 오류
+- `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")` 의존성 추가
+
 ---
 
 ### 알림 동작 사양
