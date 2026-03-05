@@ -175,71 +175,68 @@ extension Color {
 
 // MARK: - SwiftUI Views
 
-/// Small 위젯 뷰 (systemSmall) — 이전/다음 버튼 포함
+/// Small 위젯 뷰 (systemSmall) — 좌우 탭 존으로 네비게이션
 struct DaylySmallView: View {
     let entry: DaylyWidgetEntry
     var body: some View {
         let theme = Color.forTheme(entry.themePreset)
-        VStack(spacing: 4) {
-            Text(entry.countdownText)
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundColor(theme.text)
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
-            Text(entry.sentence)
-                .font(.system(size: 11))
-                .foregroundColor(theme.sub)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
+        ZStack {
+            // 배경 + 메인 콘텐츠
+            VStack(spacing: 4) {
+                Text(entry.countdownText)
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .foregroundColor(theme.text)
+                    .minimumScaleFactor(0.3)
+                    .lineLimit(2)
+                Text(entry.sentence)
+                    .font(.system(size: 11))
+                    .foregroundColor(theme.sub)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
 
-            // 네비게이션 (이벤트가 2개 이상일 때만 표시)
-            if entry.totalCount > 1 {
-                HStack(spacing: 12) {
-                    Button(intent: PrevEventIntent()) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(theme.sub)
-                    }
-                    .buttonStyle(.plain)
-
+                if entry.totalCount > 1 {
                     Text("\(entry.currentIndex + 1)/\(entry.totalCount)")
                         .font(.system(size: 9, weight: .medium, design: .monospaced))
                         .foregroundColor(theme.sub.opacity(0.6))
+                        .padding(.top, 2)
+                }
+            }
+            .padding(12)
+
+            // 3분할 탭 존: 좌(이전) / 중앙(앱 열기) / 우(다음)
+            if entry.totalCount > 1 {
+                HStack(spacing: 0) {
+                    Button(intent: PrevEventIntent()) {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+
+                    Link(destination: URL(string: "dayly://detail/\(entry.id)")!) {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
 
                     Button(intent: NextEventIntent()) {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(theme.sub)
+                        Color.clear
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.top, 2)
             }
         }
-        .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg)
-        .widgetURL(URL(string: "dayly://detail/\(entry.id)"))
+        .widgetURL(entry.totalCount <= 1 ? URL(string: "dayly://detail/\(entry.id)") : nil)
     }
 }
 
-/// Medium 위젯 뷰 (systemMedium) — 좌우 화살표 네비게이션
+/// Medium 위젯 뷰 (systemMedium) — 3분할 탭 존 네비게이션
 struct DaylyMediumView: View {
     let entry: DaylyWidgetEntry
     var body: some View {
         let theme = Color.forTheme(entry.themePreset)
-        HStack(spacing: 0) {
-            // 왼쪽 화살표
-            if entry.totalCount > 1 {
-                Button(intent: PrevEventIntent()) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(theme.sub.opacity(0.5))
-                        .frame(width: 24, maxHeight: .infinity)
-                }
-                .buttonStyle(.plain)
-            }
-
+        ZStack {
             // 메인 콘텐츠
             VStack(spacing: 0) {
                 Text(entry.dateLabel)
@@ -252,7 +249,7 @@ struct DaylyMediumView: View {
                 Text(entry.countdownText)
                     .font(.system(size: 38, weight: .bold, design: .monospaced))
                     .foregroundColor(theme.text)
-                    .minimumScaleFactor(0.5)
+                    .minimumScaleFactor(0.3)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -279,9 +276,15 @@ struct DaylyMediumView: View {
                 HStack {
                     // 페이지 인디케이터
                     if entry.totalCount > 1 {
-                        Text("\(entry.currentIndex + 1) / \(entry.totalCount)")
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
-                            .foregroundColor(theme.sub.opacity(0.5))
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 8, weight: .medium))
+                            Text("\(entry.currentIndex + 1) / \(entry.totalCount)")
+                                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 8, weight: .medium))
+                        }
+                        .foregroundColor(theme.sub.opacity(0.5))
                     }
                     Spacer()
                     // 워터마크
@@ -290,22 +293,33 @@ struct DaylyMediumView: View {
                         .foregroundColor(theme.sub.opacity(0.4))
                 }
             }
+            .padding(16)
 
-            // 오른쪽 화살표
+            // 3분할 탭 존: 좌(이전) / 중앙(앱 열기) / 우(다음)
             if entry.totalCount > 1 {
-                Button(intent: NextEventIntent()) {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(theme.sub.opacity(0.5))
-                        .frame(width: 24, maxHeight: .infinity)
+                HStack(spacing: 0) {
+                    Button(intent: PrevEventIntent()) {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+
+                    Link(destination: URL(string: "dayly://detail/\(entry.id)")!) {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
+
+                    Button(intent: NextEventIntent()) {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
-        .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg)
-        .widgetURL(URL(string: "dayly://detail/\(entry.id)"))
+        .widgetURL(entry.totalCount <= 1 ? URL(string: "dayly://detail/\(entry.id)") : nil)
     }
 }
 
