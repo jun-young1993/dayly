@@ -13,6 +13,8 @@ class HomeWidgetData {
     required this.targetDateLabel,
     required this.themePreset,
     required this.isPast,
+    required this.targetDate,
+    required this.countdownMode,
   });
 
   /// 앱 내 DaylyWidgetModel.id 와 동일
@@ -36,6 +38,12 @@ class HomeWidgetData {
   /// D-Day가 이미 지났으면 true
   final bool isPast;
 
+  /// 원본 목표 날짜 (yyyy-MM-dd). Android 네이티브에서 실시간 D-Day 계산용.
+  final String targetDate;
+
+  /// 카운트다운 표시 방식 (days | dMinus | weeksDays | mornings | nights | hidden)
+  final String countdownMode;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'sentence': sentence,
@@ -44,6 +52,8 @@ class HomeWidgetData {
         'targetDateLabel': targetDateLabel,
         'themePreset': themePreset,
         'isPast': isPast,
+        'targetDate': targetDate,
+        'countdownMode': countdownMode,
       };
 
   String toJsonString() => jsonEncode(toJson());
@@ -56,6 +66,8 @@ class HomeWidgetData {
         targetDateLabel: (json['targetDateLabel'] as String?) ?? '',
         themePreset: (json['themePreset'] as String?) ?? 'night',
         isPast: (json['isPast'] as bool?) ?? false,
+        targetDate: (json['targetDate'] as String?) ?? '',
+        countdownMode: (json['countdownMode'] as String?) ?? 'dMinus',
       );
 
   static HomeWidgetData? fromJsonString(String? raw) {

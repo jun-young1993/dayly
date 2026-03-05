@@ -37,9 +37,9 @@ class DaylyWidgetConfigActivity : AppCompatActivity() {
             return
         }
 
-        // 저장된 D-Day 목록 로드
-        val hwPrefs = getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE)
-        val jsonString = hwPrefs.getString("flutter.dayly_widgets_json", null)
+        // 저장된 D-Day 목록 로드 (home_widget 패키지는 HomeWidgetPreferences에 저장)
+        val hwPrefs = getSharedPreferences("HomeWidgetPreferences", MODE_PRIVATE)
+        val jsonString = hwPrefs.getString("dayly_widgets_json", null)
         val items = parseWidgetItems(jsonString)
 
         if (items.isEmpty()) {

@@ -50,9 +50,10 @@
         <!-- ── 홈화면 위젯 Provider ── -->
         <receiver
             android:name=".DaylyAppWidget"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="juny.dayly.MIDNIGHT_UPDATE"/>
             </intent-filter>
             <!-- Small 위젯 -->
             <meta-data

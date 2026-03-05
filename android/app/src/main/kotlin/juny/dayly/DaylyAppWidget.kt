@@ -1,25 +1,29 @@
 package juny.dayly
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.widget.RemoteViews
-import android.app.PendingIntent
-import android.content.SharedPreferences
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
 
 /**
  * dayly 홈화면 위젯 Provider.
  *
  * home_widget 패키지가 저장한 SharedPreferences 값을 읽어 RemoteViews를 업데이트한다.
- * 각 위젯 인스턴스(appWidgetId)는 자신이 표시할 D-Day의 widgetId를
- * 별도 SharedPreferences 키("dayly_widget_{appWidgetId}_selected_id")에 저장한다.
+ * targetDate + countdownMode를 사용해 업데이트 시점마다 D-Day를 실시간 재계산한다.
  *
- * 딥링크: 위젯 클릭 시 dayly://detail/{widgetId} 인텐트를 발송하여
- *        MainActivity로 해당 D-Day 상세 화면을 열도록 한다.
+ * 자정 업데이트: onEnabled() 시 AlarmManager로 매일 자정 직후 업데이트를 예약한다.
  */
 class DaylyAppWidget : AppWidgetProvider() {
 
@@ -33,8 +37,15 @@ class DaylyAppWidget : AppWidgetProvider() {
         }
     }
 
+    override fun onEnabled(context: Context) {
+        scheduleMidnightUpdate(context)
+    }
+
+    override fun onDisabled(context: Context) {
+        cancelMidnightUpdate(context)
+    }
+
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        // 위젯 삭제 시 저장된 인스턴스별 선택 ID 제거
         val prefs = instancePrefs(context)
         val editor = prefs.edit()
         appWidgetIds.forEach { id ->
@@ -43,14 +54,26 @@ class DaylyAppWidget : AppWidgetProvider() {
         editor.apply()
     }
 
-    companion object {
-        // home_widget 패키지 기본 SharedPreferences 이름
-        private const val HW_PREFS = "FlutterSharedPreferences"
-        private const val KEY_WIDGETS_JSON = "flutter.dayly_widgets_json"
-        private const val KEY_SELECTED_ID = "flutter.dayly_selected_widget_id"
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == ACTION_MIDNIGHT_UPDATE) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = manager.getAppWidgetIds(
+                ComponentName(context, DaylyAppWidget::class.java)
+            )
+            if (ids.isNotEmpty()) {
+                onUpdate(context, manager, ids)
+            }
+            scheduleMidnightUpdate(context)
+        }
+    }
 
-        // 인스턴스별 선택 ID 저장용 별도 prefs
+    companion object {
+        private const val HW_PREFS = "HomeWidgetPreferences"
+        private const val KEY_WIDGETS_JSON = "dayly_widgets_json"
+        private const val KEY_SELECTED_ID = "dayly_selected_widget_id"
         private const val INSTANCE_PREFS = "dayly_widget_instance"
+        private const val ACTION_MIDNIGHT_UPDATE = "juny.dayly.MIDNIGHT_UPDATE"
 
         fun instancePrefs(context: Context): SharedPreferences =
             context.getSharedPreferences(INSTANCE_PREFS, Context.MODE_PRIVATE)
@@ -71,7 +94,6 @@ class DaylyAppWidget : AppWidgetProvider() {
 
             val data = resolveData(widgetsJson, selectedId)
 
-            // 위젯 크기에 따라 레이아웃 선택
             val opts = appWidgetManager.getAppWidgetOptions(appWidgetId)
             val maxWidth = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
             val layoutId = if (maxWidth >= 200) R.layout.dayly_widget_medium
@@ -84,7 +106,6 @@ class DaylyAppWidget : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_date_label, data.dateLabel)
             }
 
-            // 클릭 시 앱 딥링크 오픈
             val deepLink = if (data.id.isNotEmpty()) "dayly://detail/${data.id}" else "dayly://home"
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)).apply {
                 setPackage(context.packageName)
@@ -96,7 +117,7 @@ class DaylyAppWidget : AppWidgetProvider() {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
-            views.setOnClickPendingIntent(android.R.id.background, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
@@ -118,6 +139,69 @@ class DaylyAppWidget : AppWidgetProvider() {
                 WidgetDisplayData.empty()
             }
         }
+
+        /** 다음 날 자정 00:00:01에 모든 위젯 업데이트 예약 */
+        private fun scheduleMidnightUpdate(context: Context) {
+            val midnight = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 1)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val pendingIntent = midnightPendingIntent(context)
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                midnight.timeInMillis,
+                pendingIntent,
+            )
+        }
+
+        private fun cancelMidnightUpdate(context: Context) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(midnightPendingIntent(context))
+        }
+
+        private fun midnightPendingIntent(context: Context): PendingIntent {
+            val intent = Intent(context, DaylyAppWidget::class.java).apply {
+                action = ACTION_MIDNIGHT_UPDATE
+            }
+            return PendingIntent.getBroadcast(
+                context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+
+        /** targetDate(yyyy-MM-dd)와 countdownMode로 실시간 D-Day 텍스트 계산 */
+        fun buildCountdownText(targetDateIso: String, countdownMode: String): String {
+            if (targetDateIso.isEmpty()) return "–"
+            return try {
+                val target = LocalDate.parse(targetDateIso, DateTimeFormatter.ISO_LOCAL_DATE)
+                val today = LocalDate.now()
+                val dayDiff = ChronoUnit.DAYS.between(today, target).toInt()
+                val days = Math.abs(dayDiff)
+                when (countdownMode) {
+                    "days" -> if (dayDiff >= 0) "$days days left" else "$days days ago"
+                    "dMinus" -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
+                    "weeksDays" -> {
+                        val weeks = days / 7
+                        val rem = days % 7
+                        when {
+                            weeks <= 0 -> "$days days"
+                            rem == 0 -> "$weeks weeks"
+                            else -> "$weeks weeks $rem days"
+                        }
+                    }
+                    "mornings" -> "$days mornings"
+                    "nights" -> "$days nights"
+                    "hidden" -> ""
+                    else -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
+                }
+            } catch (_: Exception) {
+                "–"
+            }
+        }
     }
 }
 
@@ -129,11 +213,21 @@ data class WidgetDisplayData(
 ) {
     companion object {
         fun empty() = WidgetDisplayData("", "dayly", "–", "")
-        fun fromJson(obj: JSONObject) = WidgetDisplayData(
-            id = obj.optString("id", ""),
-            sentence = obj.optString("sentence", ""),
-            countdownText = obj.optString("countdownText", "–"),
-            dateLabel = obj.optString("targetDateLabel", ""),
-        )
+
+        fun fromJson(obj: JSONObject): WidgetDisplayData {
+            val targetDate = obj.optString("targetDate", "")
+            val countdownMode = obj.optString("countdownMode", "dMinus")
+            val countdownText = if (targetDate.isNotEmpty()) {
+                DaylyAppWidget.buildCountdownText(targetDate, countdownMode)
+            } else {
+                obj.optString("countdownText", "–")
+            }
+            return WidgetDisplayData(
+                id = obj.optString("id", ""),
+                sentence = obj.optString("sentence", ""),
+                countdownText = countdownText,
+                dateLabel = obj.optString("targetDateLabel", ""),
+            )
+        }
     }
 }

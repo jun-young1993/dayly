@@ -1,4 +1,6 @@
+import 'package:dayly/home_widget/home_widget_service.dart';
 import 'package:dayly/screens/widget_grid_screen.dart';
+import 'package:dayly/storage/dayly_widget_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_ui_kit_google_mobile_ads/flutter_ui_kit_google_mobile_ads.dart';
@@ -17,9 +19,30 @@ class _DaylyApp extends StatefulWidget {
   State<_DaylyApp> createState() => _DaylyAppState();
 }
 
-class _DaylyAppState extends State<_DaylyApp> {
+class _DaylyAppState extends State<_DaylyApp> with WidgetsBindingObserver {
   ThemeMode _themeMode = ThemeMode.system;
- DsBrand _brand = DsBrand.violet;
+  DsBrand _brand = DsBrand.violet;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      loadDaylyWidgets().then(HomeWidgetService.updateAll).catchError(
+            (e) => debugPrint('[App] widget refresh failed: $e'),
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -96,6 +96,8 @@ class HomeWidgetService {
       targetDateLabel: _dateFormat.format(model.targetDate),
       themePreset: model.style.themePreset.name,
       isPast: isPast,
+      targetDate: DateFormat('yyyy-MM-dd').format(model.targetDate),
+      countdownMode: model.style.countdownMode.name,
     );
   }
 

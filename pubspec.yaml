@@ -43,15 +43,6 @@ dependencies:
   firebase_core: ^4.3.0
   firebase_ui_oauth_google: ^2.0.1
   flutter_screenutil: ^5.9.3
-  flutter_ui_kit_theme:
-    git:
-        url: https://github.com/jun-young1993/flutter_ui_kit.git
-        path: packages/flutter_ui_kit_theme
-  flutter_ui_kit_google_mobile_ads:
-    git:
-      url: https://github.com/jun-young1993/flutter_ui_kit.git
-      path: packages/flutter_ui_kit_google_mobile_ads
-
   # 홈화면 위젯 (iOS WidgetKit / Android AppWidget 브릿지)
   home_widget: ^0.7.0
 
@@ -71,6 +62,20 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+  # flutter ui kits
+  flutter_ui_kit_theme:
+    git:
+        url: https://github.com/jun-young1993/flutter_ui_kit.git
+        path: packages/flutter_ui_kit_theme
+  flutter_ui_kit_google_mobile_ads:
+    git:
+      url: https://github.com/jun-young1993/flutter_ui_kit.git
+      path: packages/flutter_ui_kit_google_mobile_ads
+  flutter_ui_kit_setting:
+    git:
+      url: https://github.com/jun-young1993/flutter_ui_kit.git
+      path: packages/flutter_ui_kit_setting
 
 
 # For information on the generic Dart part of this file, see the

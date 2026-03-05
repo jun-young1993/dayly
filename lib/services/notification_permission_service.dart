@@ -65,15 +65,14 @@ class NotificationPermissionService {
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('정확한 알림 시각을 위해'),
+        title: const Text('For accurate notification timing'),
         content: const Text(
-          '설정 > 앱 > dayly > 정확한 알람 허용을 켜면\n'
-          'D-Day 알림이 정확한 시간에 도착합니다.',
+          'Turn on \'Allow exact alarms\' in\nSettings > Apps > dayly\nso D-Day notifications arrive at the exact time.'
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('나중에'),
+            child: const Text('Later'),
           ),
         ],
       ),
