@@ -1,5 +1,66 @@
 # CHANGELOG
 
+# 1.1.1 — 2026-03-05
+
+### Fixed / Improved
+
+- Deep Link 파싱 (`deep_link_handler.dart`): Uri.parse authority-based 동작 설명 주석 보강
+- `print()` → `debugPrint()` 교체 (`auth_gate.dart` 3건, `share_preview_screen_v2.dart` 1건) — 프로덕션 로그 노출 방지
+- 공유 캡처 시 `Future.delayed(16ms)` → `addPostFrameCallback` 교체 — 프레임 렌더링 완료를 정확히 보장
+- 공유 텍스트에 D-Day 정보 + 앱 스토어 링크 포함
+- 알림 권한 요청 타이밍 개선: 매 위젯 추가 시 권한 확인 + 앱 시작 시 자동 확인
+- 위젯 16개 초과 시 알림 한도 경고 다이얼로그 추가
+- `SharedPreferences` 캐싱으로 반복적인 `getInstance()` 호출 제거
+
+---
+
+# 1.1.0 — 2026-03-05
+
+### Added — 홈화면 위젯 (iOS WidgetKit + Android AppWidget)
+
+#### 신규 파일
+
+| 파일 | 설명 |
+|------|------|
+| `lib/home_widget/home_widget_config.dart` | App Group ID·위젯 이름·SharedPreferences 키 상수 |
+| `lib/home_widget/home_widget_data.dart` | 네이티브 전달용 경량 데이터 구조체 |
+| `lib/home_widget/home_widget_service.dart` | 데이터 직렬화 + iOS/Android 갱신 트리거 |
+| `lib/utils/deep_link_handler.dart` | `dayly://detail/{id}` 딥링크 파싱 유틸 |
+| `android/.../DaylyAppWidget.kt` | AppWidgetProvider — RemoteViews + 딥링크 클릭 처리 |
+| `android/.../DaylyWidgetConfigActivity.kt` | 위젯 추가 시 D-Day 선택 구성 Activity |
+| `android/.../res/layout/dayly_widget_small.xml` | Small(2×2) 위젯 레이아웃 |
+| `android/.../res/layout/dayly_widget_medium.xml` | Medium(4×2) 위젯 레이아웃 |
+| `android/.../res/xml/dayly_widget_info_small.xml` | Small AppWidgetProviderInfo |
+| `android/.../res/xml/dayly_widget_info_medium.xml` | Medium AppWidgetProviderInfo |
+| `android/.../res/drawable/dayly_widget_bg.xml` | 둥근 그라데이션 배경 drawable |
+| `android/.../res/values/strings.xml` | 위젯 설명 문자열 리소스 |
+| `ios/DaylyWidget/DaylyWidget.swift` | WidgetKit AppIntentConfiguration + SwiftUI View |
+| `ios/DaylyWidget/Info.plist` | Widget Extension 설정 |
+
+#### 수정된 파일
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `pubspec.yaml` | `home_widget: ^0.7.0` 추가, 버전 1.1.0+2 |
+| `lib/storage/dayly_widget_storage.dart` | 저장 후 `HomeWidgetService.updateAll()` 자동 호출 |
+| `lib/main.dart` | `HomeWidgetService.init()` 초기화 추가 |
+| `lib/screens/widget_grid_screen.dart` | "홈화면 위젯 추가" 안내 배너 추가 |
+| `android/app/src/main/AndroidManifest.xml` | Widget receiver + Config activity + `dayly://` 딥링크 |
+| `ios/Runner/Info.plist` | `dayly://` URL scheme 등록 |
+
+#### 설계
+
+- **다중 인스턴스**: 각 위젯이 독립적으로 D-Day 선택 (Android: ConfigActivity, iOS: AppIntentConfiguration)
+- **Fallback**: 미구성 인스턴스는 가장 가까운 날짜 자동 선택
+- **딥링크**: `dayly://detail/{widgetId}` → 해당 D-Day 상세 화면
+
+#### iOS Xcode 수동 설정 필요
+
+1. Xcode에서 `DaylyWidget` Extension Target 추가 (Bundle ID: `juny.dayly.DaylyWidget`)
+2. Runner + DaylyWidget 양쪽에 App Group `group.juny.dayly` Capability 추가
+
+---
+
 # 1.0.1
 
 ## [Unreleased] — 2026-03-05

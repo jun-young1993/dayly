@@ -1,17 +1,25 @@
 import 'dart:convert';
 
+import 'package:dayly/home_widget/home_widget_service.dart';
 import 'package:dayly/models/dayly_widget_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _widgetsKey = 'dayly.widgets.v1';
 
+/// Cached [SharedPreferences] instance to avoid repeated async lookups.
+SharedPreferences? _prefsCache;
+
+Future<SharedPreferences> _getPrefs() async {
+  return _prefsCache ??= await SharedPreferences.getInstance();
+}
+
 /// Loads and saves the widget list on-device.
 ///
 /// We store an ordered list of [DaylyWidgetModel] as JSON in SharedPreferences.
 Future<List<DaylyWidgetModel>> loadDaylyWidgets() async {
   try {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     final raw = prefs.getString(_widgetsKey);
     if (raw == null || raw.isEmpty) return <DaylyWidgetModel>[];
 
@@ -31,9 +39,11 @@ Future<List<DaylyWidgetModel>> loadDaylyWidgets() async {
 
 Future<void> saveDaylyWidgets(List<DaylyWidgetModel> widgets) async {
   try {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     final jsonList = widgets.map((w) => w.toJson()).toList(growable: false);
     await prefs.setString(_widgetsKey, jsonEncode(jsonList));
+    // 저장 후 홈화면 위젯 갱신
+    await HomeWidgetService.updateAll(widgets);
   } catch (e, st) {
     debugPrint('saveDaylyWidgets failed: $e\n$st');
   }

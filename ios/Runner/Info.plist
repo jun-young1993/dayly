@@ -59,6 +59,16 @@
 				<string>com.googleusercontent.apps.227758929265-agtf7em291p7nuldf1u6basvl17q694n</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>juny.dayly</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dayly</string>
+			</array>
+		</dict>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

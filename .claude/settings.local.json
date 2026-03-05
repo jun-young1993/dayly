@@ -16,7 +16,9 @@
       "Bash(cd:*)",
       "Bash(ls:*)",
       "Bash(curl:*)",
-      "Read(//c/Users/junyoung/**)"
+      "Read(//c/Users/junyoung/**)",
+      "Bash(grep -r \"applicationId\\\\|namespace\" c:/Users/junyoung/junyoung/source/dayly/android/app/build.gradle*)",
+      "Bash(dart:*)"
     ]
   }
 }

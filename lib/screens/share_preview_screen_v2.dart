@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:dayly/models/dayly_widget_model.dart';
+import 'package:dayly/utils/dayly_time.dart';
 import 'package:dayly/theme/dayly_theme_presets.dart';
 import 'package:dayly/utils/dayly_sentence_templates.dart';
 import 'package:dayly/utils/dayly_share_export.dart';
 import 'package:dayly/widgets/dayly_widget_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,16 +41,31 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
     setState(() => _isSharing = true);
 
     try {
-      await Future<void>.delayed(const Duration(milliseconds: 16));
+      // Wait for the current frame to finish rendering before capturing.
+      final completer = Completer<void>();
+      SchedulerBinding.instance.addPostFrameCallback((_) => completer.complete());
+      await completer.future;
+
       final pngBytes = await captureBoundaryPng(boundaryKey: _captureKey);
+
+      final dayDiff = calculateDayDifference(
+        now: DateTime.now(),
+        target: _model.targetDate,
+      );
+      final dDayText = dayDiff == 0
+          ? 'D-Day'
+          : dayDiff > 0
+              ? 'D-$dayDiff'
+              : 'D+${dayDiff.abs()}';
+      final shareText = '${_model.primarySentence} ($dDayText)\n\ndayly - https://play.google.com/store/apps/details?id=juny.dayly';
+
       await sharePngBytes(
         pngBytes: pngBytes,
         fileName: 'dayly-share.png',
-        text: 'dayly',
+        text: shareText,
       );
     } catch (e, st) {
-      // ignore: avoid_print
-      print('share failed: $e\n$st');
+      debugPrint('share failed: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Sharing failed. Please try again.')),

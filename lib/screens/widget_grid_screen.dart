@@ -6,9 +6,11 @@ import 'package:dayly/repositories/notification_repository.dart';
 import 'package:dayly/screens/add_widget_bottom_sheet.dart';
 import 'package:dayly/screens/event_detail_screen.dart';
 import 'package:dayly/services/notification_permission_service.dart';
+import 'package:dayly/services/notification_id_registry.dart';
 import 'package:dayly/storage/dayly_widget_storage.dart';
 import 'package:dayly/utils/dayly_time.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -108,6 +110,13 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     // Android 재부팅 후 AlarmManager가 초기화되므로 반드시 복원 필요.
     unawaited(_notifRepo.syncOnAppStart(widgets));
 
+    // 앱 시작 시 권한 상태 확인 (프레임 렌더링 완료 후).
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _widgets.isNotEmpty) {
+        _permissionService.request(context);
+      }
+    });
+
     debugPrint('[dayly] _load() done, _isLoading=$_isLoading');
   }
 
@@ -148,19 +157,50 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   Future<void> _openAddWidgetSheet() async {
     HapticFeedback.mediumImpact();
 
-    // 첫 위젯 추가 시점에 권한 요청.
+    // 매 위젯 추가 시 권한 확인.
     // context를 전달해 SCHEDULE_EXACT_ALARM 거부 시 안내 다이얼로그 표시.
-    if (_widgets.isEmpty) {
-      await _permissionService.request(context);
-      if (!mounted) return;
+    await _permissionService.request(context);
+    if (!mounted) return;
+
+    // 알림 한도(16개) 초과 확인.
+    final overLimit = _widgets.length >= NotificationIdRegistry.maxWidgets;
+    bool skipNotification = false;
+    if (overLimit) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('알림 한도 초과'),
+          content: Text(
+            '위젯이 ${NotificationIdRegistry.maxWidgets}개를 초과하면 '
+            '새 위젯의 알림을 예약할 수 없습니다.\n'
+            '위젯은 추가되지만 알림은 설정되지 않습니다.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('추가'),
+            ),
+          ],
+        ),
+      );
+      if (proceed != true) return;
+      skipNotification = true;
     }
+
+    if (!mounted) return;
 
     final created = await showAddWidgetBottomSheet(context: context);
     if (created == null) return;
     setState(() => _widgets.add(created));
     unawaited(_persist());
-    // 새 위젯 알림 예약.
-    unawaited(_notifRepo.schedule(created));
+    // 새 위젯 알림 예약 (한도 초과 시 건너뜀).
+    if (!skipNotification) {
+      unawaited(_notifRepo.schedule(created));
+    }
   }
 
   bool get _isTablet => MediaQuery.of(context).size.width >= 600;
@@ -200,6 +240,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _buildHeader(cs, isDark),
+                  _buildHomeWidgetBanner(cs, isDark),
                   Expanded(
                     child: _isLoading
                         ? Center(
@@ -278,6 +319,54 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
           // ),
           SizedBox(width: 8.w),
         ],
+      ),
+    );
+  }
+
+  /// 홈화면 위젯 추가 안내 배너.
+  ///
+  /// 사용자에게 홈화면에 위젯을 추가하는 방법을 간결하게 안내한다.
+  /// Android: 홈화면 길게 누르기 → 위젯 → dayly
+  /// iOS: 홈화면 길게 누르기 → + 버튼 → dayly 검색
+  Widget _buildHomeWidgetBanner(ColorScheme cs, bool isDark) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: isDark ? 0.12 : 0.08),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: cs.primary.withValues(alpha: 0.20),
+                width: 0.8,
+              ),
+            ),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.widgets_outlined,
+                  size: 18.sp,
+                  color: cs.primary,
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Text(
+                    '홈화면 길게 누르기 → 위젯 추가 → dayly 선택',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w500,
+                      color: cs.onSurface.withValues(alpha: 0.70),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

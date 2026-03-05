@@ -3,6 +3,7 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 // import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
+import 'package:dayly/home_widget/home_widget_service.dart';
 import 'package:dayly/repositories/notification_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -43,6 +44,9 @@ Future<void> main() async {
 
   // ── NotificationRepository 초기화 ────────────────────────────
   await NotificationRepository.instance.init(plugin);
+
+  // ── 홈화면 위젯 초기화 (iOS App Group ID 등록) ─────────────────
+  await HomeWidgetService.init();
 
   // ── 광고 초기화 ───────────────────────────────────────────────
   await GlobalAdConfig().initialize();

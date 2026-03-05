@@ -39,7 +39,42 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- 홈화면 위젯 딥링크: dayly://detail/{id} / dayly://home -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="dayly"/>
+            </intent-filter>
         </activity>
+        <!-- ── 홈화면 위젯 Provider ── -->
+        <receiver
+            android:name=".DaylyAppWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <!-- Small 위젯 -->
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dayly_widget_info_small"/>
+        </receiver>
+
+        <!-- Medium 위젯은 별도 receiver 선언 불필요 — Provider 하나가 두 레이아웃 모두 처리 -->
+
+        <!-- 위젯 구성 Activity (추가 시 D-Day 선택 화면) -->
+        <activity
+            android:name=".DaylyWidgetConfigActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.Dialog">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+
+        <!-- ── 딥링크: dayly://detail/{widgetId} ── -->
+        <!-- MainActivity에 intent-filter 추가 -->
+
         <meta-data
                 android:name="com.google.android.gms.ads.APPLICATION_ID"
                 android:value="ca-app-pub-4656262305566191~8990935987"/>
