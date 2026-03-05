@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import AppIntents
 
 // MARK: - 데이터 모델
 
@@ -12,6 +13,8 @@ struct DaylyWidgetEntry: TimelineEntry {
     let dateLabel: String
     let themePreset: String
     let isPast: Bool
+    let currentIndex: Int
+    let totalCount: Int
 }
 
 extension DaylyWidgetEntry {
@@ -23,7 +26,9 @@ extension DaylyWidgetEntry {
             countdownText: "D-23",
             dateLabel: "2026.06.01",
             themePreset: "night",
-            isPast: false
+            isPast: false,
+            currentIndex: 0,
+            totalCount: 1
         )
     }
 }
@@ -32,11 +37,10 @@ extension DaylyWidgetEntry {
 
 private let appGroupId = "group.juny.dayly"
 private let keyWidgetsJson = "dayly_widgets_json"
-private let keySelectedId = "dayly_selected_widget_id"
+private let keyCurrentPage = "dayly_current_page"
 
-/// App Group UserDefaults에서 위젯 데이터를 불러온다.
-/// selectedId가 있으면 해당 항목, 없으면 첫 번째 항목을 반환한다.
-func loadEntry(selectedId: String? = nil) -> DaylyWidgetEntry {
+/// App Group UserDefaults에서 전체 위젯 목록을 불러온다.
+func loadAllEntries() -> [[String: Any]] {
     guard
         let defaults = UserDefaults(suiteName: appGroupId),
         let jsonString = defaults.string(forKey: keyWidgetsJson),
@@ -44,32 +48,74 @@ func loadEntry(selectedId: String? = nil) -> DaylyWidgetEntry {
         let array = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
         !array.isEmpty
     else {
-        return .placeholder
+        return []
     }
+    return array
+}
 
-    let fallbackId = selectedId ?? defaults.string(forKey: keySelectedId)
-    let item: [String: Any]
+/// 현재 페이지 인덱스에 해당하는 위젯 엔트리를 반환한다.
+func loadEntry() -> DaylyWidgetEntry {
+    let allEntries = loadAllEntries()
+    guard !allEntries.isEmpty else { return .placeholder }
 
-    if let sid = fallbackId, let found = array.first(where: { $0["id"] as? String == sid }) {
-        item = found
-    } else {
-        item = array[0]
-    }
+    let totalCount = allEntries.count
+    let defaults = UserDefaults(suiteName: appGroupId)
+    let rawIndex = defaults?.integer(forKey: keyCurrentPage) ?? 0
+    let safeIndex = max(0, min(rawIndex, totalCount - 1))
 
-    return DaylyWidgetEntry(
+    return entryFromItem(allEntries[safeIndex], index: safeIndex, total: totalCount)
+}
+
+private func entryFromItem(_ item: [String: Any], index: Int, total: Int) -> DaylyWidgetEntry {
+    DaylyWidgetEntry(
         date: .now,
         id: item["id"] as? String ?? "",
         sentence: item["sentence"] as? String ?? "",
         countdownText: item["countdownText"] as? String ?? "–",
         dateLabel: item["targetDateLabel"] as? String ?? "",
         themePreset: item["themePreset"] as? String ?? "night",
-        isPast: item["isPast"] as? Bool ?? false
+        isPast: item["isPast"] as? Bool ?? false,
+        currentIndex: index,
+        totalCount: total
     )
 }
 
-// MARK: - AppIntent (사용자 D-Day 선택)
+// MARK: - Navigation AppIntents (iOS 17+ 인터랙티브 위젯)
 
-import AppIntents
+/// 다음 D-Day 이벤트로 이동
+struct NextEventIntent: AppIntent {
+    static var title: LocalizedStringResource = "다음 이벤트"
+
+    func perform() async throws -> some IntentResult {
+        navigateEvent(direction: 1)
+        return .result()
+    }
+}
+
+/// 이전 D-Day 이벤트로 이동
+struct PrevEventIntent: AppIntent {
+    static var title: LocalizedStringResource = "이전 이벤트"
+
+    func perform() async throws -> some IntentResult {
+        navigateEvent(direction: -1)
+        return .result()
+    }
+}
+
+/// 페이지 인덱스를 변경하고 타임라인을 갱신한다.
+private func navigateEvent(direction: Int) {
+    guard let defaults = UserDefaults(suiteName: appGroupId) else { return }
+    let totalCount = loadAllEntries().count
+    guard totalCount > 1 else { return }
+
+    let current = defaults.integer(forKey: keyCurrentPage)
+    let next = (current + direction + totalCount) % totalCount
+    defaults.set(next, forKey: keyCurrentPage)
+
+    WidgetCenter.shared.reloadAllTimelines()
+}
+
+// MARK: - AppIntent (위젯 구성용 — 레거시)
 
 struct SelectDaylyIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "D-Day 선택"
@@ -88,11 +134,11 @@ struct DaylyProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> DaylyWidgetEntry { .placeholder }
 
     func snapshot(for configuration: SelectDaylyIntent, in context: Context) async -> DaylyWidgetEntry {
-        loadEntry(selectedId: configuration.widgetId)
+        loadEntry()
     }
 
     func timeline(for configuration: SelectDaylyIntent, in context: Context) async -> Timeline<DaylyWidgetEntry> {
-        let entry = loadEntry(selectedId: configuration.widgetId)
+        let entry = loadEntry()
 
         // 매일 자정에 갱신 (D-Day 숫자가 바뀌는 시점)
         let midnight = Calendar.current.startOfDay(for: .now).addingTimeInterval(86_400)
@@ -129,7 +175,7 @@ extension Color {
 
 // MARK: - SwiftUI Views
 
-/// Small 위젯 뷰 (systemSmall)
+/// Small 위젯 뷰 (systemSmall) — 이전/다음 버튼 포함
 struct DaylySmallView: View {
     let entry: DaylyWidgetEntry
     var body: some View {
@@ -145,6 +191,30 @@ struct DaylySmallView: View {
                 .foregroundColor(theme.sub)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
+
+            // 네비게이션 (이벤트가 2개 이상일 때만 표시)
+            if entry.totalCount > 1 {
+                HStack(spacing: 12) {
+                    Button(intent: PrevEventIntent()) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(theme.sub)
+                    }
+                    .buttonStyle(.plain)
+
+                    Text("\(entry.currentIndex + 1)/\(entry.totalCount)")
+                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        .foregroundColor(theme.sub.opacity(0.6))
+
+                    Button(intent: NextEventIntent()) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(theme.sub)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 2)
+            }
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -153,51 +223,84 @@ struct DaylySmallView: View {
     }
 }
 
-/// Medium 위젯 뷰 (systemMedium)
+/// Medium 위젯 뷰 (systemMedium) — 좌우 화살표 네비게이션
 struct DaylyMediumView: View {
     let entry: DaylyWidgetEntry
     var body: some View {
         let theme = Color.forTheme(entry.themePreset)
-        VStack(spacing: 0) {
-            Text(entry.dateLabel)
-                .font(.system(size: 10, weight: .regular))
-                .foregroundColor(theme.sub)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            Spacer(minLength: 4)
-
-            Text(entry.countdownText)
-                .font(.system(size: 38, weight: .bold, design: .monospaced))
-                .foregroundColor(theme.text)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            // 감성 구분점
-            HStack(spacing: 4) {
-                ForEach(0..<3, id: \.self) { _ in
-                    Circle()
-                        .fill(theme.sub.opacity(0.5))
-                        .frame(width: 4, height: 4)
+        HStack(spacing: 0) {
+            // 왼쪽 화살표
+            if entry.totalCount > 1 {
+                Button(intent: PrevEventIntent()) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(theme.sub.opacity(0.5))
+                        .frame(width: 24, maxHeight: .infinity)
                 }
-                Spacer()
+                .buttonStyle(.plain)
             }
-            .padding(.vertical, 8)
 
-            Text(entry.sentence)
-                .font(.system(size: 13))
-                .foregroundColor(theme.sub)
-                .multilineTextAlignment(.leading)
-                .lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // 메인 콘텐츠
+            VStack(spacing: 0) {
+                Text(entry.dateLabel)
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundColor(theme.sub)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer(minLength: 4)
+                Spacer(minLength: 4)
 
-            // 워터마크
-            Text("dayly")
-                .font(.system(size: 9, weight: .medium))
-                .foregroundColor(theme.sub.opacity(0.4))
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                Text(entry.countdownText)
+                    .font(.system(size: 38, weight: .bold, design: .monospaced))
+                    .foregroundColor(theme.text)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                // 감성 구분점
+                HStack(spacing: 4) {
+                    ForEach(0..<3, id: \.self) { _ in
+                        Circle()
+                            .fill(theme.sub.opacity(0.5))
+                            .frame(width: 4, height: 4)
+                    }
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+
+                Text(entry.sentence)
+                    .font(.system(size: 13))
+                    .foregroundColor(theme.sub)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Spacer(minLength: 4)
+
+                HStack {
+                    // 페이지 인디케이터
+                    if entry.totalCount > 1 {
+                        Text("\(entry.currentIndex + 1) / \(entry.totalCount)")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .foregroundColor(theme.sub.opacity(0.5))
+                    }
+                    Spacer()
+                    // 워터마크
+                    Text("dayly")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(theme.sub.opacity(0.4))
+                }
+            }
+
+            // 오른쪽 화살표
+            if entry.totalCount > 1 {
+                Button(intent: NextEventIntent()) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(theme.sub.opacity(0.5))
+                        .frame(width: 24, maxHeight: .infinity)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

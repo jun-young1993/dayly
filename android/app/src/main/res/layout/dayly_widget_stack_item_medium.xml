@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  StackView 아이템 — Medium (4x2)
+  각 D-Day 이벤트를 카드 형태로 표시한다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@drawable/dayly_widget_bg">
+
+    <!-- 날짜 레이블 (예: 2026.06.01) -->
+    <TextView
+        android:id="@+id/widget_date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="10sp"
+        android:textColor="#7090B0"
+        android:letterSpacing="0.1"
+        android:maxLines="1" />
+
+    <!-- D-Day 카운트다운 텍스트 -->
+    <TextView
+        android:id="@+id/widget_countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="D-?"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:textColor="#F4F6FA"
+        android:fontFamily="monospace"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- 구분점 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <View
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:background="#4060A0"
+            android:layout_marginEnd="4dp" />
+        <View
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:background="#4060A0"
+            android:layout_marginEnd="4dp" />
+        <View
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:background="#4060A0" />
+    </LinearLayout>
+
+    <!-- 문구 -->
+    <TextView
+        android:id="@+id/widget_sentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="13sp"
+        android:textColor="#B0C4DE"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+</LinearLayout>

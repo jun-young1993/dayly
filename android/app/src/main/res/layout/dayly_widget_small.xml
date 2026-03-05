@@ -1,41 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Small 위젯 레이아웃 (2×2 셀 기준)
-  표시: D-Day 숫자 + 한 줄 문구
+  Small 위젯 컨테이너 (2x2 셀 기준)
+  StackView로 여러 D-Day 이벤트를 스와이프 탐색할 수 있다.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_container"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="12dp"
-    android:background="@drawable/dayly_widget_bg">
+    android:layout_height="match_parent">
 
-    <!-- D-Day 카운트다운 텍스트 (예: D-3, 23일) -->
-    <TextView
-        android:id="@+id/widget_countdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="D-?"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#F4F6FA"
-        android:fontFamily="monospace"
-        android:maxLines="1"
-        android:ellipsize="end" />
-
-    <!-- 문구 -->
-    <TextView
-        android:id="@+id/widget_sentence"
+    <StackView
+        android:id="@+id/widget_stack"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text=""
-        android:textSize="11sp"
-        android:textColor="#B0C4DE"
-        android:gravity="center"
-        android:maxLines="2"
-        android:ellipsize="end" />
+        android:layout_height="match_parent"
+        android:loopViews="true" />
 
-</LinearLayout>
+    <!-- 이벤트가 없을 때 표시되는 빈 상태 뷰 -->
+    <TextView
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="dayly"
+        android:textColor="#7090B0"
+        android:textSize="14sp"
+        android:background="@drawable/dayly_widget_bg"
+        android:visibility="gone" />
+
+</FrameLayout>

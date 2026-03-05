@@ -2,6 +2,31 @@
 
 ---
 
+## 1.2.0 — 2026-03-05
+
+### Added — 위젯 스와이프 탐색 (다중 D-Day 네비게이션)
+
+- **Android**: StackView 기반 컬렉션 위젯으로 전환 — fling(스와이프)으로 여러 D-Day 이벤트 탐색
+  - `DaylyWidgetRemoteViewsService` + `RemoteViewsFactory` 추가
+  - StackView 아이템 레이아웃: Small(`dayly_widget_stack_item_small`) / Medium(`dayly_widget_stack_item_medium`)
+  - 컨테이너 레이아웃을 StackView 기반으로 전환
+  - 아이템 클릭 시 해당 이벤트 딥링크(`dayly://detail/{id}`) 정상 동작
+  - 위젯 추가 시 Config Activity 자동 실행 제거 (전체 이벤트 즉시 표시)
+  - 위젯 리사이즈 시 자동 레이아웃 전환 (`onAppWidgetOptionsChanged`)
+- **iOS**: Button + AppIntent 기반 이전/다음 네비게이션
+  - `NextEventIntent` / `PrevEventIntent` AppIntent 추가
+  - Small 위젯: 하단 `< 1/3 >` 네비게이션 바
+  - Medium 위젯: 좌우 chevron 버튼 + 하단 페이지 인디케이터
+  - 페이지 인덱스 UserDefaults 저장 (순환 탐색 지원)
+  - 콘텐츠 영역 탭 시 기존 딥링크 동작 유지
+
+### Notes
+- Android: `StackView`는 세로 fling 제스처를 지원 (카드 스택 UI)
+- iOS: 인터랙티브 위젯 버튼은 iOS 17+ 필수
+- Flutter 측 변경 없음 (기존 JSON 배열 전달 구조 활용)
+
+---
+
 ## 1.1.2 — 2026-03-05
 
 ### Fixed

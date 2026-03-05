@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Bundle
 import android.widget.RemoteViews
 import org.json.JSONArray
 import org.json.JSONObject
@@ -20,8 +21,8 @@ import java.util.Calendar
 /**
  * dayly 홈화면 위젯 Provider.
  *
- * home_widget 패키지가 저장한 SharedPreferences 값을 읽어 RemoteViews를 업데이트한다.
- * targetDate + countdownMode를 사용해 업데이트 시점마다 D-Day를 실시간 재계산한다.
+ * StackView 기반 컬렉션 위젯으로 여러 D-Day 이벤트를 스와이프(fling)하여 탐색할 수 있다.
+ * DaylyWidgetRemoteViewsService가 SharedPreferences에서 전체 이벤트 목록을 읽어 제공한다.
  *
  * 자정 업데이트: onEnabled() 시 AlarmManager로 매일 자정 직후 업데이트를 예약한다.
  */
@@ -37,21 +38,21 @@ class DaylyAppWidget : AppWidgetProvider() {
         }
     }
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
+    ) {
+        updateWidget(context, appWidgetManager, appWidgetId)
+    }
+
     override fun onEnabled(context: Context) {
         scheduleMidnightUpdate(context)
     }
 
     override fun onDisabled(context: Context) {
         cancelMidnightUpdate(context)
-    }
-
-    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        val prefs = instancePrefs(context)
-        val editor = prefs.edit()
-        appWidgetIds.forEach { id ->
-            editor.remove(instanceKey(id))
-        }
-        editor.apply()
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -69,12 +70,10 @@ class DaylyAppWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val HW_PREFS = "HomeWidgetPreferences"
-        private const val KEY_WIDGETS_JSON = "dayly_widgets_json"
-        private const val KEY_SELECTED_ID = "dayly_selected_widget_id"
-        private const val INSTANCE_PREFS = "dayly_widget_instance"
         private const val ACTION_MIDNIGHT_UPDATE = "juny.dayly.MIDNIGHT_UPDATE"
+        private const val INSTANCE_PREFS = "dayly_widget_instance"
 
+        // DaylyWidgetConfigActivity 호환용
         fun instancePrefs(context: Context): SharedPreferences =
             context.getSharedPreferences(INSTANCE_PREFS, Context.MODE_PRIVATE)
 
@@ -85,58 +84,67 @@ class DaylyAppWidget : AppWidgetProvider() {
             appWidgetManager: AppWidgetManager,
             appWidgetId: Int,
         ) {
-            val hwPrefs = context.getSharedPreferences(HW_PREFS, Context.MODE_PRIVATE)
-            val instPrefs = instancePrefs(context)
-
-            val widgetsJson = hwPrefs.getString(KEY_WIDGETS_JSON, null)
-            val fallbackId = hwPrefs.getString(KEY_SELECTED_ID, null)
-            val selectedId = instPrefs.getString(instanceKey(appWidgetId), fallbackId)
-
-            val data = resolveData(widgetsJson, selectedId)
-
             val opts = appWidgetManager.getAppWidgetOptions(appWidgetId)
             val maxWidth = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
-            val layoutId = if (maxWidth >= 200) R.layout.dayly_widget_medium
+            val isMedium = maxWidth >= 200
+            val layoutId = if (isMedium) R.layout.dayly_widget_medium
                            else R.layout.dayly_widget_small
 
             val views = RemoteViews(context.packageName, layoutId)
-            views.setTextViewText(R.id.widget_countdown, data.countdownText)
-            views.setTextViewText(R.id.widget_sentence, data.sentence)
-            if (layoutId == R.layout.dayly_widget_medium) {
-                views.setTextViewText(R.id.widget_date_label, data.dateLabel)
-            }
 
-            val deepLink = if (data.id.isNotEmpty()) "dayly://detail/${data.id}" else "dayly://home"
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)).apply {
+            // StackView에 RemoteViewsService 연결
+            val serviceIntent = Intent(context, DaylyWidgetRemoteViewsService::class.java).apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                putExtra(DaylyWidgetRemoteViewsService.EXTRA_IS_MEDIUM, isMedium)
+                // 위젯 인스턴스별 고유 URI — 각 인스턴스가 독립 Factory를 갖도록
+                data = Uri.parse("dayly://widget/$appWidgetId/$isMedium")
+            }
+            views.setRemoteAdapter(R.id.widget_stack, serviceIntent)
+            views.setEmptyView(R.id.widget_stack, R.id.widget_empty)
+
+            // 컬렉션 아이템 클릭 PendingIntent 템플릿
+            // FLAG_MUTABLE 필수: fill-in intent가 병합되어야 함
+            val clickIntent = Intent(Intent.ACTION_VIEW).apply {
                 setPackage(context.packageName)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
             val pendingIntent = PendingIntent.getActivity(
-                context,
-                appWidgetId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                context, appWidgetId, clickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
             )
-            views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+            views.setPendingIntentTemplate(R.id.widget_stack, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_stack)
         }
 
-        private fun resolveData(jsonString: String?, selectedId: String?): WidgetDisplayData {
-            if (jsonString.isNullOrEmpty()) return WidgetDisplayData.empty()
+        /** targetDate(yyyy-MM-dd)와 countdownMode로 실시간 D-Day 텍스트 계산 */
+        fun buildCountdownText(targetDateIso: String, countdownMode: String): String {
+            if (targetDateIso.isEmpty()) return "–"
             return try {
-                val array = JSONArray(jsonString)
-                var first: JSONObject? = null
-                for (i in 0 until array.length()) {
-                    val obj = array.getJSONObject(i)
-                    if (first == null) first = obj
-                    if (!selectedId.isNullOrEmpty() && obj.optString("id") == selectedId) {
-                        return WidgetDisplayData.fromJson(obj)
+                val target = LocalDate.parse(targetDateIso, DateTimeFormatter.ISO_LOCAL_DATE)
+                val today = LocalDate.now()
+                val dayDiff = ChronoUnit.DAYS.between(today, target).toInt()
+                val days = Math.abs(dayDiff)
+                when (countdownMode) {
+                    "days" -> if (dayDiff >= 0) "$days days left" else "$days days ago"
+                    "dMinus" -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
+                    "weeksDays" -> {
+                        val weeks = days / 7
+                        val rem = days % 7
+                        when {
+                            weeks <= 0 -> "$days days"
+                            rem == 0 -> "$weeks weeks"
+                            else -> "$weeks weeks $rem days"
+                        }
                     }
+                    "mornings" -> "$days mornings"
+                    "nights" -> "$days nights"
+                    "hidden" -> ""
+                    else -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
                 }
-                first?.let { WidgetDisplayData.fromJson(it) } ?: WidgetDisplayData.empty()
             } catch (_: Exception) {
-                WidgetDisplayData.empty()
+                "–"
             }
         }
 
@@ -171,36 +179,6 @@ class DaylyAppWidget : AppWidgetProvider() {
                 context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
-        }
-
-        /** targetDate(yyyy-MM-dd)와 countdownMode로 실시간 D-Day 텍스트 계산 */
-        fun buildCountdownText(targetDateIso: String, countdownMode: String): String {
-            if (targetDateIso.isEmpty()) return "–"
-            return try {
-                val target = LocalDate.parse(targetDateIso, DateTimeFormatter.ISO_LOCAL_DATE)
-                val today = LocalDate.now()
-                val dayDiff = ChronoUnit.DAYS.between(today, target).toInt()
-                val days = Math.abs(dayDiff)
-                when (countdownMode) {
-                    "days" -> if (dayDiff >= 0) "$days days left" else "$days days ago"
-                    "dMinus" -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
-                    "weeksDays" -> {
-                        val weeks = days / 7
-                        val rem = days % 7
-                        when {
-                            weeks <= 0 -> "$days days"
-                            rem == 0 -> "$weeks weeks"
-                            else -> "$weeks weeks $rem days"
-                        }
-                    }
-                    "mornings" -> "$days mornings"
-                    "nights" -> "$days nights"
-                    "hidden" -> ""
-                    else -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
-                }
-            } catch (_: Exception) {
-                "–"
-            }
         }
     }
 }
