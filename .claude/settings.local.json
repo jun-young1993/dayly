@@ -19,7 +19,12 @@
       "Read(//c/Users/junyoung/**)",
       "Bash(grep -r \"applicationId\\\\|namespace\" c:/Users/junyoung/junyoung/source/dayly/android/app/build.gradle*)",
       "Bash(dart:*)",
-      "Bash(flutter pub:*)"
+      "Bash(flutter pub:*)",
+      "Bash(gem list:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(ruby:*)",
+      "Bash(pod install:*)",
+      "WebSearch"
     ]
   }
 }

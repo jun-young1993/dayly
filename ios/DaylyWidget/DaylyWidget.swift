@@ -66,12 +66,54 @@ func loadEntry() -> DaylyWidgetEntry {
     return entryFromItem(allEntries[safeIndex], index: safeIndex, total: totalCount)
 }
 
+/// targetDate(yyyy-MM-dd)와 countdownMode로 실시간 D-Day 텍스트를 계산한다.
+private func buildCountdownText(targetDateIso: String, countdownMode: String) -> String {
+    guard !targetDateIso.isEmpty else { return "–" }
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    formatter.timeZone = TimeZone.current
+    guard let targetDate = formatter.date(from: targetDateIso) else { return "–" }
+
+    let calendar = Calendar.current
+    let today = calendar.startOfDay(for: Date())
+    let target = calendar.startOfDay(for: targetDate)
+    let dayDiff = calendar.dateComponents([.day], from: today, to: target).day ?? 0
+    let days = abs(dayDiff)
+
+    switch countdownMode {
+    case "days":
+        return dayDiff >= 0 ? "\(days) days left" : "\(days) days ago"
+    case "dMinus":
+        if dayDiff == 0 { return "D-Day" }
+        return dayDiff > 0 ? "D-\(days)" : "D+\(days)"
+    case "weeksDays":
+        let weeks = days / 7
+        let rem = days % 7
+        if weeks <= 0 { return "\(days) days" }
+        if rem == 0 { return "\(weeks) weeks" }
+        return "\(weeks) weeks \(rem) days"
+    case "mornings":
+        return "\(days) mornings"
+    case "nights":
+        return "\(days) nights"
+    case "hidden":
+        return ""
+    default:
+        if dayDiff == 0 { return "D-Day" }
+        return dayDiff > 0 ? "D-\(days)" : "D+\(days)"
+    }
+}
+
 private func entryFromItem(_ item: [String: Any], index: Int, total: Int) -> DaylyWidgetEntry {
-    DaylyWidgetEntry(
+    let targetDateIso = item["targetDate"] as? String ?? ""
+    let countdownMode = item["countdownMode"] as? String ?? "dMinus"
+    let countdownText = buildCountdownText(targetDateIso: targetDateIso, countdownMode: countdownMode)
+
+    return DaylyWidgetEntry(
         date: .now,
         id: item["id"] as? String ?? "",
         sentence: item["sentence"] as? String ?? "",
-        countdownText: item["countdownText"] as? String ?? "–",
+        countdownText: countdownText,
         dateLabel: item["targetDateLabel"] as? String ?? "",
         themePreset: item["themePreset"] as? String ?? "night",
         isPast: item["isPast"] as? Bool ?? false,

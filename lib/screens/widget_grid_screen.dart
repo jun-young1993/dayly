@@ -15,7 +15,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
+import 'package:flutter_ui_kit_setting/flutter_ui_kit_setting.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dayly/screens/setting_screen.dart';
 
 /// 글래스모피즘 다크/라이트 대시보드 — "YOUR MOMENTS" 리스트/그리드 뷰.
 ///
@@ -302,12 +304,16 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               ],
             ),
           ),
-          DsThemeToggle(
-            themeMode: widget.themeMode,
-            onChanged: widget.onThemeModeChanged,
-            sizedBoxDimension: 40,
-            iconSize: 18,
+          SettingGearButton(
+            animate: true,
+            onPressed: () => _openSetting(context)
           ),
+          // DsThemeToggle(
+          //   themeMode: widget.themeMode,
+          //   onChanged: widget.onThemeModeChanged,
+          //   sizedBoxDimension: 40,
+          //   iconSize: 18,
+          // ),
           SizedBox(width: 8.w),
           // DsBrandToggle(
           //   brand: widget.brand,
@@ -321,6 +327,21 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
         ],
       ),
     );
+  }
+
+  void _openSetting(BuildContext context) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) =>
+                  AppSettingScreen(
+                      themeMode: widget.themeMode,
+                      onThemeModeChanged: widget.onThemeModeChanged,
+                      brand: widget.brand,
+                      onBrandChanged: widget.onBrandToggled
+                  )
+          )
+      );
   }
 
   /// 홈화면 위젯 추가 안내 배너.
@@ -355,7 +376,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
                 SizedBox(width: 10.w),
                 Expanded(
                   child: Text(
-                    '홈화면 길게 누르기 → 위젯 추가 → dayly 선택',
+                    'Long-press the Home screen → Add widgets → Select dayly.',
                     style: GoogleFonts.montserrat(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w500,
@@ -376,7 +397,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 100.h),
       itemCount: _widgets.length,
-      itemBuilder: (context, index) => _GlassmorphicCard(
+      itemBuilder: (context, index) => _DysmorphicCard(
         model: _widgets[index],
         gradient: _gradients[index % _gradients.length],
         iconData: _iconData[index % _iconData.length],
@@ -396,7 +417,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
         childAspectRatio: 3.2,
       ),
       itemCount: _widgets.length,
-      itemBuilder: (context, index) => _GlassmorphicCard(
+      itemBuilder: (context, index) => _DysmorphicCard(
         model: _widgets[index],
         gradient: _gradients[index % _gradients.length],
         iconData: _iconData[index % _iconData.length],
@@ -427,11 +448,6 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 }
-
-// ──────────────────────────────────────────────────────────────
-// 브랜드 토글 버튼 (A ↔ B)
-// ──────────────────────────────────────────────────────────────
-
 
 
 // ──────────────────────────────────────────────────────────────
@@ -518,8 +534,8 @@ class _AnimatedGradientBackgroundState
 // 글래스모피즘 카드 (Edge Light 0.5px 테두리 효과 포함)
 // ──────────────────────────────────────────────────────────────
 
-class _GlassmorphicCard extends StatelessWidget {
-  const _GlassmorphicCard({
+class _DysmorphicCard extends StatelessWidget {
+  const _DysmorphicCard({
     required this.model,
     required this.gradient,
     required this.iconData,

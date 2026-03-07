@@ -1,8 +1,3 @@
-// import 'package:dayly/config.dart';
-// import 'package:dayly/firebase_options.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-// import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'dart:async';
 
 import 'package:dayly/home_widget/home_widget_service.dart';
@@ -17,7 +12,6 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'package:dayly/app.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

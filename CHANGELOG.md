@@ -2,6 +2,76 @@
 
 ---
 
+## 1.3.0 — 2026-03-08
+
+### Added — 이벤트 상세 화면 개선
+
+- **D-Day 진행률(Progress) 표시**: Hero Card에 createdAt ~ targetDate 기간 대비 경과 비율 Progress Bar + 퍼센트 표시
+- **`DaylyWidgetModel.createdAt` 필드 추가**: 이벤트 생성 시점을 저장하여 정확한 진행률 계산 (기존 데이터는 `DateTime.now()` fallback으로 마이그레이션)
+- **마일스톤 CRUD**: 상세 화면에서 마일스톤 추가(+ Add milestone 버튼 + 다이얼로그) 및 삭제(x 버튼) 가능
+- **SHARE 버튼**: EDIT EVENT 옆에 SHARE 버튼 추가 — SharePreviewScreenV2로 이동하여 공유 카드 생성/공유
+- 마일스톤이 비어있을 때도 MILESTONES 카드 표시 (추가 유도)
+
+---
+
+## 1.2.4 — 2026-03-07
+
+### Fixed — iOS 위젯 클릭 시 앱 크래시
+
+- `pubspec.yaml`: `firebase_auth`, `firebase_core`, `firebase_ui_auth`, `firebase_ui_oauth_google` 의존성 제거
+- `lib/firebase_options.dart` 삭제
+- `main.dart`: Firebase 관련 import/코드 전부 제거
+- iOS pod install로 Firebase 네이티브 라이브러리 제거 — 미초기화된 `FLTFirebaseAuthPlugin`이 위젯 `dayly://` URL 수신 시 `Auth.auth()`를 호출해 `EXC_BREAKPOINT` 크래시 발생하던 문제 근본 해결
+
+---
+
+## 1.2.3 — 2026-03-07
+
+### Fixed — iOS 홈 위젯 D-Day 날짜 계산 오류
+
+- `DaylyWidget.swift`: `entryFromItem()`이 저장된 `countdownText`를 그대로 사용해 앱을 마지막으로 연 시점 기준으로 고정되던 문제 수정
+- `buildCountdownText(targetDateIso:countdownMode:)` 함수를 추가하여 위젯 렌더 시점에 `targetDate`와 `countdownMode`로 D-Day를 실시간 재계산 (Android와 동일한 방식)
+
+---
+
+## 1.2.2 — 2026-03-07
+
+### Fixed — DST 경계 알림 날짜 계산 오류
+
+- `notification_scheduler.dart`: `model.targetDate.add(Duration(days: daysOffset))` 대신 `tz.TZDateTime` 생성자에서 날짜 단위로 직접 더하도록 수정 — DST 전환일에 Duration 기반 연산이 N×24h를 더해 알림 날짜가 하루 밀리는 오류 수정
+
+---
+
+## 1.2.1 — 2026-03-06
+
+### Fixed — iOS 위젯이 위젯 추가 메뉴에 표시되지 않는 문제
+
+- Xcode 프로젝트에 `DaylyWidgetExtension` 타겟 등록 (기존에는 소스 파일만 존재하고 타겟 미등록)
+- Runner 및 DaylyWidget에 App Group entitlements 파일 추가 (`group.juny.dayly`)
+- Runner 타겟에 `CODE_SIGN_ENTITLEMENTS` 및 `Embed App Extensions` 빌드 페이즈 추가
+- DaylyWidget.swift의 `.frame(width:maxHeight:)` 잘못된 SwiftUI modifier 수정
+- 위젯 탭으로 앱 실행 시 크래시 수정: `AppDelegate`에서 Flutter 엔진 시작 전 `FirebaseApp.configure()` 호출 (딥링크 수신 시 `Auth.auth()` 미초기화 크래시 방지)
+
+### Improved — iOS 위젯 UX 개선
+
+- 위젯 탭 영역을 **3분할 투명 탭 존**으로 변경 — 좌(이전) / 중앙(앱 열기) / 우(다음), 위젯 전체 높이 활용 (기존 10~12pt 아이콘 → 위젯 면적의 1/3씩)
+- 이벤트 2개 이상일 때 중앙 영역 탭으로 앱 딥링크 열기 가능 (`Link` + `dayly://detail/{id}`)
+- 카운트다운 텍스트 `minimumScaleFactor` 0.6/0.5 → 0.3 으로 변경 — "22 days left" 등 긴 텍스트가 "..." 없이 전체 표시
+- Medium 위젯 하단에 `< 1/3 >` 형태의 시각적 네비게이션 힌트 표시
+
+### iOS 설정 변경 상세
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `ios/Runner.xcodeproj/project.pbxproj` | `DaylyWidgetExtension` 네이티브 타겟 추가 (product type: `app-extension`, bundle ID: `juny.dayly.DaylyWidget`, deployment target: iOS 17.0). Runner 타겟에 `Embed App Extensions` 빌드 페이즈 추가 및 위젯 의존성 등록 |
+| `ios/Runner/Runner.entitlements` | 신규 생성 — `com.apple.security.application-groups` → `group.juny.dayly` |
+| `ios/DaylyWidget/DaylyWidget.entitlements` | 신규 생성 — 동일 App Group 설정 |
+| `ios/DaylyWidget/Info.plist` | `CFBundleShortVersionString` → `$(MARKETING_VERSION)`, `CFBundleVersion` → `$(CURRENT_PROJECT_VERSION)` (Flutter 변수 → Xcode 표준 변수로 교체) |
+| `ios/DaylyWidget/DaylyWidget.swift` | `.frame(width:24, maxHeight:.infinity)` → `.frame(minWidth:24, maxWidth:24, maxHeight:.infinity)` (유효한 SwiftUI frame overload로 수정) |
+| `ios/Runner/AppDelegate.swift` | `import FirebaseCore` 추가, `didFinishLaunchingWithOptions`에서 `FirebaseApp.configure()` 선행 호출 |
+
+---
+
 ## 1.2.0 — 2026-03-05
 
 ### Added — 위젯 스와이프 탐색 (다중 D-Day 네비게이션)

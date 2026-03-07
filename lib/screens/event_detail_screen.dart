@@ -115,6 +115,25 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     setState(() => _model = _model.copyWith(milestones: ms));
   }
 
+  void _deleteMilestone(int index) {
+    HapticFeedback.mediumImpact();
+    final ms = List<DaylyMilestone>.of(_model.milestones);
+    ms.removeAt(index);
+    setState(() => _model = _model.copyWith(milestones: ms));
+  }
+
+  Future<void> _addMilestone() async {
+    HapticFeedback.mediumImpact();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => _MilestoneAddDialog(),
+    );
+    if (result == null || result.trim().isEmpty) return;
+    final ms = List<DaylyMilestone>.of(_model.milestones);
+    ms.add(DaylyMilestone(title: result.trim()));
+    setState(() => _model = _model.copyWith(milestones: ms));
+  }
+
   Future<void> _openEdit() async {
     HapticFeedback.mediumImpact();
     final updated = await Navigator.of(context).push<DaylyWidgetModel>(
@@ -124,6 +143,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     );
     if (updated == null) return;
     setState(() => _model = updated);
+  }
+
+  Future<void> _openShare() async {
+    HapticFeedback.mediumImpact();
+    final updated = await Navigator.of(context).push<DaylyWidgetModel>(
+      MaterialPageRoute(
+        builder: (_) => SharePreviewScreenV2(initialModel: _model),
+      ),
+    );
+    if (updated != null) {
+      setState(() => _model = updated);
+    }
   }
 
   Future<void> _editNote() async {
@@ -198,7 +229,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
                           SizedBox(height: 20.h),
-                          // 히어로 카드 (D-Day + 타이머)
+                          // 히어로 카드 (D-Day + 진행률 + 타이머)
                           _HeroCard(
                             model: _model,
                             gradient: widget.gradient,
@@ -210,23 +241,36 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           ),
                           SizedBox(height: 16.h),
                           // 마일스톤
-                          if (_model.milestones.isNotEmpty) ...<Widget>[
-                            _MilestonesCard(
-                              milestones: _model.milestones,
-                              progress: _milestoneProgress,
-                              gradient: widget.gradient,
-                              onToggle: _toggleMilestone,
-                            ),
-                            SizedBox(height: 16.h),
-                          ],
+                          _MilestonesCard(
+                            milestones: _model.milestones,
+                            progress: _milestoneProgress,
+                            gradient: widget.gradient,
+                            onToggle: _toggleMilestone,
+                            onDelete: _deleteMilestone,
+                            onAdd: _addMilestone,
+                          ),
+                          SizedBox(height: 16.h),
                           // 노트
                           _NotesCard(
                             note: _model.note,
                             onTap: _editNote,
                           ),
                           SizedBox(height: 24.h),
-                          // EDIT EVENT 버튼
-                          _EditEventButton(onTap: _openEdit),
+                          // EDIT EVENT + SHARE 버튼
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: _EditEventButton(onTap: _openEdit),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: _ShareButton(
+                                  onTap: _openShare,
+                                  gradient: widget.gradient,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -359,6 +403,7 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -413,12 +458,94 @@ class _HeroCard extends StatelessWidget {
               letterSpacing: 1.2,
             ),
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 16.h),
+          // 진행률 바 — 미래 이벤트(D-Day 이전)에서만 표시
+          if (dayDiff > 0) ...<Widget>[
+            _ProgressSection(
+              progress: model.progress,
+              gradient: gradient,
+              isDark: isDark,
+              cs: cs,
+            ),
+            SizedBox(height: 12.h),
+          ],
           // 실시간 카운트다운 타이머
           _TimerDisplay(
             timerText: timerText,
             gradient: gradient,
             dayDiff: dayDiff,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgressSection extends StatelessWidget {
+  const _ProgressSection({
+    required this.progress,
+    required this.gradient,
+    required this.isDark,
+    required this.cs,
+  });
+
+  final double progress;
+  final List<Color> gradient;
+  final bool isDark;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = (progress * 100).round();
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.04),
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                'PROGRESS',
+                style: GoogleFonts.montserrat(
+                  fontSize: 9.sp,
+                  fontWeight: FontWeight.w600,
+                  color: gradient[0].withValues(alpha: 0.8),
+                  letterSpacing: 2.0,
+                ),
+              ),
+              Text(
+                '$pct%',
+                style: GoogleFonts.robotoMono(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: gradient[0],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.r),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 5.h,
+              backgroundColor: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : cs.outlineVariant.withValues(alpha: 0.40),
+              valueColor: AlwaysStoppedAnimation<Color>(gradient[0]),
+            ),
           ),
         ],
       ),
@@ -525,12 +652,16 @@ class _MilestonesCard extends StatelessWidget {
     required this.progress,
     required this.gradient,
     required this.onToggle,
+    required this.onDelete,
+    required this.onAdd,
   });
 
   final List<DaylyMilestone> milestones;
   final double progress;
   final List<Color> gradient;
   final void Function(int) onToggle;
+  final void Function(int) onDelete;
+  final VoidCallback onAdd;
 
   static const _monthShort = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -566,41 +697,81 @@ class _MilestonesCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text(
-                '${(progress * 100).round()}%',
-                style: GoogleFonts.robotoMono(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w600,
-                  color: gradient[0],
+              if (milestones.isNotEmpty)
+                Text(
+                  '${(progress * 100).round()}%',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: gradient[0],
+                  ),
                 ),
-              ),
             ],
           ),
+          if (milestones.isNotEmpty) ...<Widget>[
+            SizedBox(height: 10.h),
+            // 진행 바
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4.r),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 4.h,
+                backgroundColor: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : cs.outlineVariant.withValues(alpha: 0.40),
+                valueColor: AlwaysStoppedAnimation<Color>(gradient[0]),
+              ),
+            ),
+            SizedBox(height: 14.h),
+            // 항목 목록
+            ...milestones.asMap().entries.map((e) {
+              final i = e.key;
+              final ms = e.value;
+              return _MilestoneItem(
+                milestone: ms,
+                dueText: _fmtDue(ms.dueDate),
+                checkColor: gradient[0],
+                onTap: () => onToggle(i),
+                onDelete: () => onDelete(i),
+              );
+            }),
+          ],
           SizedBox(height: 10.h),
-          // 진행 바
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4.r),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 4.h,
-              backgroundColor: isDark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : cs.outlineVariant.withValues(alpha: 0.40),
-              valueColor: AlwaysStoppedAnimation<Color>(gradient[0]),
+          // 추가 버튼
+          GestureDetector(
+            onTap: onAdd,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 4.h),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 22.w,
+                    height: 22.w,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.r),
+                      border: Border.all(
+                        color: gradient[0].withValues(alpha: 0.4),
+                        width: 1.5,
+                        strokeAlign: BorderSide.strokeAlignInside,
+                      ),
+                    ),
+                    child: Icon(Icons.add_rounded,
+                        color: gradient[0].withValues(alpha: 0.6), size: 14.sp),
+                  ),
+                  SizedBox(width: 12.w),
+                  Text(
+                    'Add milestone',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
+                      color: cs.onSurface.withValues(alpha: 0.38),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 14.h),
-          // 항목 목록
-          ...milestones.asMap().entries.map((e) {
-            final i = e.key;
-            final ms = e.value;
-            return _MilestoneItem(
-              milestone: ms,
-              dueText: _fmtDue(ms.dueDate),
-              checkColor: gradient[0],
-              onTap: () => onToggle(i),
-            );
-          }),
         ],
       ),
     );
@@ -613,25 +784,27 @@ class _MilestoneItem extends StatelessWidget {
     required this.dueText,
     required this.checkColor,
     required this.onTap,
+    required this.onDelete,
   });
 
   final DaylyMilestone milestone;
   final String dueText;
   final Color checkColor;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 7.h),
-        child: Row(
-          children: <Widget>[
-            // 체크박스
-            AnimatedContainer(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 7.h),
+      child: Row(
+        children: <Widget>[
+          // 체크박스
+          GestureDetector(
+            onTap: onTap,
+            behavior: HitTestBehavior.opaque,
+            child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 22.w,
               height: 22.w,
@@ -652,9 +825,13 @@ class _MilestoneItem extends StatelessWidget {
                       color: Colors.white, size: 14.sp)
                   : null,
             ),
-            SizedBox(width: 12.w),
-            // 제목
-            Expanded(
+          ),
+          SizedBox(width: 12.w),
+          // 제목
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              behavior: HitTestBehavior.opaque,
               child: Text(
                 milestone.title,
                 style: GoogleFonts.montserrat(
@@ -670,18 +847,29 @@ class _MilestoneItem extends StatelessWidget {
                 ),
               ),
             ),
-            // 마감일
-            if (dueText.isNotEmpty)
-              Text(
-                dueText,
-                style: GoogleFonts.robotoMono(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w400,
-                  color: cs.onSurface.withValues(alpha: 0.30),
-                ),
+          ),
+          // 마감일
+          if (dueText.isNotEmpty)
+            Text(
+              dueText,
+              style: GoogleFonts.robotoMono(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w400,
+                color: cs.onSurface.withValues(alpha: 0.30),
               ),
-          ],
-        ),
+            ),
+          SizedBox(width: 8.w),
+          // 삭제 버튼
+          GestureDetector(
+            onTap: onDelete,
+            behavior: HitTestBehavior.opaque,
+            child: Icon(
+              Icons.close_rounded,
+              size: 14.sp,
+              color: cs.onSurface.withValues(alpha: 0.24),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -940,6 +1128,231 @@ class _NoteEditDialogState extends State<_NoteEditDialog> {
                           child: Center(
                             child: Text(
                               'Save',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w700,
+                                color: cs.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Share 버튼
+// ──────────────────────────────────────────────────────────────
+
+class _ShareButton extends StatelessWidget {
+  const _ShareButton({required this.onTap, required this.gradient});
+  final VoidCallback onTap;
+  final List<Color> gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            height: 52.h,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: <Color>[
+                  gradient[0].withValues(alpha: isDark ? 0.25 : 0.15),
+                  gradient[1].withValues(alpha: isDark ? 0.15 : 0.08),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: gradient[0].withValues(alpha: 0.35),
+                width: 1.0,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.share_outlined,
+                    color: gradient[0], size: 18.sp),
+                SizedBox(width: 8.w),
+                Text(
+                  'SHARE',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: gradient[0],
+                    letterSpacing: 2.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// 마일스톤 추가 다이얼로그
+// ──────────────────────────────────────────────────────────────
+
+class _MilestoneAddDialog extends StatefulWidget {
+  @override
+  State<_MilestoneAddDialog> createState() => _MilestoneAddDialogState();
+}
+
+class _MilestoneAddDialogState extends State<_MilestoneAddDialog> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHigh.withValues(alpha: 0.95),
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(Icons.flag_outlined,
+                    color: cs.onSurfaceVariant, size: 28.sp),
+                SizedBox(height: 14.h),
+                Text(
+                  'Add Milestone',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                TextField(
+                  controller: controller,
+                  maxLines: 1,
+                  autofocus: true,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13.sp,
+                    color: cs.onSurface.withValues(alpha: 0.85),
+                    height: 1.5,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Book flights',
+                    hintStyle: GoogleFonts.montserrat(
+                      fontSize: 13.sp,
+                      color: cs.onSurface.withValues(alpha: 0.24),
+                    ),
+                    filled: true,
+                    fillColor: isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : cs.surface,
+                    contentPadding: EdgeInsets.all(14.w),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(color: cs.outlineVariant),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(color: cs.outlineVariant),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(color: cs.primary),
+                    ),
+                  ),
+                  cursorColor: cs.primary,
+                  onSubmitted: (text) {
+                    if (text.trim().isNotEmpty) {
+                      Navigator.of(context).pop(text);
+                    }
+                  },
+                ),
+                SizedBox(height: 20.h),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          height: 44.h,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : cs.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: cs.outlineVariant),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: cs.onSurface.withValues(alpha: 0.60),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () =>
+                            Navigator.of(context).pop(controller.text),
+                        child: Container(
+                          height: 44.h,
+                          decoration: BoxDecoration(
+                            color: cs.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              color: cs.primary.withValues(alpha: 0.40),
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Add',
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w700,

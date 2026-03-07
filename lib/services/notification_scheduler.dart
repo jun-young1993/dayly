@@ -52,12 +52,13 @@ class NotificationScheduler {
     final scheduled = <int>[];
 
     for (final (daysOffset, triggerIndex) in _triggers) {
-      final notifDate = model.targetDate.add(Duration(days: daysOffset));
+      // Duration(days:)는 정확히 N×24h를 더하므로 DST 전환일에 날짜가 밀릴 수 있다.
+      // TZDateTime 생성자에서 날짜 단위로 직접 더하면 타임존 규칙이 적용되어 오차 없음.
       final scheduledAt = tz.TZDateTime(
         tz.local,
-        notifDate.year,
-        notifDate.month,
-        notifDate.day,
+        model.targetDate.year,
+        model.targetDate.month,
+        model.targetDate.day + daysOffset,
         _notifyHour,
         _notifyMinute,
       );

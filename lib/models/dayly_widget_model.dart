@@ -252,6 +252,7 @@ class DaylyWidgetModel {
     required this.primarySentence,
     required this.targetDate,
     required this.style,
+    required this.createdAt,
     this.note = '',
     this.milestones = const <DaylyMilestone>[],
   });
@@ -269,6 +270,7 @@ class DaylyWidgetModel {
       primarySentence: '23 days',
       targetDate: defaultTarget,
       style: const DaylyWidgetStyle.defaults(),
+      createdAt: safeNow,
     );
   }
 
@@ -281,6 +283,18 @@ class DaylyWidgetModel {
   final DateTime targetDate;
   final DaylyWidgetStyle style;
 
+  /// 이벤트 생성 시점 — 진행률 계산의 시작 기준점.
+  final DateTime createdAt;
+
+  /// D-Day 진행률 (0.0 ~ 1.0).
+  /// createdAt → targetDate 전체 기간 대비 경과 비율.
+  double get progress {
+    final total = targetDate.difference(createdAt).inDays;
+    if (total <= 0) return 1.0;
+    final elapsed = DateTime.now().difference(createdAt).inDays;
+    return (elapsed / total).clamp(0.0, 1.0);
+  }
+
   /// 메모 (자유 텍스트)
   final String note;
 
@@ -292,6 +306,7 @@ class DaylyWidgetModel {
       'id': id,
       'primarySentence': primarySentence,
       'targetDate': targetDate.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
       'style': style.toJson(),
       'note': note,
       'milestones': milestones.map((m) => m.toJson()).toList(),
@@ -309,6 +324,9 @@ class DaylyWidgetModel {
       primarySentence: (json['primarySentence'] as String?) ?? '',
       targetDate: DateTime.tryParse((json['targetDate'] as String?) ?? '') ??
           DateTime.now(),
+      // 구버전 데이터(createdAt 없음)는 현재 시각으로 fallback
+      createdAt: DateTime.tryParse((json['createdAt'] as String?) ?? '') ??
+          DateTime.now(),
       style: styleJson == null
           ? const DaylyWidgetStyle.defaults()
           : DaylyWidgetStyle.fromJson(styleJson),
@@ -325,6 +343,7 @@ class DaylyWidgetModel {
     String? primarySentence,
     DateTime? targetDate,
     DaylyWidgetStyle? style,
+    DateTime? createdAt,
     String? note,
     List<DaylyMilestone>? milestones,
   }) {
@@ -333,6 +352,7 @@ class DaylyWidgetModel {
       primarySentence: primarySentence ?? this.primarySentence,
       targetDate: targetDate ?? this.targetDate,
       style: style ?? this.style,
+      createdAt: createdAt ?? this.createdAt,
       note: note ?? this.note,
       milestones: milestones ?? this.milestones,
     );

@@ -169,6 +169,7 @@ class _AddMomentScreenState extends State<_AddMomentScreen> {
         primarySentence: _nameController.text.trim(),
         targetDate: _targetDate,
         style: style,
+        createdAt: DateTime.now(),
       ),
     );
   }

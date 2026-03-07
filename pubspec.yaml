@@ -38,10 +38,6 @@ dependencies:
   intl: ^0.20.2
   share_plus: ^12.0.1
   shared_preferences: ^2.5.3
-  firebase_ui_auth: ^3.0.1
-  firebase_auth: ^6.1.3
-  firebase_core: ^4.3.0
-  firebase_ui_oauth_google: ^2.0.1
   flutter_screenutil: ^5.9.3
   # 홈화면 위젯 (iOS WidgetKit / Android AppWidget 브릿지)
   home_widget: ^0.7.0
@@ -81,7 +77,7 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter packages.
+# The following sections is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -89,7 +85,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
+  # To add assets to your application, add an assets sections, like this:
   assets:
     - assets/images/
     - assets/fonts/

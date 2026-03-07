@@ -176,7 +176,7 @@ splitScreenMode: true (분할 화면 지원)
 WidgetGridScreen
   ├─ _AnimatedGradientBackground  ← 8초 주기 배경 색상 애니메이션
   ├─ _GlowCircle                  ← 장식용 RadialGradient 빛 효과
-  ├─ _GlassmorphicCard            ← Edge Light + BackdropFilter 카드 (탭 → EventDetailScreen)
+  ├─ _DysmorphicCard            ← Edge Light + BackdropFilter 카드 (탭 → EventDetailScreen)
   └─ _GlassFab                    ← 반투명 글래스 + 버튼
 
 EventDetailScreen                 ← 카드 탭 진입 (NEW)
