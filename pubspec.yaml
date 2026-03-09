@@ -72,6 +72,10 @@ dev_dependencies:
     git:
       url: https://github.com/jun-young1993/flutter_ui_kit.git
       path: packages/flutter_ui_kit_setting
+  flutter_ui_kit_l10n:
+    git:
+      url: https://github.com/jun-young1993/flutter_ui_kit.git
+      path: packages/flutter_ui_kit_l10n
 
 
 # For information on the generic Dart part of this file, see the

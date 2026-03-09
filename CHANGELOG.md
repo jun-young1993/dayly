@@ -2,6 +2,15 @@
 
 ---
 
+## 1.3.1 — 2026-03-09
+
+### Fixed — 설정 화면 테마/언어/브랜드 변경이 즉시 반영되지 않는 문제
+
+- `DaylyApp`이 `DsThemeController`를 구독하지 않아 `notifyListeners()` 호출 시 `MaterialApp`이 rebuild되지 않던 버그 수정
+- `ListenableBuilder`로 `ScreenUtilInit`을 감싸 컨트롤러 변경 시 즉시 반영되도록 수정
+
+---
+
 ## 1.3.0 — 2026-03-08
 
 ### Added — 이벤트 상세 화면 개선

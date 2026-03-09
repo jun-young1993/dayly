@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_ui_kit_google_mobile_ads/flutter_ui_kit_google_mobile_ads.dart';
+import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -38,6 +39,11 @@ Future<void> main() async {
     ),
   );
 
+  final themeController = DsThemeController();
+  await themeController.init();
+
+
+
   // ── NotificationRepository 초기화 ────────────────────────────
   // Hive 박스가 이전 세션에서 비정상 종료된 경우 삭제 후 재시도.
   try {
@@ -64,7 +70,7 @@ Future<void> main() async {
     debugPrint('FlutterError: ${details.exception}\n${details.stack}');
   };
 
-  runApp(buildDaylyApp());
+  runApp(DaylyApp(themeController: themeController));
 
   unawaited(() async {
     try{

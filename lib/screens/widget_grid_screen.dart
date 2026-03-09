@@ -29,16 +29,10 @@ import 'package:dayly/screens/setting_screen.dart';
 class WidgetGridScreen extends StatefulWidget {
   const WidgetGridScreen({
     super.key,
-    required this.themeMode,
-    required this.onThemeModeChanged,
-    required this.brand,
-    required this.onBrandToggled,
+    required this.themeController,
   });
-
-  final ThemeMode themeMode;
-  final ValueChanged<ThemeMode> onThemeModeChanged;
-  final DsBrand brand;
-  final ValueChanged<DsBrand> onBrandToggled;
+  final DsThemeController themeController;
+  
 
   @override
   State<WidgetGridScreen> createState() => _WidgetGridScreenState();
@@ -47,6 +41,8 @@ class WidgetGridScreen extends StatefulWidget {
 class _WidgetGridScreenState extends State<WidgetGridScreen> {
   var _isLoading = true;
   List<DaylyWidgetModel> _widgets = const <DaylyWidgetModel>[];
+  DsThemeController get _themeController => widget.themeController;
+  
 
   final _notifRepo = NotificationRepository.instance;
   late final NotificationPermissionService _permissionService;
@@ -241,7 +237,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildHeader(cs, isDark),
+                  _buildHeader(cs, isDark, _themeController),
                   _buildHomeWidgetBanner(cs, isDark),
                   Expanded(
                     child: _isLoading
@@ -272,7 +268,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 
-  Widget _buildHeader(ColorScheme cs, bool isDark) {
+  Widget _buildHeader(ColorScheme cs, bool isDark, DsThemeController themeController) {
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 28.h, 16.w, 4.h),
       child: Row(
@@ -306,7 +302,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
           ),
           SettingGearButton(
             animate: true,
-            onPressed: () => _openSetting(context)
+            onPressed: () => _openSetting(context, themeController: themeController)
           ),
           // DsThemeToggle(
           //   themeMode: widget.themeMode,
@@ -329,16 +325,15 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 
-  void _openSetting(BuildContext context) {
+  void _openSetting(BuildContext context, {
+    required DsThemeController themeController
+  }) {
       Navigator.push(
           context,
           MaterialPageRoute(
               builder: (_) =>
                   AppSettingScreen(
-                      themeMode: widget.themeMode,
-                      onThemeModeChanged: widget.onThemeModeChanged,
-                      brand: widget.brand,
-                      onBrandChanged: widget.onBrandToggled
+                      controller: themeController
                   )
           )
       );

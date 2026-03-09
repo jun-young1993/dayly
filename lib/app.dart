@@ -5,23 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_ui_kit_google_mobile_ads/flutter_ui_kit_google_mobile_ads.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
+import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 
 /// App root for Dayly.
 ///
 /// ScreenUtilInit 기준: 390×844 (iPhone 14 Pro 논리 해상도)
 /// 태블릿(splitScreenMode: true)에서도 비율 유지.
-Widget buildDaylyApp() => const _DaylyApp();
 
-class _DaylyApp extends StatefulWidget {
-  const _DaylyApp();
+
+class DaylyApp extends StatefulWidget {
+
+  const DaylyApp({super.key, required this.themeController});
+  final DsThemeController themeController;
 
   @override
-  State<_DaylyApp> createState() => _DaylyAppState();
+  State<DaylyApp> createState() => _DaylyAppState();
 }
 
-class _DaylyAppState extends State<_DaylyApp> with WidgetsBindingObserver {
-  ThemeMode _themeMode = ThemeMode.system;
-  DsBrand _brand = DsBrand.violet;
+class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
+  DsThemeController get _themeController => widget.themeController;
 
   @override
   void initState() {
@@ -46,35 +48,36 @@ class _DaylyAppState extends State<_DaylyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(390, 844),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (_, child) => MaterialApp(
-        title: 'dayly',
-        debugShowCheckedModeBanner: false,
-        themeMode: _themeMode,
-        theme: _brand.lightTheme(),
-        darkTheme: _brand.darkTheme(),
-        home: child,
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: WidgetGridScreen(
-              themeMode: _themeMode,
-              onThemeModeChanged: (m) => setState(() => _themeMode = m),
-              brand: _brand,
-              onBrandToggled: (b) => setState(
-                () => _brand =b,
+    return ListenableBuilder(
+      listenable: _themeController,
+      builder: (_, __) => ScreenUtilInit(
+        designSize: const Size(390, 844),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (_, child) => MaterialApp(
+          title: 'dayly',
+          debugShowCheckedModeBanner: false,
+          themeMode: _themeController.themeMode,
+          theme: _themeController.lightTheme,
+          darkTheme: _themeController.darkTheme,
+          locale: _themeController.locale,
+          localizationsDelegates: UiKitLocalizations.localizationsDelegates,
+          supportedLocales: UiKitLocalizations.supportedLocales,
+          home: child,
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: WidgetGridScreen(
+                themeController: _themeController,
               ),
             ),
-          ),
-          BannerAdWidget(
-            androidId: 'ca-app-pub-4656262305566191/8847465750',
-            iosId: 'ca-app-pub-4656262305566191/5810238878',
-          ),
-        ],
+            BannerAdWidget(
+              androidId: 'ca-app-pub-4656262305566191/8847465750',
+              iosId: 'ca-app-pub-4656262305566191/5810238878',
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -5,40 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-BoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-ExtraLight.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-ExtraLightItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-Italic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-Light.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-LightItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-Medium.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-MediumItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-Regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-SemiBold.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-SemiBoldItalic.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-Thin.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-ThinItalic.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analysis_options.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/analysis_options.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/fonts/RobotoMono-Bold.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/assets/fonts/RobotoMono-Bold.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dayly.iml" beforeDir="false" afterPath="$PROJECT_DIR$/dayly.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/checkes/CHECK-v1.0.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/checkes/CHECK-v1.0.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/DaylyWidget/DaylyWidget.swift" beforeDir="false" afterPath="$PROJECT_DIR$/ios/DaylyWidget/DaylyWidget.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner/AppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/AppDelegate.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/firebase_options.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/android/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/models/dayly_widget_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/dayly_widget_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/add_widget_bottom_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/add_widget_bottom_sheet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/event_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/event_detail_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screens/setting_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/setting_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/notification_id_registry.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/notification_id_registry.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/notification_scheduler.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/notification_scheduler.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
@@ -115,7 +89,10 @@
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/junyoungkim/Desktop/junyoung/app/source/dayly/assets/fonts",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "dart.settings",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
   }
@@ -158,12 +135,5 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.facetType" implementationName="android" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <default-breakpoints>
-        <breakpoint type="dart-exception" />
-      </default-breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
