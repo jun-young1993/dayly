@@ -7,9 +7,10 @@
     <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/juny/dayly/DaylyAppWidget.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/juny/dayly/DaylyAppWidget.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/setting_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/setting_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utils/dayly_countdown_phrase.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils/dayly_countdown_phrase.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/layout/dayly_widget_medium.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/layout/dayly_widget_medium.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/layout/dayly_widget_small.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/layout/dayly_widget_small.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

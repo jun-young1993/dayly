@@ -12,6 +12,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 
 class SharePreviewScreenV2 extends StatefulWidget {
   const SharePreviewScreenV2({
@@ -78,6 +79,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
 
   Future<void> _editSentence() async {
     final controller = TextEditingController(text: _model.primarySentence);
+     final l10n = UiKitLocalizations.of(context);
     final result = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -94,8 +96,12 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              const Text(
-                'Sentence Editing',
+              Text(
+                l10n.custom((locale) => switch(locale.languageCode) {
+                  'ko' => '문구 편집',
+                  'ja' =>  '文言編集',
+                  _ => 'Sentence Editing'
+                }),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),

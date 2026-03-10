@@ -69,15 +69,10 @@
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-        <!-- 위젯 구성 Activity (레거시 — 스와이프 탐색으로 대체됨) -->
-        <activity
-            android:name=".DaylyWidgetConfigActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.Dialog">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-            </intent-filter>
-        </activity>
+        <!-- DaylyWidgetConfigActivity: 레거시. appwidget-provider에 android:configure 미설정이므로
+             정상 플로우에서는 실행되지 않지만, 일부 런처(Samsung One UI 등)가
+             APPWIDGET_CONFIGURE intent-filter를 감지해 리사이즈 시 자동 실행 → RESULT_CANCELED 반환
+             → "Couldn't add widget" 에러 유발. manifest 등록 제거로 문제 해결. -->
 
         <!-- ── 딥링크: dayly://detail/{widgetId} ── -->
         <!-- MainActivity에 intent-filter 추가 -->

@@ -6,6 +6,8 @@
 
 ### Fixed — Android 위젯 버그 수정
 
+- **"Couldn't add widget" 에러**: `DaylyWidgetConfigActivity`가 `APPWIDGET_CONFIGURE` intent-filter로 manifest에 등록되어 있어 Samsung One UI 등 일부 런처가 위젯 리사이즈 시 해당 Activity를 자동 실행 → `RESULT_CANCELED` 반환 → 위젯 추가 실패하던 문제 수정. manifest에서 레거시 Activity 등록 제거.
+- **위젯 콘텐츠가 경계 밖으로 벗어나는 문제**: StackView의 peek 효과로 인접 카드가 위젯 경계 밖으로 노출되던 문제 수정 — 컨테이너 FrameLayout에 `padding="4dp"` 및 `clipChildren/clipToPadding="true"` 추가
 - **D-Day 당일 표시 불일치**: `dMinus` 모드에서 Dart는 "D-0", Kotlin 위젯은 "D-Day"를 표시하던 문제 수정 — Dart `buildCountdownPhrase`에서 `dayDiff == 0`일 때 "D-Day" 반환하도록 통일
 - **Android 12+ 자정 업데이트 실패**: `SCHEDULE_EXACT_ALARM` 권한이 없을 때 `setExactAndAllowWhileIdle()` 호출이 silently fail되던 문제 수정 — `canScheduleExactAlarms()` 체크 후 권한 없으면 `setWindow()` (±5분) fallback으로 자정 업데이트 보장
 

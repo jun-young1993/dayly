@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dayly/models/dayly_widget_model.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
 import 'package:flutter_ui_kit_setting/flutter_ui_kit_setting.dart';
+import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dayly/screens/setting_screen.dart';
 
@@ -68,6 +70,8 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     <Color>[Color(0xFFFF9FF3), Color(0xFFF368E0)],
     <Color>[Color(0xFFFECB74), Color(0xFFFFA502)],
   ];
+
+
 
   @override
   void initState() {
@@ -154,7 +158,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
 
   Future<void> _openAddWidgetSheet() async {
     HapticFeedback.mediumImpact();
-
+    final l10n = UiKitLocalizations.of(context);
     // 매 위젯 추가 시 권한 확인.
     // context를 전달해 SCHEDULE_EXACT_ALARM 거부 시 안내 다이얼로그 표시.
     await _permissionService.request(context);
@@ -167,20 +171,29 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       final proceed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('알림 한도 초과'),
+          title: Text(l10n.custom(
+            (locale) => 
+              switch(locale.languageCode) {
+                'ko' => '알림 한도 초과',
+                'ja' => '通知の上限を超えました',
+                _ => 'Notification limit reached'
+              } 
+          )),
           content: Text(
-            '위젯이 ${NotificationIdRegistry.maxWidgets}개를 초과하면 '
-            '새 위젯의 알림을 예약할 수 없습니다.\n'
-            '위젯은 추가되지만 알림은 설정되지 않습니다.',
+            l10n.custom((locale) => switch(locale.languageCode) {
+              'ko' => '위젯이 ${NotificationIdRegistry.maxWidgets}개를 초과하면 새 위젯의 알림을 예약할 수 없습니다.\n위젯은 추가되지만 알림은 설정되지 않습니다.',
+              'ja' => 'ウィジェットが${NotificationIdRegistry.maxWidgets}個を超えると、新しいウィジェットの通知を予約できません。\nウィジェットは追加されますが、通知は設定されません。',
+              _ => 'If the number of widgets exceeds ${NotificationIdRegistry.maxWidgets}, notifications for the new widget cannot be scheduled.\nThe widget will be added, but notifications will not be set.'
+            })
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('취소'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('추가'),
+              child: Text(l10n.add),
             ),
           ],
         ),
@@ -269,6 +282,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   }
 
   Widget _buildHeader(ColorScheme cs, bool isDark, DsThemeController themeController) {
+    final l10n = UiKitLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 28.h, 16.w, 4.h),
       child: Row(
@@ -279,7 +293,11 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'YOUR MOMENTS',
+                  l10n.custom((locale) => switch(locale.languageCode) {
+                    'ko' => '당신의 순간',
+                    'ja' => 'あなたの瞬間',
+                    _ => 'YOUR MOMENTS'
+                  }),
                   style: GoogleFonts.montserrat(
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w700,
@@ -345,6 +363,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   /// Android: 홈화면 길게 누르기 → 위젯 → dayly
   /// iOS: 홈화면 길게 누르기 → + 버튼 → dayly 검색
   Widget _buildHomeWidgetBanner(ColorScheme cs, bool isDark) {
+    final l10n = UiKitLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 0),
       child: ClipRRect(
@@ -371,7 +390,18 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
                 SizedBox(width: 10.w),
                 Expanded(
                   child: Text(
-                    'Long-press the Home screen → Add widgets → Select dayly.',
+                    Platform.isIOS
+                    ? l10n.custom((locale) => switch(locale.languageCode) {
+                      'ko' => '홈화면 길게 누르기 → + 버튼 → 「dayly」검색',
+                      'ja' => 'ホーム画面を長押し → ＋ボタンをタップ → 「dayly」を検索',
+                      _ => 'Long press the home screen → Tap the + button → Search for 「dayly」'
+                    })
+                    : l10n.custom((locale) => switch(locale.languageCode) {
+                      'ko' => '홈화면 길게 누르기 → 위젯 선택 → 「dayly」',
+                      'ja' => ' ホーム画面を長押し → ウィジェットを選択 → 「dayly」',
+                      _ => 'Long press the home screen → Select Widgets → 「dayly」'
+                    }),
+                    // 'Long-press the Home screen → Add widgets → Select dayly.',
                     style: GoogleFonts.montserrat(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w500,
@@ -423,6 +453,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   }
 
   Widget _buildEmptyState(ColorScheme cs) {
+    final l10n = UiKitLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -431,7 +462,12 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               color: cs.onSurface.withValues(alpha: 0.12), size: 48.sp),
           SizedBox(height: 12.h),
           Text(
-            'Tap the + button to add your first D-Day.',
+            // 'Tap the + button to add your first D-Day.',
+            l10n.custom((locale) => switch(locale.languageCode) {
+              'ko' => '+ 버튼을 눌러 첫 번째 디데이를 추가하세요.',
+              'ja' => '＋ボタンをタップして、最初のD-Dayを追加しましょう。',
+              _ => 'Tap the + button to add your first D-Day.'
+            }),
             style: GoogleFonts.montserrat(
               color: cs.onSurface.withValues(alpha: 0.24),
               fontSize: 13.sp,
