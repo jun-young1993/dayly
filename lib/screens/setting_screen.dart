@@ -44,7 +44,7 @@ class _AppSettingScreenState extends State<AppSettingScreen> {
             emailSubject: '[dayly] Support Request',
             shareText: 'http://juny.blog/redirect/app/store/name/dayly',
             appStoreUrl: Platform.isIOS ? 'https://apps.apple.com/us/app/frame-time-pro/id6759611898' : null,
-            playStoreUrl: Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=juny.frame_time_pro' : null,
+            playStoreUrl: Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=juny.dayly' : null,
             homepageUrl: 'https://juny.blog',
             showBuildNumber: true,
             appName: 'dayly',

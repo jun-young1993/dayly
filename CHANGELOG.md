@@ -2,6 +2,15 @@
 
 ---
 
+## 1.3.2 — 2026-03-10
+
+### Fixed — Android 위젯 버그 수정
+
+- **D-Day 당일 표시 불일치**: `dMinus` 모드에서 Dart는 "D-0", Kotlin 위젯은 "D-Day"를 표시하던 문제 수정 — Dart `buildCountdownPhrase`에서 `dayDiff == 0`일 때 "D-Day" 반환하도록 통일
+- **Android 12+ 자정 업데이트 실패**: `SCHEDULE_EXACT_ALARM` 권한이 없을 때 `setExactAndAllowWhileIdle()` 호출이 silently fail되던 문제 수정 — `canScheduleExactAlarms()` 체크 후 권한 없으면 `setWindow()` (±5분) fallback으로 자정 업데이트 보장
+
+---
+
 ## 1.3.1 — 2026-03-09
 
 ### Fixed — 설정 화면 테마/언어/브랜드 변경이 즉시 반영되지 않는 문제

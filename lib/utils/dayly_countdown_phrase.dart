@@ -17,12 +17,12 @@ String buildCountdownPhrase({
     case DaylyCountdownMode.days:
       return dayDiff >= 0 ? '$days days left' : '$days days ago';
     case DaylyCountdownMode.dMinus:
-      // Rule-friendly: keep "D-23" (no D+).
-      // Request: future/upcoming => D- , past/after => D+
       // dayDiff = (target - now).inDays
-      // - dayDiff >= 0 : target is today or in the future
+      // - dayDiff > 0  : target is in the future
+      // - dayDiff == 0 : today is D-Day
       // - dayDiff < 0  : target already passed
-      return dayDiff >= 0 ? 'D-$days' : 'D+$days';
+      if (dayDiff == 0) return 'D-Day';
+      return dayDiff > 0 ? 'D-$days' : 'D+$days';
     case DaylyCountdownMode.weeksDays:
       final weeks = days ~/ 7;
       final remainderDays = days % 7;

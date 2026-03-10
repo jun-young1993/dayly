@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
 import org.json.JSONArray
@@ -159,11 +160,22 @@ class DaylyAppWidget : AppWidgetProvider() {
             }
             val pendingIntent = midnightPendingIntent(context)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                midnight.timeInMillis,
-                pendingIntent,
-            )
+            // Android 12+(API 31+): SCHEDULE_EXACT_ALARM 권한이 없으면 setWindow() fallback
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                // 자정 ±5분 허용 범위로 근사 예약
+                alarmManager.setWindow(
+                    AlarmManager.RTC_WAKEUP,
+                    midnight.timeInMillis,
+                    5 * 60 * 1000L,
+                    pendingIntent,
+                )
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    midnight.timeInMillis,
+                    pendingIntent,
+                )
+            }
         }
 
         private fun cancelMidnightUpdate(context: Context) {
