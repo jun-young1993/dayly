@@ -247,3 +247,18 @@ if (kDebugMode) {
 https://github.com/firebase/FirebaseUI-Flutter/blob/main/packages/firebase_ui_auth/example/lib/config.dart
 
 
+1️⃣ emulator 명령어로 실행 (가장 일반적인 방법)
+
+Android SDK에 있는 emulator 실행파일을 직접 실행하면 됩니다.
+
+① AVD 목록 확인
+emulator -list-avds
+
+예시 출력
+
+Pixel_6_API_34
+Pixel_5_API_33
+② 원하는 에뮬레이터 실행
+emulator -avd Pixel_6_API_34
+
+그러면 Android Studio 없이 독립 윈도우로 에뮬레이터가 실행됩니다.

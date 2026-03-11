@@ -2,40 +2,75 @@
 <!--
   StackView 아이템 — Small (2x2)
   각 D-Day 이벤트를 카드 형태로 표시한다.
+  페이지 인디케이터와 dayly 워터마크를 포함한다.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:padding="12dp"
     android:background="@drawable/dayly_widget_bg">
 
-    <!-- D-Day 카운트다운 텍스트 (예: D-3, 23일) -->
-    <TextView
-        android:id="@+id/widget_countdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="D-?"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#F4F6FA"
-        android:fontFamily="monospace"
-        android:maxLines="1"
-        android:ellipsize="end" />
-
-    <!-- 문구 -->
-    <TextView
-        android:id="@+id/widget_sentence"
+    <!-- 중앙 콘텐츠: 카운트다운 + 문구 -->
+    <LinearLayout
+        android:id="@+id/content_center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text=""
-        android:textSize="11sp"
-        android:textColor="#B0C4DE"
-        android:gravity="center"
-        android:maxLines="2"
-        android:ellipsize="end" />
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center">
 
-</LinearLayout>
+        <!-- D-Day 카운트다운 숫자 (예: D-3, 23일) -->
+        <TextView
+            android:id="@+id/widget_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="D-?"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#F4F6FA"
+            android:fontFamily="monospace"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- 감성 문구 -->
+        <TextView
+            android:id="@+id/widget_sentence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text=""
+            android:textSize="11sp"
+            android:textColor="#7090B0"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+    </LinearLayout>
+
+    <!-- 페이지 인디케이터 (하단 중앙, 복수 위젯 시에만 표시) -->
+    <TextView
+        android:id="@+id/widget_page_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textSize="9sp"
+        android:textColor="#4060A0"
+        android:fontFamily="monospace"
+        android:visibility="gone" />
+
+    <!-- dayly 워터마크 (우측 하단) -->
+    <TextView
+        android:id="@+id/widget_watermark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="dayly"
+        android:textSize="8sp"
+        android:textColor="#2A3A5A"
+        android:fontFamily="monospace" />
+
+</RelativeLayout>

@@ -2,7 +2,9 @@ package juny.dayly
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
+import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import org.json.JSONArray
@@ -22,6 +24,14 @@ class DaylyWidgetRemoteViewsService : RemoteViewsService() {
         const val EXTRA_IS_MEDIUM = "is_medium"
     }
 }
+
+private data class WidgetThemeColors(
+    val bgDrawable: Int,
+    val textColor: Int,
+    val subColor: Int,
+    val dotColor: Int,
+    val watermarkColor: Int,
+)
 
 private class DaylyRemoteViewsFactory(
     private val context: Context,
@@ -58,6 +68,30 @@ private class DaylyRemoteViewsFactory(
                 setTextViewText(R.id.widget_date_label, data.dateLabel)
             }
 
+            // 테마별 색상 적용
+            val theme = themeColors(data.themePreset)
+            setInt(R.id.widget_container, "setBackgroundResource", theme.bgDrawable)
+            setTextColor(R.id.widget_countdown, theme.textColor)
+            setTextColor(R.id.widget_sentence, theme.subColor)
+            setTextColor(R.id.widget_watermark, theme.watermarkColor)
+            if (isMedium) {
+                setTextColor(R.id.widget_date_label, theme.subColor)
+                setInt(R.id.dot_1, "setBackgroundColor", theme.dotColor)
+                setInt(R.id.dot_2, "setBackgroundColor", theme.dotColor)
+                setInt(R.id.dot_3, "setBackgroundColor", theme.dotColor)
+            }
+
+            // 페이지 인디케이터 (복수 위젯일 때만 표시)
+            if (data.totalCount > 1) {
+                val indicator = if (isMedium) "< ${data.currentIndex + 1}/${data.totalCount} >"
+                                else "${data.currentIndex + 1}/${data.totalCount}"
+                setTextViewText(R.id.widget_page_indicator, indicator)
+                setTextColor(R.id.widget_page_indicator, theme.dotColor)
+                setViewVisibility(R.id.widget_page_indicator, View.VISIBLE)
+            } else {
+                setViewVisibility(R.id.widget_page_indicator, View.GONE)
+            }
+
             // 클릭 시 해당 이벤트 상세 화면으로 이동하는 fill-in intent
             val deepLink = if (data.id.isNotEmpty()) "dayly://detail/${data.id}" else "dayly://home"
             val fillInIntent = Intent().apply {
@@ -82,12 +116,51 @@ private class DaylyRemoteViewsFactory(
         if (jsonString.isNullOrEmpty()) return emptyList()
         return try {
             val array = JSONArray(jsonString)
-            (0 until array.length()).map { i ->
-                WidgetDisplayData.fromJson(array.getJSONObject(i))
+            val total = array.length()
+            (0 until total).map { i ->
+                WidgetDisplayData.fromJson(array.getJSONObject(i), i, total)
             }
         } catch (_: Exception) {
             emptyList()
         }
+    }
+
+    private fun themeColors(preset: String): WidgetThemeColors = when (preset) {
+        "paper" -> WidgetThemeColors(
+            bgDrawable = R.drawable.dayly_widget_bg_paper,
+            textColor = Color.parseColor("#0B1220"),
+            subColor = Color.parseColor("#6B7280"),
+            dotColor = Color.parseColor("#9090A8"),
+            watermarkColor = Color.parseColor("#C0C8D0"),
+        )
+        "fog" -> WidgetThemeColors(
+            bgDrawable = R.drawable.dayly_widget_bg_fog,
+            textColor = Color.parseColor("#0B1220"),
+            subColor = Color.parseColor("#6B7280"),
+            dotColor = Color.parseColor("#8090A8"),
+            watermarkColor = Color.parseColor("#B8C8D8"),
+        )
+        "lavender" -> WidgetThemeColors(
+            bgDrawable = R.drawable.dayly_widget_bg_lavender,
+            textColor = Color.parseColor("#0B1220"),
+            subColor = Color.parseColor("#6B7280"),
+            dotColor = Color.parseColor("#9080B0"),
+            watermarkColor = Color.parseColor("#C0B8D0"),
+        )
+        "blush" -> WidgetThemeColors(
+            bgDrawable = R.drawable.dayly_widget_bg_blush,
+            textColor = Color.parseColor("#0B1220"),
+            subColor = Color.parseColor("#6B7280"),
+            dotColor = Color.parseColor("#A88090"),
+            watermarkColor = Color.parseColor("#D0B8C0"),
+        )
+        else -> WidgetThemeColors( // night (기본)
+            bgDrawable = R.drawable.dayly_widget_bg,
+            textColor = Color.parseColor("#F4F6FA"),
+            subColor = Color.parseColor("#7090B0"),
+            dotColor = Color.parseColor("#4060A0"),
+            watermarkColor = Color.parseColor("#2A3A5A"),
+        )
     }
 
     companion object {

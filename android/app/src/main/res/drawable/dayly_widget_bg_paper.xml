@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 위젯 배경: 따뜻한 종이 톤 (paper 테마) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="#F9F4EC"
+        android:endColor="#F2EBE0" />
+    <corners android:radius="20dp" />
+</shape>

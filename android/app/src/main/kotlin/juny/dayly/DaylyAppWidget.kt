@@ -200,11 +200,14 @@ data class WidgetDisplayData(
     val sentence: String,
     val countdownText: String,
     val dateLabel: String,
+    val themePreset: String = "night",
+    val currentIndex: Int = 0,
+    val totalCount: Int = 1,
 ) {
     companion object {
-        fun empty() = WidgetDisplayData("", "dayly", "–", "")
+        fun empty() = WidgetDisplayData("", "dayly", "–", "", "night", 0, 1)
 
-        fun fromJson(obj: JSONObject): WidgetDisplayData {
+        fun fromJson(obj: JSONObject, index: Int = 0, total: Int = 1): WidgetDisplayData {
             val targetDate = obj.optString("targetDate", "")
             val countdownMode = obj.optString("countdownMode", "dMinus")
             val countdownText = if (targetDate.isNotEmpty()) {
@@ -217,6 +220,9 @@ data class WidgetDisplayData(
                 sentence = obj.optString("sentence", ""),
                 countdownText = countdownText,
                 dateLabel = obj.optString("targetDateLabel", ""),
+                themePreset = obj.optString("themePreset", "night"),
+                currentIndex = index,
+                totalCount = total,
             )
         }
     }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 위젯 배경: 부드러운 라벤더 톤 (lavender 테마) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="#F4EFF9"
+        android:endColor="#EDE6F5" />
+    <corners android:radius="20dp" />
+</shape>

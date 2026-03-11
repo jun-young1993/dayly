@@ -1,77 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   StackView 아이템 — Medium (4x2)
-  각 D-Day 이벤트를 카드 형태로 표시한다.
+  iOS와 동일하게 좌측 정렬, 페이지 인디케이터(<1/4>), dayly 워터마크를 포함한다.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     android:padding="16dp"
     android:background="@drawable/dayly_widget_bg">
 
-    <!-- 날짜 레이블 (예: 2026.06.01) -->
-    <TextView
-        android:id="@+id/widget_date_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="10sp"
-        android:textColor="#7090B0"
-        android:letterSpacing="0.1"
-        android:maxLines="1" />
-
-    <!-- D-Day 카운트다운 텍스트 -->
-    <TextView
-        android:id="@+id/widget_countdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="D-?"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:textColor="#F4F6FA"
-        android:fontFamily="monospace"
-        android:maxLines="1"
-        android:ellipsize="end" />
-
-    <!-- 구분점 -->
+    <!-- 상단 콘텐츠 영역 (남은 공간을 채움) -->
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="top">
 
-        <View
-            android:layout_width="4dp"
-            android:layout_height="4dp"
-            android:background="#4060A0"
-            android:layout_marginEnd="4dp" />
-        <View
-            android:layout_width="4dp"
-            android:layout_height="4dp"
-            android:background="#4060A0"
-            android:layout_marginEnd="4dp" />
-        <View
-            android:layout_width="4dp"
-            android:layout_height="4dp"
-            android:background="#4060A0" />
+        <!-- 날짜 레이블 (예: 2026.06.01) -->
+        <TextView
+            android:id="@+id/widget_date_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="10sp"
+            android:textColor="#7090B0"
+            android:letterSpacing="0.08"
+            android:maxLines="1" />
+
+        <!-- D-Day 카운트다운 숫자 (핵심) -->
+        <TextView
+            android:id="@+id/widget_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="D-?"
+            android:textSize="38sp"
+            android:textStyle="bold"
+            android:textColor="#F4F6FA"
+            android:fontFamily="monospace"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- 구분점 3개 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/dot_1"
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:background="#4060A0"
+                android:layout_marginEnd="4dp" />
+
+            <View
+                android:id="@+id/dot_2"
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:background="#4060A0"
+                android:layout_marginEnd="4dp" />
+
+            <View
+                android:id="@+id/dot_3"
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:background="#4060A0" />
+
+        </LinearLayout>
+
+        <!-- 감성 문구 -->
+        <TextView
+            android:id="@+id/widget_sentence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="13sp"
+            android:textColor="#7090B0"
+            android:gravity="start"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
     </LinearLayout>
 
-    <!-- 문구 -->
-    <TextView
-        android:id="@+id/widget_sentence"
+    <!-- 하단 바: 페이지 인디케이터(좌) + dayly 워터마크(우) -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="13sp"
-        android:textColor="#B0C4DE"
-        android:gravity="center"
-        android:maxLines="2"
-        android:ellipsize="end" />
+        android:layout_height="wrap_content">
+
+        <!-- 페이지 인디케이터: < 1/4 > (복수 위젯 시에만 표시) -->
+        <TextView
+            android:id="@+id/widget_page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:text=""
+            android:textSize="9sp"
+            android:textColor="#4060A0"
+            android:fontFamily="monospace"
+            android:visibility="gone" />
+
+        <!-- dayly 워터마크 -->
+        <TextView
+            android:id="@+id/widget_watermark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="dayly"
+            android:textSize="9sp"
+            android:textColor="#2A3A5A"
+            android:fontFamily="monospace" />
+
+    </RelativeLayout>
 
 </LinearLayout>
