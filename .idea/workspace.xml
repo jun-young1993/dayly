@@ -27,26 +27,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/APPSTORE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HOMEPAGE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PRIVACYPOLICY.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/Frame 803.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/Frame 804.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/Frame 809.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/Frame 810.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/event_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/event_detail_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/setting_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/setting_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -156,7 +140,7 @@
       <workItem from="1772112829746" duration="494000" />
       <workItem from="1772113596847" duration="2043000" />
       <workItem from="1772198572730" duration="13595000" />
-      <workItem from="1773334994138" duration="1154000" />
+      <workItem from="1773334994138" duration="1983000" />
     </task>
     <servers />
   </component>

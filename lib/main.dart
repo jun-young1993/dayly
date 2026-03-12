@@ -76,7 +76,7 @@ Future<void> main() async {
     try{
       // ── 광고 초기화 ───────────────────────────────────────────────
       await GlobalAdConfig().initialize();
-      GlobalAdConfig().setAdVisibility(false);
+      // GlobalAdConfig().setAdVisibility(false);
       AppOpenAdManager.instance.configure(
         androidId: 'ca-app-pub-4656262305566191/4017810905',
         iosId: 'ca-app-pub-4656262305566191/9437357221',
