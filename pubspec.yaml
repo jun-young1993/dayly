@@ -42,6 +42,9 @@ dependencies:
   # 홈화면 위젯 (iOS WidgetKit / Android AppWidget 브릿지)
   home_widget: ^0.7.0
 
+  # 갤러리 이미지 선택
+  image_picker: ^1.1.0
+
   # 로컬 알림 시스템
   flutter_local_notifications: ^18.0.1
   hive_flutter: ^1.1.0

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Large 위젯 컨테이너 (4x4 셀 기준)
+  StackView로 여러 D-Day 이벤트를 스와이프 탐색할 수 있다.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp"
+    android:clipChildren="true"
+    android:clipToPadding="true">
+
+    <StackView
+        android:id="@+id/widget_stack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:loopViews="true" />
+
+    <!-- 이벤트가 없을 때 표시되는 빈 상태 뷰 -->
+    <TextView
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="dayly"
+        android:textColor="#7090B0"
+        android:textSize="16sp"
+        android:background="@drawable/dayly_widget_bg"
+        android:visibility="gone" />
+
+</FrameLayout>

@@ -8,7 +8,7 @@
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp"
+    android:padding="2dp"
     android:background="@drawable/dayly_widget_bg">
 
     <!-- 중앙 콘텐츠: 카운트다운 + 문구 -->
@@ -19,6 +19,16 @@
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:gravity="center">
+        <!-- 날짜 레이블 (예: 2026.06.01) -->
+        <TextView
+            android:id="@+id/widget_date_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="7sp"
+            android:textColor="#7090B0"
+            android:letterSpacing="0.08"
+            android:maxLines="1" />
 
         <!-- D-Day 카운트다운 숫자 (예: D-3, 23일) -->
         <TextView
@@ -26,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="D-?"
-            android:textSize="28sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="#F4F6FA"
             android:fontFamily="monospace"
@@ -38,9 +48,9 @@
             android:id="@+id/widget_sentence"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="3dp"
             android:text=""
-            android:textSize="11sp"
+            android:textSize="9sp"
             android:textColor="#7090B0"
             android:gravity="center"
             android:maxLines="2"

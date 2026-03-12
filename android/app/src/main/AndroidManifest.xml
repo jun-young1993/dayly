@@ -61,7 +61,31 @@
                 android:resource="@xml/dayly_widget_info_small"/>
         </receiver>
 
-        <!-- Medium 위젯은 별도 receiver 선언 불필요 — Provider 하나가 두 레이아웃 모두 처리 -->
+        <!-- Medium(4×2) 위젯 Provider -->
+        <receiver
+            android:name=".DaylyAppWidgetMedium"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="juny.dayly.MIDNIGHT_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dayly_widget_info_medium"/>
+        </receiver>
+
+        <!-- Large(4×4) 위젯 Provider -->
+        <receiver
+            android:name=".DaylyAppWidgetLarge"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="juny.dayly.MIDNIGHT_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dayly_widget_info_large"/>
+        </receiver>
 
         <!-- StackView 컬렉션 위젯용 RemoteViewsService -->
         <service

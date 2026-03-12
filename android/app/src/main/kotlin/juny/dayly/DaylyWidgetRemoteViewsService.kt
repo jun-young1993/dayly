@@ -22,6 +22,7 @@ class DaylyWidgetRemoteViewsService : RemoteViewsService() {
 
     companion object {
         const val EXTRA_IS_MEDIUM = "is_medium"
+        const val EXTRA_WIDGET_SIZE = "widget_size"
     }
 }
 
@@ -39,7 +40,16 @@ private class DaylyRemoteViewsFactory(
 ) : RemoteViewsService.RemoteViewsFactory {
 
     private var items = listOf<WidgetDisplayData>()
-    private val isMedium = intent.getBooleanExtra(DaylyWidgetRemoteViewsService.EXTRA_IS_MEDIUM, false)
+    private val size: WidgetSize = run {
+        val sizeName = intent.getStringExtra(DaylyWidgetRemoteViewsService.EXTRA_WIDGET_SIZE)
+        if (sizeName != null) {
+            try { WidgetSize.valueOf(sizeName) } catch (_: Exception) { WidgetSize.SMALL }
+        } else {
+            // 이전 버전 호환: EXTRA_IS_MEDIUM 폴백
+            if (intent.getBooleanExtra(DaylyWidgetRemoteViewsService.EXTRA_IS_MEDIUM, false))
+                WidgetSize.MEDIUM else WidgetSize.SMALL
+        }
+    }
 
     override fun onCreate() {}
 
@@ -58,15 +68,18 @@ private class DaylyRemoteViewsFactory(
     override fun getViewAt(position: Int): RemoteViews {
         val data = items.getOrNull(position) ?: return loadingView()
 
-        val layoutId = if (isMedium) R.layout.dayly_widget_stack_item_medium
-                       else R.layout.dayly_widget_stack_item_small
+        val layoutId = when (size) {
+            WidgetSize.LARGE  -> R.layout.dayly_widget_stack_item_large
+            WidgetSize.MEDIUM -> R.layout.dayly_widget_stack_item_medium
+            WidgetSize.SMALL  -> R.layout.dayly_widget_stack_item_small
+        }
 
         return RemoteViews(context.packageName, layoutId).apply {
             setTextViewText(R.id.widget_countdown, data.countdownText)
             setTextViewText(R.id.widget_sentence, data.sentence)
-            if (isMedium) {
-                setTextViewText(R.id.widget_date_label, data.dateLabel)
-            }
+            // if (size != WidgetSize.SMALL) {
+            setTextViewText(R.id.widget_date_label, data.dateLabel)
+            // }
 
             // 테마별 색상 적용
             val theme = themeColors(data.themePreset)
@@ -74,17 +87,21 @@ private class DaylyRemoteViewsFactory(
             setTextColor(R.id.widget_countdown, theme.textColor)
             setTextColor(R.id.widget_sentence, theme.subColor)
             setTextColor(R.id.widget_watermark, theme.watermarkColor)
-            if (isMedium) {
+            if (size != WidgetSize.SMALL) {
                 setTextColor(R.id.widget_date_label, theme.subColor)
-                setInt(R.id.dot_1, "setBackgroundColor", theme.dotColor)
-                setInt(R.id.dot_2, "setBackgroundColor", theme.dotColor)
-                setInt(R.id.dot_3, "setBackgroundColor", theme.dotColor)
+                if (data.isPast) {
+                    setViewVisibility(R.id.widget_progress, View.GONE)
+                } else {
+                    val progress = if (data.totalCount > 0) (data.currentIndex + 1) * 100 / data.totalCount else 100
+                    setProgressBar(R.id.widget_progress, 100, progress, false)
+                    setViewVisibility(R.id.widget_progress, View.VISIBLE)
+                }
             }
 
             // 페이지 인디케이터 (복수 위젯일 때만 표시)
             if (data.totalCount > 1) {
-                val indicator = if (isMedium) "< ${data.currentIndex + 1}/${data.totalCount} >"
-                                else "${data.currentIndex + 1}/${data.totalCount}"
+                val indicator = if (size == WidgetSize.SMALL) "${data.currentIndex + 1}/${data.totalCount}"
+                                else "< ${data.currentIndex + 1}/${data.totalCount} >"
                 setTextViewText(R.id.widget_page_indicator, indicator)
                 setTextColor(R.id.widget_page_indicator, theme.dotColor)
                 setViewVisibility(R.id.widget_page_indicator, View.VISIBLE)
@@ -107,8 +124,11 @@ private class DaylyRemoteViewsFactory(
     override fun hasStableIds(): Boolean = false
 
     private fun loadingView(): RemoteViews {
-        val layoutId = if (isMedium) R.layout.dayly_widget_stack_item_medium
-                       else R.layout.dayly_widget_stack_item_small
+        val layoutId = when (size) {
+            WidgetSize.LARGE  -> R.layout.dayly_widget_stack_item_large
+            WidgetSize.MEDIUM -> R.layout.dayly_widget_stack_item_medium
+            WidgetSize.SMALL  -> R.layout.dayly_widget_stack_item_small
+        }
         return RemoteViews(context.packageName, layoutId)
     }
 

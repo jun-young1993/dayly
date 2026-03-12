@@ -2,6 +2,46 @@
 
 ---
 
+## 1.3.7 — 2026-03-12
+
+### Added — 이벤트 상세 화면 배경 사진 기능
+
+- **사용자 배경 사진 지원**: 상세 화면에서 갤러리 사진을 배경으로 설정 가능 (`image_picker` 패키지 추가)
+- **가독성 오버레이**: 사진 배경 위에 다크 그라디언트 오버레이(상단 73% → 중단 40% → 하단 80%) 적용 — 글래스카드 텍스트 가독성 확보
+- **사진 관리 UI**: 상단 바에 배경 사진 버튼 추가 — 없을 때 갤러리 열기, 있을 때 변경/제거 바텀시트 표시
+- **모델 저장**: `DaylyWidgetModel.backgroundImagePath` 필드 추가 및 JSON 직렬화 (null-safe Sentinel 패턴으로 `copyWith` null 설정 지원)
+- **배경 전환**: 사진 배경 사용 시 GlowOrb 숨김, 기본 배경 복귀 시 재표시
+
+---
+
+## 1.3.6 — 2026-03-12
+
+### Added — Large(4×4) 홈화면 위젯 추가
+
+- **새 크기 위젯 추가**: `DaylyAppWidgetLarge` Provider 클래스, `dayly_widget_large.xml` 컨테이너, `dayly_widget_stack_item_large.xml` 카드 아이템, `dayly_widget_info_large.xml` 메타정보 추가
+- **위젯 크기 enum 도입**: `WidgetSize(SMALL/MEDIUM/LARGE)` enum으로 크기 분기 통일 — `forceMedium: Boolean` 방식에서 `forceSize: WidgetSize` 방식으로 개선
+- **Large 카드 디자인**: 카운트다운 56sp, 문구 16sp (최대 3줄), 구분점 5dp — 4×4 공간을 활용한 넉넉한 레이아웃
+- **AndroidManifest에 Large Provider 등록**
+
+---
+
+## 1.3.5 — 2026-03-12
+
+### Fixed — Medium 위젯 "Couldn't add widget" 에러 수정
+
+- **RemoteViews 미지원 View 태그 교체**: `dayly_widget_stack_item_medium.xml`의 구분점 dot 3개(`View` 태그)를 `ImageView`로 교체 — `View` 기본 클래스는 RemoteViews에서 크래시 유발, `ImageView`로 변경하여 호환성 확보
+
+---
+
+## 1.3.4 — 2026-03-12
+
+### Fixed — Android 위젯 크기 및 텍스트 수정
+
+- **Medium 위젯 별도 등록**: `DaylyAppWidgetMedium` 클래스 추가 및 manifest에 별도 receiver로 등록 — 위젯 피커에서 Medium(4×2) 위젯을 직접 추가 가능, 크기 조정 시 "Couldn't add widget" 에러 해소
+- **Small 위젯 글씨 크기 축소**: 카운트다운 텍스트 28sp→22sp, 감성 문구 11sp→9sp — 작은 사이즈에서 텍스트가 `...`으로 잘리던 문제 개선
+
+---
+
 ## 1.3.3 — 2026-03-11
 
 ### Changed — Android 위젯 디자인 개선 (iOS 수준으로 맞춤)

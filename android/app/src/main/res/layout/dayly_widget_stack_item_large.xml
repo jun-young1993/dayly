@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  StackView 아이템 — Medium (4x2)
-  iOS와 동일하게 좌측 정렬, 페이지 인디케이터(<1/4>), dayly 워터마크를 포함한다.
+  StackView 아이템 — Large (4x4)
+  Medium 대비 더 넉넉한 수직 공간을 활용해 큰 카운트다운과 긴 문구를 표시한다.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="20dp"
     android:background="@drawable/dayly_widget_bg">
 
     <!-- 상단 콘텐츠 영역 (남은 공간을 채움) -->
@@ -17,7 +17,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:gravity="top">
+        android:gravity="bottom">
 
         <!-- 날짜 레이블 (예: 2026.06.01) -->
         <TextView
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textColor="#7090B0"
             android:letterSpacing="0.08"
             android:maxLines="1" />
@@ -35,9 +35,9 @@
             android:id="@+id/widget_countdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="4dp"
             android:text="D-?"
-            android:textSize="15sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#F4F6FA"
             android:fontFamily="monospace"
@@ -48,10 +48,10 @@
         <ProgressBar
             android:id="@+id/widget_progress"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="72dp"
+            android:layout_width="96dp"
             android:layout_height="3dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
             android:max="100"
             android:progress="100"
             android:indeterminate="false"
@@ -64,10 +64,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""
-            android:textSize="13sp"
+            android:textSize="16sp"
             android:textColor="#7090B0"
             android:gravity="start"
-            android:maxLines="2"
+            android:maxLines="3"
             android:ellipsize="end" />
 
     </LinearLayout>
@@ -75,7 +75,8 @@
     <!-- 하단 바: 페이지 인디케이터(좌) + dayly 워터마크(우) -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
 
         <!-- 페이지 인디케이터: < 1/4 > (복수 위젯 시에만 표시) -->
         <TextView
@@ -84,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:text=""
-            android:textSize="9sp"
+            android:textSize="10sp"
             android:textColor="#4060A0"
             android:fontFamily="monospace"
             android:visibility="gone" />
@@ -96,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:text="dayly"
-            android:textSize="9sp"
+            android:textSize="10sp"
             android:textColor="#2A3A5A"
             android:fontFamily="monospace" />
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dayly/models/dayly_widget_model.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// 이벤트 상세 화면 — 글래스모피즘 다크/라이트 테마
 ///
@@ -37,6 +39,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   late DaylyWidgetModel _model;
   late Timer _timer;
   Duration _remaining = Duration.zero;
+  String? _backgroundImagePath;
 
   static const _monthNames = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -47,6 +50,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   void initState() {
     super.initState();
     _model = widget.model;
+    _backgroundImagePath = widget.model.backgroundImagePath;
     _tick();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
   }
@@ -182,8 +186,43 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   void _popWithResult() {
+    final modelToReturn = _model.copyWith(
+      backgroundImagePath: _backgroundImagePath,
+    );
     Navigator.of(context)
-        .pop<_DetailResult>((deleted: false, model: _model));
+        .pop<_DetailResult>((deleted: false, model: modelToReturn));
+  }
+
+  Future<void> _pickBackgroundImage() async {
+    if (_backgroundImagePath != null) {
+      // 이미 사진이 있으면 변경/제거 선택
+      await showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => _PhotoActionSheet(
+          onChangeTap: () async {
+            Navigator.of(ctx).pop();
+            await _selectImageFromGallery();
+          },
+          onRemoveTap: () {
+            Navigator.of(ctx).pop();
+            setState(() => _backgroundImagePath = null);
+          },
+        ),
+      );
+    } else {
+      await _selectImageFromGallery();
+    }
+  }
+
+  Future<void> _selectImageFromGallery() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+    setState(() => _backgroundImagePath = picked.path);
   }
 
   // ── 빌드 ─────────────────────────────────────────────────────
@@ -191,6 +230,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final hasPhoto = _backgroundImagePath != null;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -200,17 +240,45 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         backgroundColor: cs.surface,
         body: Stack(
           children: <Widget>[
-            // 배경 글로우 orb
-            Positioned(
-              top: -80.h,
-              right: -60.w,
-              child: _GlowOrb(color: widget.gradient[0], size: 260.w),
-            ),
-            Positioned(
-              bottom: -60.h,
-              left: -80.w,
-              child: _GlowOrb(color: widget.gradient[1], size: 200.w),
-            ),
+            // 사용자 배경 사진
+            if (hasPhoto) ...<Widget>[
+              Positioned.fill(
+                child: Image.file(
+                  File(_backgroundImagePath!),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // 가독성 오버레이: 위쪽 진하게 → 중간 → 아래쪽 더 진하게
+              Positioned.fill(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[
+                        Color(0xBB000000), // 상단 73%
+                        Color(0x66000000), // 중단 40%
+                        Color(0xCC000000), // 하단 80%
+                      ],
+                      stops: <double>[0.0, 0.45, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            // 배경 글로우 orb (사진 없을 때만 표시)
+            if (!hasPhoto) ...<Widget>[
+              Positioned(
+                top: -80.h,
+                right: -60.w,
+                child: _GlowOrb(color: widget.gradient[0], size: 260.w),
+              ),
+              Positioned(
+                bottom: -60.h,
+                left: -80.w,
+                child: _GlowOrb(color: widget.gradient[1], size: 200.w),
+              ),
+            ],
             SafeArea(
               child: Column(
                 children: <Widget>[
@@ -219,6 +287,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     onBack: _popWithResult,
                     onEdit: _openEdit,
                     onDelete: _confirmDelete,
+                    onPhoto: _pickBackgroundImage,
+                    hasBackgroundImage: hasPhoto,
                   ),
                   // 스크롤 바디
                   Expanded(
@@ -294,11 +364,15 @@ class _TopBar extends StatelessWidget {
     required this.onBack,
     required this.onEdit,
     required this.onDelete,
+    required this.onPhoto,
+    required this.hasBackgroundImage,
   });
 
   final VoidCallback onBack;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onPhoto;
+  final bool hasBackgroundImage;
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +393,14 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const Spacer(),
+          _GlassIconBtn(
+            icon: hasBackgroundImage
+                ? Icons.wallpaper_rounded
+                : Icons.add_photo_alternate_outlined,
+            onTap: onPhoto,
+            color: hasBackgroundImage ? cs.primary : null,
+          ),
+          SizedBox(width: 8.w),
           _GlassIconBtn(
             icon: Icons.delete_outline_rounded,
             onTap: onDelete,
@@ -1536,6 +1618,126 @@ class _GlassCard extends StatelessWidget {
               child: child,
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// 사진 배경 액션 시트
+// ──────────────────────────────────────────────────────────────
+
+class _PhotoActionSheet extends StatelessWidget {
+  const _PhotoActionSheet({
+    required this.onChangeTap,
+    required this.onRemoveTap,
+  });
+
+  final VoidCallback onChangeTap;
+  final VoidCallback onRemoveTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 32.h),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.75)
+                : Colors.white.withValues(alpha: 0.90),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+            border: Border(
+              top: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: 36.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: cs.onSurface.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              _SheetOption(
+                icon: Icons.photo_library_outlined,
+                label: '사진 변경',
+                color: cs.onSurface,
+                onTap: onChangeTap,
+              ),
+              SizedBox(height: 10.h),
+              _SheetOption(
+                icon: Icons.hide_image_outlined,
+                label: '배경 제거',
+                color: cs.error,
+                onTap: onRemoveTap,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetOption extends StatelessWidget {
+  const _SheetOption({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.05),
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Icon(icon, color: color, size: 20.sp),
+            SizedBox(width: 12.w),
+            Text(
+              label,
+              style: GoogleFonts.montserrat(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
         ),
       ),
     );

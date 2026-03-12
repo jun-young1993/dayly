@@ -19,6 +19,8 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 
+enum class WidgetSize { SMALL, MEDIUM, LARGE }
+
 /**
  * dayly 홈화면 위젯 Provider.
  *
@@ -27,7 +29,7 @@ import java.util.Calendar
  *
  * 자정 업데이트: onEnabled() 시 AlarmManager로 매일 자정 직후 업데이트를 예약한다.
  */
-class DaylyAppWidget : AppWidgetProvider() {
+open class DaylyAppWidget : AppWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -71,7 +73,7 @@ class DaylyAppWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_MIDNIGHT_UPDATE = "juny.dayly.MIDNIGHT_UPDATE"
+        internal const val ACTION_MIDNIGHT_UPDATE = "juny.dayly.MIDNIGHT_UPDATE"
         private const val INSTANCE_PREFS = "dayly_widget_instance"
 
         // DaylyWidgetConfigActivity 호환용
@@ -84,21 +86,32 @@ class DaylyAppWidget : AppWidgetProvider() {
             context: Context,
             appWidgetManager: AppWidgetManager,
             appWidgetId: Int,
+            forceMedium: Boolean? = null,
+            forceSize: WidgetSize? = null,
         ) {
-            val opts = appWidgetManager.getAppWidgetOptions(appWidgetId)
-            val maxWidth = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
-            val isMedium = maxWidth >= 200
-            val layoutId = if (isMedium) R.layout.dayly_widget_medium
-                           else R.layout.dayly_widget_small
+            val size = forceSize ?: run {
+                if (forceMedium == true) {
+                    WidgetSize.MEDIUM
+                } else {
+                    val opts = appWidgetManager.getAppWidgetOptions(appWidgetId)
+                    val maxWidth = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
+                    if (maxWidth >= 200) WidgetSize.MEDIUM else WidgetSize.SMALL
+                }
+            }
+            val layoutId = when (size) {
+                WidgetSize.LARGE  -> R.layout.dayly_widget_large
+                WidgetSize.MEDIUM -> R.layout.dayly_widget_medium
+                WidgetSize.SMALL  -> R.layout.dayly_widget_small
+            }
 
             val views = RemoteViews(context.packageName, layoutId)
 
             // StackView에 RemoteViewsService 연결
             val serviceIntent = Intent(context, DaylyWidgetRemoteViewsService::class.java).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                putExtra(DaylyWidgetRemoteViewsService.EXTRA_IS_MEDIUM, isMedium)
+                putExtra(DaylyWidgetRemoteViewsService.EXTRA_WIDGET_SIZE, size.name)
                 // 위젯 인스턴스별 고유 URI — 각 인스턴스가 독립 Factory를 갖도록
-                data = Uri.parse("dayly://widget/$appWidgetId/$isMedium")
+                data = Uri.parse("dayly://widget/$appWidgetId/${size.name}")
             }
             views.setRemoteAdapter(R.id.widget_stack, serviceIntent)
             views.setEmptyView(R.id.widget_stack, R.id.widget_empty)
@@ -203,6 +216,7 @@ data class WidgetDisplayData(
     val themePreset: String = "night",
     val currentIndex: Int = 0,
     val totalCount: Int = 1,
+    val isPast: Boolean = false,
 ) {
     companion object {
         fun empty() = WidgetDisplayData("", "dayly", "–", "", "night", 0, 1)
@@ -215,6 +229,11 @@ data class WidgetDisplayData(
             } else {
                 obj.optString("countdownText", "–")
             }
+            val isPast = if (targetDate.isNotEmpty()) {
+                try {
+                    LocalDate.now().isAfter(LocalDate.parse(targetDate, DateTimeFormatter.ISO_LOCAL_DATE))
+                } catch (_: Exception) { false }
+            } else false
             return WidgetDisplayData(
                 id = obj.optString("id", ""),
                 sentence = obj.optString("sentence", ""),
@@ -223,6 +242,7 @@ data class WidgetDisplayData(
                 themePreset = obj.optString("themePreset", "night"),
                 currentIndex = index,
                 totalCount = total,
+                isPast = isPast,
             )
         }
     }

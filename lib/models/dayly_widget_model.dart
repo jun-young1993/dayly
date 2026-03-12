@@ -255,6 +255,7 @@ class DaylyWidgetModel {
     required this.createdAt,
     this.note = '',
     this.milestones = const <DaylyMilestone>[],
+    this.backgroundImagePath,
   });
 
   /// Rule-aligned starter content.
@@ -301,6 +302,9 @@ class DaylyWidgetModel {
   /// 마일스톤 체크리스트
   final List<DaylyMilestone> milestones;
 
+  /// 상세 화면 배경 사진 파일 경로 (null이면 기본 배경)
+  final String? backgroundImagePath;
+
   Map<String, Object?> toJson() {
     return <String, Object?>{
       'id': id,
@@ -310,6 +314,7 @@ class DaylyWidgetModel {
       'style': style.toJson(),
       'note': note,
       'milestones': milestones.map((m) => m.toJson()).toList(),
+      'backgroundImagePath': backgroundImagePath,
     };
   }
 
@@ -335,8 +340,11 @@ class DaylyWidgetModel {
           .whereType<Map>()
           .map((m) => DaylyMilestone.fromJson(m.cast<String, Object?>()))
           .toList(),
+      backgroundImagePath: json['backgroundImagePath'] as String?,
     );
   }
+
+  static const _absent = Object();
 
   DaylyWidgetModel copyWith({
     String? id,
@@ -346,6 +354,7 @@ class DaylyWidgetModel {
     DateTime? createdAt,
     String? note,
     List<DaylyMilestone>? milestones,
+    Object? backgroundImagePath = _absent,
   }) {
     return DaylyWidgetModel(
       id: id ?? this.id,
@@ -355,6 +364,9 @@ class DaylyWidgetModel {
       createdAt: createdAt ?? this.createdAt,
       note: note ?? this.note,
       milestones: milestones ?? this.milestones,
+      backgroundImagePath: identical(backgroundImagePath, _absent)
+          ? this.backgroundImagePath
+          : backgroundImagePath as String?,
     );
   }
 }
