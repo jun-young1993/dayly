@@ -2,6 +2,16 @@
 
 ---
 
+## 1.3.8 — 2026-03-13
+
+### Fixed — 태블릿 Setting 아이콘 사이즈 대응
+
+- `AppBreakpoints.isTablet()` 호출 문법 수정 및 태블릿(≥768dp) 감지 시 Setting 기어 아이콘 사이즈 24→32로 확대
+- 태블릿 그리드 전환 기준을 600dp→768dp(`AppBreakpoints.isTablet`)로 변경 — 600~768dp 기기에서 2열 그리드 적용 시 카드 내 텍스트 Column이 ~23px로 좁아져 RenderFlex 오버플로우 발생하던 문제 수정
+- `ListenableBuilder`를 `ScreenUtilInit` 안으로 이동 — 테마 변경 시 `BannerAdWidget`(iOS UiKitView)이 dispose→recreate되면서 `PlatformException(recreating_view)` 크래시 발생하던 문제 수정
+
+---
+
 ## 1.3.7 — 2026-03-12
 
 ### Added — 이벤트 상세 화면 배경 사진 기능

@@ -9,7 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 /// 이벤트 상세 화면 — 글래스모피즘 다크/라이트 테마
 ///
@@ -39,7 +42,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   late DaylyWidgetModel _model;
   late Timer _timer;
   Duration _remaining = Duration.zero;
-  String? _backgroundImagePath;
+  String? _backgroundImagePath;   // 상대 경로 (backgrounds/bg_xxx.jpg)
+  String? _resolvedImagePath;     // 런타임 절대 경로
 
   static const _monthNames = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -51,8 +55,39 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     super.initState();
     _model = widget.model;
     _backgroundImagePath = widget.model.backgroundImagePath;
+    _resolveImagePath();
     _tick();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  Future<void> _resolveImagePath() async {
+    if (_backgroundImagePath == null) {
+      setState(() => _resolvedImagePath = null);
+      return;
+    }
+    // 기존 절대 경로로 저장된 경우 호환 처리
+    if (p.isAbsolute(_backgroundImagePath!)) {
+      if (await File(_backgroundImagePath!).exists()) {
+        setState(() => _resolvedImagePath = _backgroundImagePath);
+        return;
+      }
+      // 절대 경로인데 파일이 없으면 무효
+      setState(() {
+        _resolvedImagePath = null;
+        _backgroundImagePath = null;
+      });
+      return;
+    }
+    final appDir = await getApplicationDocumentsDirectory();
+    final absPath = '${appDir.path}/$_backgroundImagePath';
+    if (await File(absPath).exists()) {
+      setState(() => _resolvedImagePath = absPath);
+    } else {
+      setState(() {
+        _resolvedImagePath = null;
+        _backgroundImagePath = null;
+      });
+    }
   }
 
   void _tick() {
@@ -194,7 +229,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _pickBackgroundImage() async {
-    if (_backgroundImagePath != null) {
+    if (_resolvedImagePath != null) {
       // 이미 사진이 있으면 변경/제거 선택
       await showModalBottomSheet<void>(
         context: context,
@@ -206,7 +241,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           },
           onRemoveTap: () {
             Navigator.of(ctx).pop();
-            setState(() => _backgroundImagePath = null);
+            setState(() {
+              _backgroundImagePath = null;
+              _resolvedImagePath = null;
+            });
           },
         ),
       );
@@ -222,7 +260,20 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       imageQuality: 85,
     );
     if (picked == null) return;
-    setState(() => _backgroundImagePath = picked.path);
+
+    // 임시 파일을 앱 문서 디렉토리로 복사 (앱 재시작 후에도 유지)
+    final appDir = await getApplicationDocumentsDirectory();
+    final bgDir = Directory('${appDir.path}/backgrounds');
+    if (!bgDir.existsSync()) bgDir.createSync(recursive: true);
+    final ext = p.extension(picked.path);
+    final fileName = 'bg_${DateTime.now().millisecondsSinceEpoch}$ext';
+    final relativePath = 'backgrounds/$fileName';
+    await File(picked.path).copy('${appDir.path}/$relativePath');
+
+    setState(() {
+      _backgroundImagePath = relativePath;
+      _resolvedImagePath = '${appDir.path}/$relativePath';
+    });
   }
 
   // ── 빌드 ─────────────────────────────────────────────────────
@@ -230,7 +281,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final hasPhoto = _backgroundImagePath != null;
+    final hasPhoto = _resolvedImagePath != null;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -244,7 +295,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             if (hasPhoto) ...<Widget>[
               Positioned.fill(
                 child: Image.file(
-                  File(_backgroundImagePath!),
+                  File(_resolvedImagePath!),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -256,11 +307,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: <Color>[
-                        Color(0xBB000000), // 상단 73%
-                        Color(0x66000000), // 중단 40%
-                        Color(0xCC000000), // 하단 80%
+                        Color(0x88000000), // 상단 53%
+                        Color(0x33000000), // 중단 20%
+                        Color(0x99000000), // 하단 60%
                       ],
-                      stops: <double>[0.0, 0.45, 1.0],
+                      stops: <double>[0.0, 0.40, 1.0],
                     ),
                   ),
                 ),
@@ -308,6 +359,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             timerText: _timerText,
                             formattedDate: _formatDate(_model.targetDate),
                             dayDiff: _dayDiff,
+                            hasPhoto: hasPhoto,
                           ),
                           SizedBox(height: 16.h),
                           // 마일스톤
@@ -318,12 +370,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             onToggle: _toggleMilestone,
                             onDelete: _deleteMilestone,
                             onAdd: _addMilestone,
+                            hasPhoto: hasPhoto,
                           ),
                           SizedBox(height: 16.h),
                           // 노트
                           _NotesCard(
                             note: _model.note,
                             onTap: _editNote,
+                            hasPhoto: hasPhoto,
                           ),
                           SizedBox(height: 24.h),
                           // EDIT EVENT + SHARE 버튼
@@ -472,6 +526,7 @@ class _HeroCard extends StatelessWidget {
     required this.timerText,
     required this.formattedDate,
     required this.dayDiff,
+    this.hasPhoto = false,
   });
 
   final DaylyWidgetModel model;
@@ -481,12 +536,14 @@ class _HeroCard extends StatelessWidget {
   final String timerText;
   final String formattedDate;
   final int dayDiff;
+  final bool hasPhoto;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return _GlassCard(
+      hasPhoto: hasPhoto,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
@@ -736,6 +793,7 @@ class _MilestonesCard extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     required this.onAdd,
+    this.hasPhoto = false,
   });
 
   final List<DaylyMilestone> milestones;
@@ -744,6 +802,7 @@ class _MilestonesCard extends StatelessWidget {
   final void Function(int) onToggle;
   final void Function(int) onDelete;
   final VoidCallback onAdd;
+  final bool hasPhoto;
 
   static const _monthShort = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -760,6 +819,7 @@ class _MilestonesCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
     return _GlassCard(
+      hasPhoto: hasPhoto,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -962,9 +1022,10 @@ class _MilestoneItem extends StatelessWidget {
 // ──────────────────────────────────────────────────────────────
 
 class _NotesCard extends StatelessWidget {
-  const _NotesCard({required this.note, required this.onTap});
+  const _NotesCard({required this.note, required this.onTap, this.hasPhoto = false});
   final String note;
   final VoidCallback onTap;
+  final bool hasPhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -972,6 +1033,7 @@ class _NotesCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: _GlassCard(
+        hasPhoto: hasPhoto,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -1468,6 +1530,7 @@ class _DeleteDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return Dialog(
       backgroundColor: Colors.transparent,
       child: ClipRRect(
@@ -1492,7 +1555,11 @@ class _DeleteDialog extends StatelessWidget {
                     color: cs.error, size: 36.sp),
                 SizedBox(height: 14.h),
                 Text(
-                  '이벤트를 삭제할까요?',
+                  l10n.custom((locale) => switch(locale.languageCode) {
+                    'ko' => '이벤트를 삭제할까요?',
+                    'ja' => 'このイベントを削除しますか？',
+                    _ => 'Do you want to delete this event?'
+                  }),
                   style: GoogleFonts.montserrat(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
@@ -1501,7 +1568,11 @@ class _DeleteDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  '삭제한 이벤트는 복구할 수 없습니다.',
+                    l10n.custom((locale) => switch(locale.languageCode) {
+                      'ko' => '삭제한 이벤트는 복구할 수 없습니다.',
+                      'ja' => '削除したイベントは復元できません。',
+                      _ => 'Deleted events cannot be restored.'
+                    }),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 12.sp,
@@ -1525,7 +1596,7 @@ class _DeleteDialog extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              '취소',
+                              l10n.cancel,
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
@@ -1551,7 +1622,7 @@ class _DeleteDialog extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              '삭제',
+                              l10n.delete,
                               style: GoogleFonts.montserrat(
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w700,
@@ -1578,8 +1649,9 @@ class _DeleteDialog extends StatelessWidget {
 // ──────────────────────────────────────────────────────────────
 
 class _GlassCard extends StatelessWidget {
-  const _GlassCard({required this.child});
+  const _GlassCard({required this.child, this.hasPhoto = false});
   final Widget child;
+  final bool hasPhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -1592,12 +1664,12 @@ class _GlassCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: isDark
               ? <Color>[
-                  Colors.white.withValues(alpha: 0.16),
-                  Colors.white.withValues(alpha: 0.04),
+                  Colors.white.withValues(alpha: hasPhoto ? 0.05: 0.16),
+                  Colors.white.withValues(alpha: hasPhoto ? 0.02 : 0.04),
                 ]
               : <Color>[
-                  Colors.white.withValues(alpha: 0.80),
-                  Colors.white.withValues(alpha: 0.20),
+                  Colors.white.withValues(alpha: hasPhoto ? 0.50 : 0.80),
+                  Colors.white.withValues(alpha: hasPhoto ? 0.10 : 0.20),
                 ],
         ),
       ),
@@ -1611,8 +1683,8 @@ class _GlassCard extends StatelessWidget {
               padding: EdgeInsets.all(20.w),
               decoration: BoxDecoration(
                 color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.white.withValues(alpha: 0.60),
+                    ? Colors.white.withValues(alpha: hasPhoto ? 0.03 : 0.06)
+                    : Colors.white.withValues(alpha: hasPhoto ? 0.35 : 0.60),
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: child,
@@ -1641,6 +1713,7 @@ class _PhotoActionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       child: BackdropFilter(
@@ -1674,14 +1747,22 @@ class _PhotoActionSheet extends StatelessWidget {
               SizedBox(height: 20.h),
               _SheetOption(
                 icon: Icons.photo_library_outlined,
-                label: '사진 변경',
+                label: l10n.custom((locale) => switch(locale.languageCode) {
+                  'ko' => '배경 변경',
+                  'ja' => '背景を変更',
+                  _ => 'Change Background'
+                }),
                 color: cs.onSurface,
                 onTap: onChangeTap,
               ),
               SizedBox(height: 10.h),
               _SheetOption(
                 icon: Icons.hide_image_outlined,
-                label: '배경 제거',
+                label: l10n.custom((locale) => switch(locale.languageCode) {
+                  'ko' => '배경 제거',
+                  'ja' => '背景を削除',
+                  _ => 'Remove Background'
+                }),
                 color: cs.error,
                 onTap: onRemoveTap,
               ),

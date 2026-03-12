@@ -107,6 +107,34 @@
             </list>
           </value>
         </entry>
+        <entry key="file_selector_linux">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="file_selector_macos">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="file_selector_platform_interface">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_platform_interface-2.7.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="file_selector_windows">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="fixnum">
           <value>
             <list>
@@ -149,6 +177,20 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_localizations">
+          <value>
+            <list>
+              <option value="$PROJECT_DIR$/../../SDK/flutter/packages/flutter_localizations/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_plugin_android_lifecycle">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_screenutil">
           <value>
             <list>
@@ -177,17 +219,31 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_ui_kit_l10n">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_l10n/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_ui_kit_setting">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-1074da192a24e8345a60e708bfaea2432d59053e/packages/flutter_ui_kit_setting/lib" />
+              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-a544c5869f473dcf4125e7a3a06feddd82dec61e/packages/flutter_ui_kit_setting/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_ui_kit_theme">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-ae814ae2c020bd1819cf1f11e871985dc06c90cb/packages/flutter_ui_kit_theme/lib" />
+              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_theme/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_ui_kit_widget">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_widget/lib" />
             </list>
           </value>
         </entry>
@@ -258,6 +314,62 @@
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.1.2/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker-1.2.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_android">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+14/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_for_web">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_ios">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+6/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_linux">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_macos">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_platform_interface">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_platform_interface-2.11.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="image_picker_windows">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/lib" />
             </list>
           </value>
         </entry>
@@ -705,9 +817,11 @@
       </option>
     </properties>
     <CLASSES>
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-1074da192a24e8345a60e708bfaea2432d59053e/packages/flutter_ui_kit_setting/lib" />
       <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-6119be4783596a43ca12a17578d7b425506399ff/packages/flutter_ui_kit_google_mobile_ads/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-ae814ae2c020bd1819cf1f11e871985dc06c90cb/packages/flutter_ui_kit_theme/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-a544c5869f473dcf4125e7a3a06feddd82dec61e/packages/flutter_ui_kit_setting/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_l10n/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_theme/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_widget/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/args-2.7.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/async-2.13.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/boolean_selector-2.1.2/lib" />
@@ -723,11 +837,16 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fake_async-1.3.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/ffi-2.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file-7.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_platform_interface-2.7.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fixnum-1.1.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-8.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_screenutil-5.9.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-5.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/glob-2.1.3/lib" />
@@ -739,6 +858,14 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hooks-1.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-1.6.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.1.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker-1.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+14/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+6/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_platform_interface-2.11.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/intl-0.20.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/leak_tracker-11.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/leak_tracker_flutter_testing-3.0.10/lib" />
@@ -803,6 +930,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.3/lib" />
       <root url="file://$PROJECT_DIR$/../../SDK/flutter/bin/cache/pkg/sky_engine/lib" />
       <root url="file://$PROJECT_DIR$/../../SDK/flutter/packages/flutter/lib" />
+      <root url="file://$PROJECT_DIR$/../../SDK/flutter/packages/flutter_localizations/lib" />
       <root url="file://$PROJECT_DIR$/../../SDK/flutter/packages/flutter_test/lib" />
       <root url="file://$PROJECT_DIR$/../../SDK/flutter/packages/flutter_web_plugins/lib" />
     </CLASSES>

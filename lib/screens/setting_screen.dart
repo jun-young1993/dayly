@@ -42,13 +42,13 @@ class _AppSettingScreenState extends State<AppSettingScreen> {
             onBrandChanged: (b) => _ctrl.setBrand(b),
             developerEmail: 'juny3738@gmail.com',
             emailSubject: '[dayly] Support Request',
-            shareText: 'http://juny.blog/redirect/app/store/name/dayly',
-            appStoreUrl: Platform.isIOS ? 'https://apps.apple.com/us/app/frame-time-pro/id6759611898' : null,
+            shareText: 'https://juny.blog/redirect/app/store/name/dayly',
+            appStoreUrl: Platform.isIOS ? 'https://apps.apple.com/us/app/D-Dayly/id6760478559' : null,
             playStoreUrl: Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=juny.dayly' : null,
-            homepageUrl: 'https://juny.blog',
+            homepageUrl: 'https://juny.blog/blog/4743110c-39cf-4c1a-b8f7-059958c4dd4G',
             showBuildNumber: true,
-            appName: 'dayly',
-            appDescription: 'More emotional widgets, more engaging sharing, clearer information.',
+            appName: 'D-Dayly',
+            appDescription: ' Beautiful D-Day widgets for your home screen. \r\n Count down to what matters — your way.  ',
           ),
         ]
     );

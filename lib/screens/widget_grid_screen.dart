@@ -214,13 +214,11 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     }
   }
 
-  bool get _isTablet => MediaQuery.of(context).size.width >= 600;
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final isTablet = AppBreakpoints.isTablet(MediaQuery.of(context).size.width);
     return Scaffold(
       backgroundColor: cs.surface,
       body: _AnimatedGradientBackground(
@@ -250,7 +248,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildHeader(cs, isDark, _themeController),
+                  _buildHeader(cs, isDark, _themeController, isTablet: isTablet),
                   _buildHomeWidgetBanner(cs, isDark),
                   Expanded(
                     child: _isLoading
@@ -262,7 +260,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
                           )
                         : _widgets.isEmpty
                             ? _buildEmptyState(cs)
-                            : _isTablet
+                            : isTablet
                                 ? _buildTabletGrid()
                                 : _buildMobileList(),
                   ),
@@ -281,7 +279,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 
-  Widget _buildHeader(ColorScheme cs, bool isDark, DsThemeController themeController) {
+  Widget _buildHeader(ColorScheme cs, bool isDark, DsThemeController themeController, {bool isTablet = false}) {
     final l10n = UiKitLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 28.h, 16.w, 4.h),
@@ -320,6 +318,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
           ),
           SettingGearButton(
             animate: true,
+            iconSize: isTablet ? 32.0 : 24.0,
             onPressed: () => _openSetting(context, themeController: themeController)
           ),
           // DsThemeToggle(
@@ -431,15 +430,15 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     );
   }
 
-  // 태블릿: 2열 그리드
+  // 태블릿: 2열 그리드 — .w 스케일링 대신 고정값 사용 (셀이 화면 절반)
   Widget _buildTabletGrid() {
     return GridView.builder(
-      padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 100.h),
+      padding: EdgeInsets.fromLTRB(24, 16.h, 24, 100.h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16.w,
+        crossAxisSpacing: 16,
         mainAxisSpacing: 12.h,
-        childAspectRatio: 3.2,
+        childAspectRatio: 3.6,
       ),
       itemCount: _widgets.length,
       itemBuilder: (context, index) => _DysmorphicCard(
@@ -601,6 +600,13 @@ class _DysmorphicCard extends StatelessWidget {
     final dDayText = _formatDDay(dayDiff);
     final isPast = dayDiff < 0;
 
+    // 태블릿 2열 그리드에서는 셀이 화면 절반 — .w 스케일링 대신 고정값 사용.
+    final iconSize = isTablet ? 44.0 : 52.w;
+    final hPad = isTablet ? 14.0 : 16.w;
+    final iconGap = isTablet ? 12.0 : 14.w;
+    final badgeGap = isTablet ? 10.0 : 12.w;
+    final edgePad = isTablet ? 0.6 : 0.8.w;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -623,14 +629,14 @@ class _DysmorphicCard extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(0.8.w),
+          padding: EdgeInsets.all(edgePad),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.r),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 16.w,
+                  horizontal: hPad,
                   vertical: 14.h,
                 ),
                 decoration: BoxDecoration(
@@ -643,8 +649,8 @@ class _DysmorphicCard extends StatelessWidget {
                   children: <Widget>[
                     // 아이콘 박스 (파스텔 그라데이션)
                     Container(
-                      width: 52.w,
-                      height: 52.w,
+                      width: iconSize,
+                      height: iconSize,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -653,9 +659,9 @@ class _DysmorphicCard extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(14.r),
                       ),
-                      child: Icon(iconData, color: Colors.white, size: 24.sp),
+                      child: Icon(iconData, color: Colors.white, size: isTablet ? 22 : 24.sp),
                     ),
-                    SizedBox(width: 14.w),
+                    SizedBox(width: iconGap),
                     // 제목 + 날짜 (좌측 정렬)
                     Expanded(
                       child: Column(
@@ -667,7 +673,7 @@ class _DysmorphicCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.montserrat(
-                              fontSize: 14.sp,
+                              fontSize: isTablet ? 16 : 14.sp,
                               fontWeight: FontWeight.w600,
                               color: cs.onSurface.withValues(alpha: 0.92),
                             ),
@@ -676,7 +682,7 @@ class _DysmorphicCard extends StatelessWidget {
                           Text(
                             _formatDate(model.targetDate),
                             style: GoogleFonts.montserrat(
-                              fontSize: 11.sp,
+                              fontSize: isTablet ? 13 : 11.sp,
                               fontWeight: FontWeight.w400,
                               color: cs.onSurface.withValues(alpha: 0.38),
                               letterSpacing: 0.3,
@@ -685,12 +691,12 @@ class _DysmorphicCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: badgeGap),
                     // D-Day 배지 (우측 정렬)
                     Text(
                       dDayText,
                       style: GoogleFonts.robotoMono(
-                        fontSize: 14.sp,
+                        fontSize: isTablet ? 16 : 14.sp,
                         fontWeight: FontWeight.w700,
                         color: isPast
                             ? cs.onSurface.withValues(alpha: 0.30)

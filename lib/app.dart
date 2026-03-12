@@ -48,12 +48,13 @@ class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _themeController,
-      builder: (_, __) => ScreenUtilInit(
-        designSize: const Size(390, 844),
-        minTextAdapt: true,
-        splitScreenMode: true,
+    return ScreenUtilInit(
+      designSize: const Size(390, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_, child) => ListenableBuilder(
+        listenable: _themeController,
+        child: child,
         builder: (_, child) => MaterialApp(
           title: 'dayly',
           debugShowCheckedModeBanner: false,
@@ -65,19 +66,19 @@ class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
           supportedLocales: UiKitLocalizations.supportedLocales,
           home: child,
         ),
-        child: Column(
-          children: [
-            Expanded(
-              child: WidgetGridScreen(
-                themeController: _themeController,
-              ),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: WidgetGridScreen(
+              themeController: _themeController,
             ),
-            BannerAdWidget(
-              androidId: 'ca-app-pub-4656262305566191/8847465750',
-              iosId: 'ca-app-pub-4656262305566191/5810238878',
-            ),
-          ],
-        ),
+          ),
+          BannerAdWidget(
+            androidId: 'ca-app-pub-4656262305566191/8847465750',
+            iosId: 'ca-app-pub-4656262305566191/5810238878',
+          ),
+        ],
       ),
     );
   }

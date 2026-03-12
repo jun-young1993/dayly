@@ -24,7 +24,9 @@
       "Bash(xcodebuild:*)",
       "Bash(ruby:*)",
       "Bash(pod install:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(du:*)"
     ]
   }
 }

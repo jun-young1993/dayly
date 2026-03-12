@@ -26,9 +26,27 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="">
+    <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/APPSTORE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HOMEPAGE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PRIVACYPOLICY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/Frame 803.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/Frame 804.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/Frame 809.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/Frame 810.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/event_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/event_detail_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/setting_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/setting_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,7 +118,7 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/junyoungkim/Desktop/junyoung/app/source/dayly/assets/fonts&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/junyoungkim/Desktop/junyoung/app/source/dayly/assets&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
@@ -111,6 +129,9 @@
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/ios/Runner" />
@@ -121,6 +142,7 @@
     <attachedChunks>
       <set>
         <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
       </set>
     </attachedChunks>
   </component>
@@ -134,6 +156,7 @@
       <workItem from="1772112829746" duration="494000" />
       <workItem from="1772113596847" duration="2043000" />
       <workItem from="1772198572730" duration="13595000" />
+      <workItem from="1773334994138" duration="1154000" />
     </task>
     <servers />
   </component>
@@ -151,5 +174,9 @@
     <option featureType="dependencySupport" implementationName="executable:docker" />
     <option featureType="com.intellij.configurationType" implementationName="FlutterRunConfigurationType" />
     <option featureType="dependencySupport" implementationName="executable:kubectl" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
