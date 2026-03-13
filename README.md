@@ -281,9 +281,23 @@ emulator -avd Small_Phone
 flutter clean && flutter pub upgrade  --major-versions
 ```
 
-Moments That matter
-Counting the Moments
-Memories in Time
-The Days Ahead
-Reminders
-My Son's Birthday
+
+#### 안드로이드 빌드
+
+> apk build
+
+```shell
+flutter build apk --release
+```
+
+> aab build
+
+```shell
+flutter build appbundle
+```
+
+> ios build
+
+```shell
+flutter build ios
+```

@@ -27,31 +27,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ANDROID_WIDGET_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/APPSTORE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Colors.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HOMEPAGE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PRIVACYPOLICY.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/Screenshot_1772529868.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/Screenshot_1772529946.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/Screenshot_1772529959.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/Screenshot_1772529965.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth_gate.dart.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/repositories/notification_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/repositories/notification_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/add_widget_bottom_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/add_widget_bottom_sheet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/share_preview_screen_v2.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/share_preview_screen_v2.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/widget_grid_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/notification_scheduler.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/notification_scheduler.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
