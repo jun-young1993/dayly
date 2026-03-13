@@ -271,3 +271,19 @@ emulator -avd Pixel_6_API_34
 ```
 
 그러면 Android Studio 없이 독립 윈도우로 에뮬레이터가 실행됩니다.
+
+```shell
+emulator -avd Small_Phone
+```
+
+일괄 업그레이드
+```
+flutter clean && flutter pub upgrade  --major-versions
+```
+
+Moments That matter
+Counting the Moments
+Memories in Time
+The Days Ahead
+Reminders
+My Son's Birthday

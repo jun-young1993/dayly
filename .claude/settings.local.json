@@ -26,7 +26,12 @@
       "Bash(pod install:*)",
       "WebSearch",
       "Bash(python3:*)",
-      "Bash(du:*)"
+      "Bash(du:*)",
+      "Bash(find /c/Users/junyoung/junyoung/source/dayly -type d -name \"*l10n*\" -o -name \"*locali*\" 2>/dev/null | head -20)",
+      "Bash(grep -n \"const Text\\\\|Text\\(\" /c/Users/junyoung/junyoung/source/dayly/lib/screens/share_preview_screen_v2.dart | grep -v \"//\" | head -20)",
+      "Bash(find /c/Users/junyoung -path \"*/flutter_ui_kit_l10n/lib/*.dart\" 2>/dev/null | head -10)",
+      "Bash(find /c/Users/junyoung/.pub-cache /c/Users/junyoung -path \"*flutter_ui_kit_l10n*\" -name \"*.dart\" 2>/dev/null | head -10)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

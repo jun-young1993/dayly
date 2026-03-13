@@ -13,6 +13,9 @@ Beautiful D-Day Widgets
 ### Promotional Text (170 chars max)
 Count down to life's most meaningful moments with beautifully crafted home screen widgets. Share your D-Day cards with style.
 
+- Andorid
+    - Count down to life's meaningful moments with beautiful home screen widgets.
+
 ### Description
 
 **Beautiful D-Day widgets for your home screen. Count down to what matters — your way.**

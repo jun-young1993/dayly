@@ -98,9 +98,14 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       unawaited(saveDaylyWidgets(loaded));
     }
 
-    final widgets = loaded.isEmpty
-        ? <DaylyWidgetModel>[DaylyWidgetModel.defaults()]
-        : List<DaylyWidgetModel>.of(loaded);
+    final List<DaylyWidgetModel> widgets;
+    if (loaded.isEmpty) {
+      widgets = <DaylyWidgetModel>[DaylyWidgetModel.defaults()];
+      // 기본 위젯을 최초 1회 persist — 앱 재시작마다 재생성되지 않도록.
+      unawaited(saveDaylyWidgets(widgets));
+    } else {
+      widgets = List<DaylyWidgetModel>.of(loaded);
+    }
 
     if (!mounted) return;
     setState(() {
@@ -151,7 +156,12 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       setState(() => _widgets[index] = result.model!);
       // 수정된 모델로 알림 재예약.
       // schedule() 내부에서 기존 알림 취소 후 재예약한다.
-      unawaited(_notifRepo.schedule(result.model!));
+      if (mounted) {
+        final lang = UiKitLocalizations.of(context).custom((locale) => locale.languageCode);
+        unawaited(_notifRepo.schedule(result.model!, languageCode: lang));
+      } else {
+        unawaited(_notifRepo.schedule(result.model!));
+      }
     }
     unawaited(_persist());
   }
@@ -210,7 +220,8 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     unawaited(_persist());
     // 새 위젯 알림 예약 (한도 초과 시 건너뜀).
     if (!skipNotification) {
-      unawaited(_notifRepo.schedule(created));
+      final lang = l10n.custom((locale) => locale.languageCode);
+      unawaited(_notifRepo.schedule(created, languageCode: lang));
     }
   }
 
@@ -305,7 +316,11 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
                 ),
                 SizedBox(height: 6.h),
                 Text(
-                  '${_widgets.length} event${_widgets.length == 1 ? '' : 's'}',
+                  l10n.custom((locale) => switch (locale.languageCode) {
+                    'ko' => '${_widgets.length}개의 이벤트',
+                    'ja' => '${_widgets.length}件のイベント',
+                    _ => '${_widgets.length} event${_widgets.length == 1 ? '' : 's'}',
+                  }),
                   style: GoogleFonts.montserrat(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,

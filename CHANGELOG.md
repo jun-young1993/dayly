@@ -2,6 +2,42 @@
 
 ---
 
+## 1.4.2 — 2026-03-13
+
+### Fixed — 배너 광고 블랙 스크린 수정
+
+- **`app.dart`**: `BannerAdWidget` 비활성화 — 에뮬레이터에서 AdMob PlatformView(SurfaceProducer backend)가 GPU 렌더링 불가 시 해당 영역이 검은 화면으로 표시되는 문제 수정. 실기기 검증 후 재활성화 예정.
+
+---
+
+## 1.4.1 — 2026-03-13
+
+### Fixed — App Open 광고 블랙 스크린 수정
+
+- **`main.dart`**: `AppOpenAdManager.configure()` / `loadAd()` 비활성화 — `AppLifecycleState.resumed` 마다 전면 광고가 표시되어 에뮬레이터(GPU 렌더링 불가 환경)에서 검은 화면이 고착되는 문제 수정. 쿨다운 로직 구현 후 재활성화 예정.
+
+---
+
+## 1.4.0 — 2026-03-13
+
+### Fixed — 언어 혼재 해소 (한국어/영어 l10n.custom 통일)
+
+- **`add_widget_bottom_sheet.dart`**: `flutter_ui_kit_l10n` import 추가 후 모든 하드코딩 영어 문자열 (`CREATE NEW MOMENT`, `Name your moment`, hint 텍스트, `Date Selection`, `Icon & Color`, `SAVE MOMENT`)을 `l10n.custom()`으로 교체 — ko/ja/en 3개 언어 지원
+- **`share_preview_screen_v2.dart`**: 하드코딩 영어·한국어 문자열 전체 교체 — `EDIT MOMENT`, `Preview`, `Edit Options`, `Sentence Editing`, `Date`, `Theme`, `Expression Style`, `Divider`, `Premium`, `SHARE MOMENT`, 공유 실패 SnackBar, 문구 편집 hint·설명·`적용` 버튼, `_countdownModeLabel()` 함수 signature 변경 (`BuildContext` 수신)
+- **`widget_grid_screen.dart`**: 이벤트 수 라벨 (`N events`) → `l10n.custom()`으로 교체
+- **`notification_scheduler.dart`**: `scheduleAll()` 및 `_buildBody()`에 `languageCode` 파라미터 추가 — 알림 본문이 선택된 언어로 발송 (ko/ja/en)
+- **`notification_repository.dart`**: `schedule()` 메서드에 `languageCode` 파라미터 추가, `_languageCode` 필드로 마지막 언어 기억 → `syncOnAppStart()` 재예약 시에도 동일 언어 사용
+
+---
+
+## 1.3.9 — 2026-03-13
+
+### Fixed — 기본 위젯 최초 1회 persist 처리
+
+- 앱 최초 실행 시 저장 데이터가 없을 때 `DaylyWidgetModel.defaults()`로 생성된 기본 위젯을 즉시 `saveDaylyWidgets()`로 저장 — 이전에는 메모리에만 존재해 앱 재시작마다 새 기본 위젯이 생성될 수 있었음
+
+---
+
 ## 1.3.8 — 2026-03-13
 
 ### Fixed — 태블릿 Setting 아이콘 사이즈 대응

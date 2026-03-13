@@ -74,6 +74,8 @@ class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
               themeController: _themeController,
             ),
           ),
+          // BannerAdWidget — 에뮬레이터에서 SurfaceProducer GPU 렌더링 불가로 검은 화면 유발.
+          // TODO: 실기기 테스트 후 재활성화.
           BannerAdWidget(
             androidId: 'ca-app-pub-4656262305566191/8847465750',
             iosId: 'ca-app-pub-4656262305566191/5810238878',

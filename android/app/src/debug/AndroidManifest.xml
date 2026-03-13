@@ -4,4 +4,12 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <!-- Internet permission is declared in main/AndroidManifest.xml (needed for Firebase as well). -->
+
+    <!-- 에뮬레이터에서 Impeller(Vulkan) 렌더러가 GPU 렌더링 노드를 열지 못해
+         검은 화면이 발생하는 문제 방지. 디버그 빌드에서만 비활성화. -->
+    <application>
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false"/>
+    </application>
 </manifest>

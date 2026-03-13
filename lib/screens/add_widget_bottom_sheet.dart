@@ -6,6 +6,7 @@ import 'package:dayly/utils/dayly_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ──────────────────────────────────────────────────────────────
@@ -269,6 +270,7 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(8.w, 8.h, 16.w, 0),
       child: Row(
@@ -279,7 +281,11 @@ class _TopBar extends StatelessWidget {
           ),
           SizedBox(width: 4.w),
           Text(
-            'CREATE NEW MOMENT',
+            l10n.custom((locale) => switch (locale.languageCode) {
+              'ko' => '새 순간 만들기',
+              'ja' => '新しいモーメントを作成',
+              _ => 'CREATE NEW MOMENT',
+            }),
             style: GoogleFonts.montserrat(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,
@@ -303,11 +309,16 @@ class _NameField extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'Name your moment',
+          l10n.custom((locale) => switch (locale.languageCode) {
+            'ko' => '순간의 이름',
+            'ja' => 'モーメントの名前',
+            _ => 'Name your moment',
+          }),
           style: GoogleFonts.montserrat(
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
@@ -346,7 +357,11 @@ class _NameField extends StatelessWidget {
                     horizontal: 16.w,
                     vertical: 14.h,
                   ),
-                  hintText: 'e.g. Our First Anniversary',
+                  hintText: l10n.custom((locale) => switch (locale.languageCode) {
+                    'ko' => '예) 첫 번째 기념일',
+                    'ja' => '例）最初の記念日',
+                    _ => 'e.g. Our First Anniversary',
+                  }),
                   hintStyle: GoogleFonts.montserrat(
                     color: cs.onSurface.withValues(alpha: 0.24),
                     fontSize: 14.sp,
@@ -377,6 +392,7 @@ class _DateSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -385,7 +401,11 @@ class _DateSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(
-              'Date Selection',
+              l10n.custom((locale) => switch (locale.languageCode) {
+                'ko' => '날짜 선택',
+                'ja' => '日付選択',
+                _ => 'Date Selection',
+              }),
               style: GoogleFonts.montserrat(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
@@ -466,11 +486,16 @@ class _IconSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'Icon & Color',
+          l10n.custom((locale) => switch (locale.languageCode) {
+            'ko' => '아이콘 & 색상',
+            'ja' => 'アイコン & カラー',
+            _ => 'Icon & Color',
+          }),
           style: GoogleFonts.montserrat(
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
@@ -543,6 +568,7 @@ class _SaveButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
+    final l10n = UiKitLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         24.w,
@@ -580,7 +606,11 @@ class _SaveButton extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  'SAVE MOMENT',
+                  l10n.custom((locale) => switch (locale.languageCode) {
+                    'ko' => '저장하기',
+                    'ja' => '保存する',
+                    _ => 'SAVE MOMENT',
+                  }),
                   style: GoogleFonts.montserrat(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,

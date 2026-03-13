@@ -25,6 +25,7 @@ class NotificationRepository {
   late final FlutterLocalNotificationsPlugin _plugin;
 
   bool _initialized = false;
+  String _languageCode = 'ko';
 
   Future<void> init(FlutterLocalNotificationsPlugin plugin) async {
     if (_initialized) return;
@@ -38,13 +39,14 @@ class NotificationRepository {
 
   /// 위젯 생성/수정 시 호출.
   /// 기존 알림을 취소하고 새로 예약한다.
-  Future<void> schedule(DaylyWidgetModel model) async {
+  Future<void> schedule(DaylyWidgetModel model, {String languageCode = 'ko'}) async {
     _assertInit();
+    _languageCode = languageCode;
     // 1. 기존 알림 취소 (수정 케이스 대응)
     await _cancelStored(model.id);
 
     // 2. 새 알림 예약
-    final ids = await _scheduler.scheduleAll(model);
+    final ids = await _scheduler.scheduleAll(model, languageCode: languageCode);
 
     // 3. Hive 저장 (예약된 ID만 기록 — 이미 지난 트리거는 포함 안 됨)
     await _box.put(model.id, ids);
@@ -79,7 +81,7 @@ class NotificationRepository {
           stored.isNotEmpty && stored.any(pendingIds.contains);
 
       if (!hasLiveNotification) {
-        final ids = await _scheduler.scheduleAll(widget);
+        final ids = await _scheduler.scheduleAll(widget, languageCode: _languageCode);
         await _box.put(widget.id, ids);
         rescheduled++;
       }

@@ -34,23 +34,29 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  google_fonts: ^7.0.2
+  google_fonts: ^8.0.2
   intl: ^0.20.2
   share_plus: ^12.0.1
   shared_preferences: ^2.5.3
   flutter_screenutil: ^5.9.3
   # 홈화면 위젯 (iOS WidgetKit / Android AppWidget 브릿지)
-  home_widget: ^0.7.0
+  home_widget: ^0.9.0
 
   # 갤러리 이미지 선택
   image_picker: ^1.1.0
   path_provider: ^2.1.0
 
   # 로컬 알림 시스템
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^21.0.0
   hive_flutter: ^1.1.0
-  timezone: ^0.10.1
+  timezone: ^0.11.0
   flutter_timezone: ^5.0.1
+
+  # flutter ui kits
+  flutter_ui_kit_theme: ^0.1.16
+  flutter_ui_kit_google_mobile_ads: ^0.1.16
+  flutter_ui_kit_setting: ^0.1.16
+  flutter_ui_kit_l10n: ^0.0.13
 
 dev_dependencies:
   flutter_test:
@@ -63,23 +69,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-  # flutter ui kits
-  flutter_ui_kit_theme:
-    git:
-        url: https://github.com/jun-young1993/flutter_ui_kit.git
-        path: packages/flutter_ui_kit_theme
-  flutter_ui_kit_google_mobile_ads:
-    git:
-      url: https://github.com/jun-young1993/flutter_ui_kit.git
-      path: packages/flutter_ui_kit_google_mobile_ads
-  flutter_ui_kit_setting:
-    git:
-      url: https://github.com/jun-young1993/flutter_ui_kit.git
-      path: packages/flutter_ui_kit_setting
-  flutter_ui_kit_l10n:
-    git:
-      url: https://github.com/jun-young1993/flutter_ui_kit.git
-      path: packages/flutter_ui_kit_l10n
+
 
 
 # For information on the generic Dart part of this file, see the

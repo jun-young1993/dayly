@@ -39,6 +39,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
 
   Future<void> _shareCurrentPreview() async {
     if (_isSharing) return;
+    final l10n = UiKitLocalizations.of(context);
     setState(() => _isSharing = true);
 
     try {
@@ -69,7 +70,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
       debugPrint('share failed: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sharing failed. Please try again.')),
+          SnackBar(content: Text(l10n.custom((locale) => switch (locale.languageCode) {
+            'ko' => '공유에 실패했습니다. 다시 시도해주세요.',
+            'ja' => '共有に失敗しました。もう一度お試しください。',
+            _ => 'Sharing failed. Please try again.',
+          }))),
         );
       }
     } finally {
@@ -105,21 +110,33 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              const Text('Tell us why it matters, not just the date. (Max 2 lines)'),
+              Text(l10n.custom((locale) => switch (locale.languageCode) {
+                'ko' => '날짜만이 아닌, 그 날의 의미를 담아보세요. (최대 2줄)',
+                'ja' => '日付だけでなく、その日の意味を込めましょう。（最大2行）',
+                _ => 'Tell us why it matters, not just the date. (Max 2 lines)',
+              })),
               const SizedBox(height: 12),
               TextField(
                 controller: controller,
                 maxLines: 2,
                 textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'e.g. 23 days until we meet again',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.custom((locale) => switch (locale.languageCode) {
+                    'ko' => '예) 다시 만날 때까지 23일',
+                    'ja' => '例）再会まで23日',
+                    _ => 'e.g. 23 days until we meet again',
+                  }),
                 ),
               ),
               const SizedBox(height: 12),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-                child: const Text('적용'),
+                child: Text(l10n.custom((locale) => switch (locale.languageCode) {
+                  'ko' => '적용',
+                  'ja' => '適用',
+                  _ => 'Apply',
+                })),
               ),
               const SizedBox(height: 8),
             ],
@@ -170,6 +187,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
   }
 
   Future<void> _pickCountdownMode() async {
+    final l10n = UiKitLocalizations.of(context);
     final picked = await showModalBottomSheet<DaylyCountdownMode>(
       context: context,
       showDragHandle: true,
@@ -181,9 +199,13 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const Text(
-                  'Expression Style',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                Text(
+                  l10n.custom((locale) => switch (locale.languageCode) {
+                    'ko' => '표현 방식',
+                    'ja' => '表現スタイル',
+                    _ => 'Expression Style',
+                  }),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -191,7 +213,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                   runSpacing: 8,
                   children: DaylyCountdownMode.values.map((mode) {
                     return ChoiceChip(
-                      label: Text(_countdownModeLabel(mode)),
+                      label: Text(_countdownModeLabel(mode, context)),
                       selected: _model.style.countdownMode == mode,
                       onSelected: (_) => Navigator.of(context).pop(mode),
                     );
@@ -209,6 +231,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
   }
 
   Future<void> _pickThemePreset() async {
+    final l10n = UiKitLocalizations.of(context);
     final picked = await showModalBottomSheet<DaylyThemePreset>(
       context: context,
       showDragHandle: true,
@@ -220,9 +243,13 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const Text(
-                  'Theme',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                Text(
+                  l10n.custom((locale) => switch (locale.languageCode) {
+                    'ko' => '테마',
+                    'ja' => 'テーマ',
+                    _ => 'Theme',
+                  }),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -272,17 +299,39 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
   String _formatDate(DateTime date) =>
       '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
 
-  String _countdownModeLabel(DaylyCountdownMode mode) => switch (mode) {
-        DaylyCountdownMode.days => '23 days left', //23일
+  String _countdownModeLabel(DaylyCountdownMode mode, BuildContext ctx) {
+    final l10n = UiKitLocalizations.of(ctx);
+    return l10n.custom((locale) => switch (locale.languageCode) {
+      'ko' => switch (mode) {
+        DaylyCountdownMode.days => '23일 남음',
+        DaylyCountdownMode.dMinus => 'D-23',
+        DaylyCountdownMode.weeksDays => '3주 23일',
+        DaylyCountdownMode.mornings => '42번의 아침',
+        DaylyCountdownMode.nights => '42번의 밤',
+        DaylyCountdownMode.hidden => '숫자 숨김',
+      },
+      'ja' => switch (mode) {
+        DaylyCountdownMode.days => '23日後',
+        DaylyCountdownMode.dMinus => 'D-23',
+        DaylyCountdownMode.weeksDays => '3週23日',
+        DaylyCountdownMode.mornings => '42回の朝',
+        DaylyCountdownMode.nights => '42回の夜',
+        DaylyCountdownMode.hidden => '数字を隠す',
+      },
+      _ => switch (mode) {
+        DaylyCountdownMode.days => '23 days left',
         DaylyCountdownMode.dMinus => 'D-23',
         DaylyCountdownMode.weeksDays => '3 weeks 23 days',
         DaylyCountdownMode.mornings => '42 mornings',
         DaylyCountdownMode.nights => '42 nights',
         DaylyCountdownMode.hidden => 'hide numbers',
-      };
+      },
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = UiKitLocalizations.of(context);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -338,7 +387,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                         SizedBox(width: 4.w),
                         Expanded(
                           child: Text(
-                            'EDIT MOMENT',
+                            l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '편집',
+                              'ja' => '編集',
+                              _ => 'EDIT MOMENT',
+                            }),
                             style: GoogleFonts.montserrat(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w700,
@@ -359,7 +412,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                         else
                           IconButton(
                             onPressed: _shareCurrentPreview,
-                            tooltip: 'Share',
+                            tooltip: l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '공유',
+                              'ja' => '共有',
+                              _ => 'Share',
+                            }),
                             icon: Icon(Icons.ios_share, color: Colors.white54, size: 22.sp),
                           ),
                       ],
@@ -374,7 +431,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                         children: <Widget>[
                           // Preview label
                           Text(
-                            'Preview',
+                            l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '미리보기',
+                              'ja' => 'プレビュー',
+                              _ => 'Preview',
+                            }),
                             style: GoogleFonts.montserrat(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
@@ -415,7 +476,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                           SizedBox(height: 24.h),
                           // Edit options label
                           Text(
-                            'Edit Options',
+                            l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '편집 옵션',
+                              'ja' => '編集オプション',
+                              _ => 'Edit Options',
+                            }),
                             style: GoogleFonts.montserrat(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
@@ -433,29 +498,45 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.edit_note,
-                            label: 'Sentence Editing',
+                            label: l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '문구 편집',
+                              'ja' => '文言編集',
+                              _ => 'Sentence Editing',
+                            }),
                             value: _model.primarySentence,
                             onTap: _editSentence,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.event,
-                            label: 'Date',
+                            label: l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '날짜',
+                              'ja' => '日付',
+                              _ => 'Date',
+                            }),
                             value: _formatDate(_model.targetDate),
                             onTap: _editTargetDate,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.palette_outlined,
-                            label: 'Theme',
+                            label: l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '테마',
+                              'ja' => 'テーマ',
+                              _ => 'Theme',
+                            }),
                             value: daylyThemeLabel(_model.style.themePreset),
                             onTap: _pickThemePreset,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
                             icon: Icons.numbers,
-                            label: 'Expression Style',
-                            value: _countdownModeLabel(_model.style.countdownMode),
+                            label: l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '표현 방식',
+                              'ja' => '表現スタイル',
+                              _ => 'Expression Style',
+                            }),
+                            value: _countdownModeLabel(_model.style.countdownMode, context),
                             onTap: _pickCountdownMode,
                           ),
                           SizedBox(height: 8.h),
@@ -464,7 +545,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                               Expanded(
                                 child: _GlassToggleTile(
                                   icon: Icons.more_horiz,
-                                  label: 'Divider',
+                                  label: l10n.custom((locale) => switch (locale.languageCode) {
+                                    'ko' => '구분선',
+                                    'ja' => '区切り線',
+                                    _ => 'Divider',
+                                  }),
                                   isOn: _model.style.showDivider,
                                   onTap: _toggleDivider,
                                 ),
@@ -473,7 +558,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                               Expanded(
                                 child: _GlassToggleTile(
                                   icon: Icons.workspace_premium,
-                                  label: 'Premium',
+                                  label: l10n.custom((locale) => switch (locale.languageCode) {
+                                    'ko' => '프리미엄',
+                                    'ja' => 'プレミアム',
+                                    _ => 'Premium',
+                                  }),
                                   isOn: _model.style.isPremium,
                                   onTap: _togglePremium,
                                 ),
@@ -529,7 +618,11 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                                       ),
                                     )
                                   : Text(
-                                      'SHARE MOMENT',
+                                      l10n.custom((locale) => switch (locale.languageCode) {
+                                        'ko' => '공유하기',
+                                        'ja' => '共有する',
+                                        _ => 'SHARE MOMENT',
+                                      }),
                                       style: GoogleFonts.montserrat(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w700,

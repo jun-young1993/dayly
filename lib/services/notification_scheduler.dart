@@ -47,7 +47,7 @@ class NotificationScheduler {
   /// 실제 예약된 알림 ID 목록을 반환한다.
   ///
   /// 이미 지난 시각의 알림은 예약하지 않으므로 반환 리스트 길이는 0~4.
-  Future<List<int>> scheduleAll(DaylyWidgetModel model) async {
+  Future<List<int>> scheduleAll(DaylyWidgetModel model, {String languageCode = 'ko'}) async {
     final now = tz.TZDateTime.now(tz.local);
     final scheduled = <int>[];
 
@@ -67,23 +67,19 @@ class NotificationScheduler {
       if (!scheduledAt.isAfter(now.add(const Duration(minutes: 1)))) continue;
 
       final id = NotificationIdRegistry.compute(model.id, triggerIndex);
-      final body = _buildBody(model.primarySentence, daysOffset);
+      final body = _buildBody(model.primarySentence, daysOffset, languageCode);
 
       // androidScheduleMode: exactAllowWhileIdle
       // → AlarmManager.setExactAndAllowWhileIdle() 사용.
       // Doze 모드(화면 꺼짐 + 충전 중 아님)를 뚫고 정확한 시각에 발송.
       // 일반 setExact()는 Doze에서 배치 처리되어 수 시간 지연 가능.
       await _plugin.zonedSchedule(
-        id,
-        model.primarySentence,
-        body,
-        scheduledAt,
-        _details,
+        id: id,
+        title: model.primarySentence,
+        body: body,
+        scheduledDate: scheduledAt,
+        notificationDetails: _details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        // iOS 구버전 호환 파라미터 (v17에서 required).
-        // absoluteTime: 절대 시각 기준 — D-Day 앱에는 항상 이 옵션.
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         payload: model.id, // 탭 시 해당 위젯으로 딥링크용
       );
 
@@ -96,17 +92,33 @@ class NotificationScheduler {
   /// 특정 알림 ID 목록을 모두 취소한다.
   Future<void> cancelAll(List<int> ids) async {
     for (final id in ids) {
-      await _plugin.cancel(id);
+      await _plugin.cancel(id: id);
     }
   }
 
-  String _buildBody(String title, int daysOffset) {
-    return switch (daysOffset) {
-      0  => '오늘이 바로 $title입니다 ✨',
-      -1 => '내일이 $title입니다',
-      -3 => '3일 후 $title입니다',
-      -7 => '7일 후 $title입니다',
-      _  => '$title이 다가오고 있습니다',
+  String _buildBody(String title, int daysOffset, String languageCode) {
+    return switch (languageCode) {
+      'ja' => switch (daysOffset) {
+        0  => '今日は $title です ✨',
+        -1 => '明日は $title です',
+        -3 => '3日後に $title があります',
+        -7 => '7日後に $title があります',
+        _  => '$title が近づいています',
+      },
+      'ko' => switch (daysOffset) {
+        0  => '오늘이 바로 $title입니다 ✨',
+        -1 => '내일이 $title입니다',
+        -3 => '3일 후 $title입니다',
+        -7 => '7일 후 $title입니다',
+        _  => '$title이 다가오고 있습니다',
+      },
+      _ => switch (daysOffset) {
+        0  => 'Today is $title ✨',
+        -1 => 'Tomorrow is $title',
+        -3 => '$title is in 3 days',
+        -7 => '$title is in 7 days',
+        _  => '$title is coming up',
+      },
     };
   }
 }
