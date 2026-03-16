@@ -1,6 +1,5 @@
 package juny.dayly
 
-import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -9,25 +8,25 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.RemoteViews
-import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Calendar
 
 enum class WidgetSize { SMALL, MEDIUM, LARGE }
 
 /**
- * dayly 홈화면 위젯 Provider.
+ * dayly 홈화면 위젯 Provider (Small, 2×2).
  *
  * StackView 기반 컬렉션 위젯으로 여러 D-Day 이벤트를 스와이프(fling)하여 탐색할 수 있다.
  * DaylyWidgetRemoteViewsService가 SharedPreferences에서 전체 이벤트 목록을 읽어 제공한다.
  *
- * 자정 업데이트: onEnabled() 시 AlarmManager로 매일 자정 직후 업데이트를 예약한다.
+ * AlarmManager 생명주기는 [WidgetUpdateManager]에 위임한다.
+ * 자정 업데이트: onEnabled() → WidgetUpdateManager.scheduleIfNeeded()
+ * 타임존 변경:   ACTION_TIMEZONE_CHANGED → WidgetUpdateManager.updateAll()
  */
 open class DaylyAppWidget : AppWidgetProvider() {
 
@@ -51,24 +50,21 @@ open class DaylyAppWidget : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        scheduleMidnightUpdate(context)
+        WidgetUpdateManager.scheduleIfNeeded(context)
     }
 
     override fun onDisabled(context: Context) {
-        cancelMidnightUpdate(context)
+        WidgetUpdateManager.cancelIfNone(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == ACTION_MIDNIGHT_UPDATE) {
-            val manager = AppWidgetManager.getInstance(context)
-            val ids = manager.getAppWidgetIds(
-                ComponentName(context, DaylyAppWidget::class.java)
-            )
-            if (ids.isNotEmpty()) {
-                onUpdate(context, manager, ids)
+        when (intent.action) {
+            ACTION_MIDNIGHT_UPDATE -> WidgetUpdateManager.onMidnightReceived(context)
+            Intent.ACTION_TIMEZONE_CHANGED -> {
+                Log.d("DaylyWidget", "timezone changed, refreshing all widgets")
+                WidgetUpdateManager.updateAll(context)
             }
-            scheduleMidnightUpdate(context)
         }
     }
 
@@ -76,7 +72,7 @@ open class DaylyAppWidget : AppWidgetProvider() {
         internal const val ACTION_MIDNIGHT_UPDATE = "juny.dayly.MIDNIGHT_UPDATE"
         private const val INSTANCE_PREFS = "dayly_widget_instance"
 
-        // DaylyWidgetConfigActivity 호환용
+        // DaylyWidgetConfigActivity 호환용 (레거시)
         fun instancePrefs(context: Context): SharedPreferences =
             context.getSharedPreferences(INSTANCE_PREFS, Context.MODE_PRIVATE)
 
@@ -86,17 +82,12 @@ open class DaylyAppWidget : AppWidgetProvider() {
             context: Context,
             appWidgetManager: AppWidgetManager,
             appWidgetId: Int,
-            forceMedium: Boolean? = null,
             forceSize: WidgetSize? = null,
         ) {
             val size = forceSize ?: run {
-                if (forceMedium == true) {
-                    WidgetSize.MEDIUM
-                } else {
-                    val opts = appWidgetManager.getAppWidgetOptions(appWidgetId)
-                    val maxWidth = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
-                    if (maxWidth >= 200) WidgetSize.MEDIUM else WidgetSize.SMALL
-                }
+                val opts = appWidgetManager.getAppWidgetOptions(appWidgetId)
+                val maxWidth = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
+                if (maxWidth >= 200) WidgetSize.MEDIUM else WidgetSize.SMALL
             }
             val layoutId = when (size) {
                 WidgetSize.LARGE  -> R.layout.dayly_widget_large
@@ -132,8 +123,16 @@ open class DaylyAppWidget : AppWidgetProvider() {
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_stack)
         }
 
-        /** targetDate(yyyy-MM-dd)와 countdownMode로 실시간 D-Day 텍스트 계산 */
-        fun buildCountdownText(targetDateIso: String, countdownMode: String): String {
+        /**
+         * targetDate(yyyy-MM-dd)와 countdownMode, 언어 코드로 실시간 D-Day 텍스트를 계산한다.
+         *
+         * @param lang ISO 639-1 언어 코드 (ko / ja / en, 기본값 en)
+         */
+        fun buildCountdownText(
+            targetDateIso: String,
+            countdownMode: String,
+            lang: String = "en",
+        ): String {
             if (targetDateIso.isEmpty()) return "–"
             return try {
                 val target = LocalDate.parse(targetDateIso, DateTimeFormatter.ISO_LOCAL_DATE)
@@ -141,69 +140,50 @@ open class DaylyAppWidget : AppWidgetProvider() {
                 val dayDiff = ChronoUnit.DAYS.between(today, target).toInt()
                 val days = Math.abs(dayDiff)
                 when (countdownMode) {
-                    "days" -> if (dayDiff >= 0) "$days days left" else "$days days ago"
+                    "days" -> when (lang) {
+                        "ko" -> if (dayDiff >= 0) "${days}일 남음" else "${days}일 지남"
+                        "ja" -> if (dayDiff >= 0) "あと${days}日" else "${days}日前"
+                        else -> if (dayDiff >= 0) "$days days left" else "$days days ago"
+                    }
                     "dMinus" -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
                     "weeksDays" -> {
                         val weeks = days / 7
                         val rem = days % 7
-                        when {
-                            weeks <= 0 -> "$days days"
-                            rem == 0 -> "$weeks weeks"
-                            else -> "$weeks weeks $rem days"
+                        when (lang) {
+                            "ko" -> when {
+                                weeks <= 0 -> "${days}일"
+                                rem == 0   -> "${weeks}주"
+                                else       -> "${weeks}주 ${rem}일"
+                            }
+                            "ja" -> when {
+                                weeks <= 0 -> "${days}日"
+                                rem == 0   -> "${weeks}週間"
+                                else       -> "${weeks}週間${rem}日"
+                            }
+                            else -> when {
+                                weeks <= 0 -> "$days days"
+                                rem == 0   -> "$weeks weeks"
+                                else       -> "$weeks weeks $rem days"
+                            }
                         }
                     }
-                    "mornings" -> "$days mornings"
-                    "nights" -> "$days nights"
+                    "mornings" -> when (lang) {
+                        "ko" -> "${days}번의 아침"
+                        "ja" -> "あと${days}朝"
+                        else -> "$days mornings"
+                    }
+                    "nights" -> when (lang) {
+                        "ko" -> "${days}번의 밤"
+                        "ja" -> "あと${days}夜"
+                        else -> "$days nights"
+                    }
                     "hidden" -> ""
                     else -> if (dayDiff == 0) "D-Day" else if (dayDiff > 0) "D-$days" else "D+$days"
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("DaylyWidget", "buildCountdownText failed for $targetDateIso", e)
                 "–"
             }
-        }
-
-        /** 다음 날 자정 00:00:01에 모든 위젯 업데이트 예약 */
-        private fun scheduleMidnightUpdate(context: Context) {
-            val midnight = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_YEAR, 1)
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 1)
-                set(Calendar.MILLISECOND, 0)
-            }
-            val pendingIntent = midnightPendingIntent(context)
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            // Android 12+(API 31+): SCHEDULE_EXACT_ALARM 권한이 없으면 setWindow() fallback
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
-                // 자정 ±5분 허용 범위로 근사 예약
-                alarmManager.setWindow(
-                    AlarmManager.RTC_WAKEUP,
-                    midnight.timeInMillis,
-                    5 * 60 * 1000L,
-                    pendingIntent,
-                )
-            } else {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    midnight.timeInMillis,
-                    pendingIntent,
-                )
-            }
-        }
-
-        private fun cancelMidnightUpdate(context: Context) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.cancel(midnightPendingIntent(context))
-        }
-
-        private fun midnightPendingIntent(context: Context): PendingIntent {
-            val intent = Intent(context, DaylyAppWidget::class.java).apply {
-                action = ACTION_MIDNIGHT_UPDATE
-            }
-            return PendingIntent.getBroadcast(
-                context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
         }
     }
 }
@@ -224,8 +204,9 @@ data class WidgetDisplayData(
         fun fromJson(obj: JSONObject, index: Int = 0, total: Int = 1): WidgetDisplayData {
             val targetDate = obj.optString("targetDate", "")
             val countdownMode = obj.optString("countdownMode", "dMinus")
+            val lang = obj.optString("languageCode", "en")
             val countdownText = if (targetDate.isNotEmpty()) {
-                DaylyAppWidget.buildCountdownText(targetDate, countdownMode)
+                DaylyAppWidget.buildCountdownText(targetDate, countdownMode, lang)
             } else {
                 obj.optString("countdownText", "–")
             }

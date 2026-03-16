@@ -37,13 +37,17 @@ Future<List<DaylyWidgetModel>> loadDaylyWidgets() async {
   }
 }
 
-Future<void> saveDaylyWidgets(List<DaylyWidgetModel> widgets) async {
+/// [languageCode]는 앱 언어 코드 (ko/ja/en). null이면 기기 locale 사용.
+Future<void> saveDaylyWidgets(
+  List<DaylyWidgetModel> widgets, {
+  String? languageCode,
+}) async {
   try {
     final prefs = await _getPrefs();
     final jsonList = widgets.map((w) => w.toJson()).toList(growable: false);
     await prefs.setString(_widgetsKey, jsonEncode(jsonList));
     // 저장 후 홈화면 위젯 갱신
-    await HomeWidgetService.updateAll(widgets);
+    await HomeWidgetService.updateAll(widgets, languageCode: languageCode);
   } catch (e, st) {
     debugPrint('saveDaylyWidgets failed: $e\n$st');
   }

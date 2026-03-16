@@ -54,6 +54,8 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
                 <action android:name="juny.dayly.MIDNIGHT_UPDATE"/>
+                <!-- 타임존 변경 시 D-Day 즉시 재계산 -->
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
             </intent-filter>
             <!-- Small 위젯 -->
             <meta-data

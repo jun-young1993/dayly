@@ -15,6 +15,7 @@ class HomeWidgetData {
     required this.isPast,
     required this.targetDate,
     required this.countdownMode,
+    this.languageCode = 'en',
   });
 
   /// 앱 내 DaylyWidgetModel.id 와 동일
@@ -44,6 +45,9 @@ class HomeWidgetData {
   /// 카운트다운 표시 방식 (days | dMinus | weeksDays | mornings | nights | hidden)
   final String countdownMode;
 
+  /// 앱 언어 코드 (ko / ja / en). Android 네이티브 카운트다운 텍스트 언어 결정에 사용.
+  final String languageCode;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'sentence': sentence,
@@ -54,6 +58,7 @@ class HomeWidgetData {
         'isPast': isPast,
         'targetDate': targetDate,
         'countdownMode': countdownMode,
+        'languageCode': languageCode,
       };
 
   String toJsonString() => jsonEncode(toJson());
@@ -68,6 +73,7 @@ class HomeWidgetData {
         isPast: (json['isPast'] as bool?) ?? false,
         targetDate: (json['targetDate'] as String?) ?? '',
         countdownMode: (json['countdownMode'] as String?) ?? 'dMinus',
+        languageCode: (json['languageCode'] as String?) ?? 'en',
       );
 
   static HomeWidgetData? fromJsonString(String? raw) {

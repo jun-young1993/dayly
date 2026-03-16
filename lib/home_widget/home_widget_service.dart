@@ -31,9 +31,15 @@ class HomeWidgetService {
   /// 위젯 목록 전체를 네이티브 레이어에 저장하고 위젯 UI를 갱신한다.
   ///
   /// [widgets]가 비어 있으면 빈 JSON 배열을 저장하고 "empty" 플래그를 세운다.
-  static Future<void> updateAll(List<DaylyWidgetModel> widgets) async {
+  /// [languageCode]는 앱에서 사용자가 선택한 언어 코드 (ko/ja/en).
+  /// null이면 기기 시스템 locale을 fallback으로 사용한다.
+  static Future<void> updateAll(
+    List<DaylyWidgetModel> widgets, {
+    String? languageCode,
+  }) async {
     try {
-      final dataList = widgets.map(_toHomeWidgetData).toList();
+      final lang = languageCode ?? PlatformDispatcher.instance.locale.languageCode;
+      final dataList = widgets.map((w) => _toHomeWidgetData(w, lang)).toList();
       final jsonString = jsonEncode(dataList.map((d) => d.toJson()).toList());
 
       await HomeWidget.saveWidgetData(
@@ -64,14 +70,15 @@ class HomeWidgetService {
   /// 특정 위젯 하나를 삭제했을 때 나머지 목록으로 재갱신.
   static Future<void> removeAndUpdate(
     String removedId,
-    List<DaylyWidgetModel> remaining,
-  ) async {
-    await updateAll(remaining);
+    List<DaylyWidgetModel> remaining, {
+    String? languageCode,
+  }) async {
+    await updateAll(remaining, languageCode: languageCode);
   }
 
   // ── 내부 헬퍼 ──────────────────────────────────────────────────
 
-  static HomeWidgetData _toHomeWidgetData(DaylyWidgetModel model) {
+  static HomeWidgetData _toHomeWidgetData(DaylyWidgetModel model, [String lang = 'en']) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(
@@ -98,6 +105,7 @@ class HomeWidgetService {
       isPast: isPast,
       targetDate: DateFormat('yyyy-MM-dd').format(model.targetDate),
       countdownMode: model.style.countdownMode.name,
+      languageCode: lang,
     );
   }
 

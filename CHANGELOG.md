@@ -2,6 +2,29 @@
 
 ---
 
+## 1.5.0 — 2026-03-16
+
+### Fixed — Android 위젯 AlarmManager 아키텍처 강화
+
+- **[CRITICAL] Medium/Large 위젯 자정 업데이트 미작동 수정**: `midnightPendingIntent()`가 `DaylyAppWidget::class.java`를 타겟으로 하는 explicit broadcast여서 Medium/Large는 자정 알람을 수신하지 못하던 문제 해결. `WidgetUpdateManager.onMidnightReceived()`가 Small/Medium/Large 세 Provider를 모두 갱신하도록 변경.
+- **[CRITICAL] Small 위젯 제거 시 Medium/Large 자정 업데이트 영구 중단 수정**: `DaylyAppWidget.onDisabled()` → `cancelMidnightUpdate()` 직접 호출로 Small만 제거해도 알람이 취소되던 문제 해결. `WidgetUpdateManager.cancelIfNone()`이 3개 Provider를 모두 확인 후 모두 0개일 때만 알람 취소.
+- **AlarmManager 중복 예약 방지**: `WidgetUpdateManager.scheduleIfNeeded()`가 `FLAG_NO_CREATE`로 기존 알람 존재 여부를 확인 후 중복 예약을 방지.
+
+### Added
+
+- **`WidgetUpdateManager` 도입**: Android 위젯 AlarmManager 생명주기를 단일 Kotlin `object`로 중앙 관리. Small/Medium/Large Provider는 생명주기 이벤트를 WidgetUpdateManager에 위임.
+- **타임존 변경 즉시 반영**: `ACTION_TIMEZONE_CHANGED` BroadcastReceiver 추가. 기기 타임존 변경 시 위젯 D-Day가 즉시 재계산됨.
+- **카운트다운 텍스트 다국어 지원 (ko/ja/en)**: `buildCountdownText()`에 `lang` 파라미터 추가. 앱 언어가 한국어일 때 "23일 남음", 일본어일 때 "あと23日" 표시. Flutter 측에서 `languageCode`를 JSON에 포함하여 전달.
+- **핵심 경로 로깅 추가**: `WidgetUpdateManager`에 `Log.d/e`로 알람 예약/취소·전체 갱신·예외 상황 기록. 버그 신고 시 logcat으로 원인 추적 가능.
+- **TODOS.md 생성**: Kotlin 위젯 유닛테스트 항목 P1으로 등록.
+
+### Improved
+
+- **`forceMedium` 레거시 파라미터 제거**: `updateWidget(forceMedium: Boolean?, forceSize: WidgetSize?)`에서 사용되지 않는 `forceMedium`을 제거하여 API 명확화.
+- **Medium/Large Provider 코드 단순화**: `onReceive()`의 dead code(`ACTION_MIDNIGHT_UPDATE` 처리 블록) 제거. AlarmManager 생명주기 override(`onEnabled`/`onDisabled`)도 부모 위임으로 정리.
+
+---
+
 ## 1.4.2 — 2026-03-13
 
 ### Fixed — 배너 광고 블랙 스크린 수정

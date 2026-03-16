@@ -127,7 +127,12 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     debugPrint('[dayly] _load() done, _isLoading=$_isLoading');
   }
 
-  Future<void> _persist() async => saveDaylyWidgets(_widgets);
+  Future<void> _persist() async {
+    final lang = mounted
+        ? UiKitLocalizations.of(context).custom((l) => l.languageCode)
+        : null;
+    await saveDaylyWidgets(_widgets, languageCode: lang);
+  }
 
   Future<void> _openDetail(int index) async {
     HapticFeedback.lightImpact();
