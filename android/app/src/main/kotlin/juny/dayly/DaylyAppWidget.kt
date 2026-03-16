@@ -107,6 +107,16 @@ open class DaylyAppWidget : AppWidgetProvider() {
             views.setRemoteAdapter(R.id.widget_stack, serviceIntent)
             views.setEmptyView(R.id.widget_stack, R.id.widget_empty)
 
+            // EmptyView 탭 → 앱 실행 (D-Day 없을 때 온보딩)
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+            if (launchIntent != null) {
+                val emptyPendingIntent = PendingIntent.getActivity(
+                    context, 0, launchIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+                views.setOnClickPendingIntent(R.id.widget_empty, emptyPendingIntent)
+            }
+
             // 컬렉션 아이템 클릭 PendingIntent 템플릿
             // FLAG_MUTABLE 필수: fill-in intent가 병합되어야 함
             val clickIntent = Intent(Intent.ACTION_VIEW).apply {

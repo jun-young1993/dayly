@@ -32,6 +32,8 @@ private data class WidgetThemeColors(
     val subColor: Int,
     val dotColor: Int,
     val watermarkColor: Int,
+    val progressFillColor: Int,
+    val progressTrackColor: Int,
 )
 
 private class DaylyRemoteViewsFactory(
@@ -77,9 +79,7 @@ private class DaylyRemoteViewsFactory(
         return RemoteViews(context.packageName, layoutId).apply {
             setTextViewText(R.id.widget_countdown, data.countdownText)
             setTextViewText(R.id.widget_sentence, data.sentence)
-            // if (size != WidgetSize.SMALL) {
             setTextViewText(R.id.widget_date_label, data.dateLabel)
-            // }
 
             // 테마별 색상 적용
             val theme = themeColors(data.themePreset)
@@ -87,14 +87,24 @@ private class DaylyRemoteViewsFactory(
             setTextColor(R.id.widget_countdown, theme.textColor)
             setTextColor(R.id.widget_sentence, theme.subColor)
             setTextColor(R.id.widget_watermark, theme.watermarkColor)
+            setTextColor(R.id.widget_date_label, theme.subColor)
+
+            // 지난 이벤트: 반투명 처리
+            setFloat(R.id.widget_container, "setAlpha", if (data.isPast) 0.5f else 1.0f)
+
             if (size != WidgetSize.SMALL) {
-                setTextColor(R.id.widget_date_label, theme.subColor)
+                // 커스텀 진행 바 (ProgressBar 대신 FrameLayout+View 방식으로 테마 색상 지원)
                 if (data.isPast) {
-                    setViewVisibility(R.id.widget_progress, View.GONE)
+                    setViewVisibility(R.id.widget_progress_container, View.GONE)
                 } else {
-                    val progress = if (data.totalCount > 0) (data.currentIndex + 1) * 100 / data.totalCount else 100
-                    setProgressBar(R.id.widget_progress, 100, progress, false)
-                    setViewVisibility(R.id.widget_progress, View.VISIBLE)
+                    val fillFraction = if (data.totalCount > 0)
+                        (data.currentIndex + 1).toFloat() / data.totalCount else 1f
+                    setInt(R.id.widget_progress_track, "setBackgroundColor", theme.progressTrackColor)
+                    setInt(R.id.widget_progress_fill, "setBackgroundColor", theme.progressFillColor)
+                    // scaleX: draw 단계에서 canvas 변환 → 배경색도 스케일됨 (setViewPadding은 background에 무효)
+                    setFloat(R.id.widget_progress_fill, "setPivotX", 0f)
+                    setFloat(R.id.widget_progress_fill, "setScaleX", fillFraction)
+                    setViewVisibility(R.id.widget_progress_container, View.VISIBLE)
                 }
             }
 
@@ -152,6 +162,8 @@ private class DaylyRemoteViewsFactory(
             subColor = Color.parseColor("#6B7280"),
             dotColor = Color.parseColor("#9090A8"),
             watermarkColor = Color.parseColor("#C0C8D0"),
+            progressFillColor = Color.parseColor("#9B8B78"),
+            progressTrackColor = Color.parseColor("#D8CEBC"),
         )
         "fog" -> WidgetThemeColors(
             bgDrawable = R.drawable.dayly_widget_bg_fog,
@@ -159,6 +171,8 @@ private class DaylyRemoteViewsFactory(
             subColor = Color.parseColor("#6B7280"),
             dotColor = Color.parseColor("#8090A8"),
             watermarkColor = Color.parseColor("#B8C8D8"),
+            progressFillColor = Color.parseColor("#607898"),
+            progressTrackColor = Color.parseColor("#C0D0DF"),
         )
         "lavender" -> WidgetThemeColors(
             bgDrawable = R.drawable.dayly_widget_bg_lavender,
@@ -166,6 +180,8 @@ private class DaylyRemoteViewsFactory(
             subColor = Color.parseColor("#6B7280"),
             dotColor = Color.parseColor("#9080B0"),
             watermarkColor = Color.parseColor("#C0B8D0"),
+            progressFillColor = Color.parseColor("#7868A8"),
+            progressTrackColor = Color.parseColor("#C8B8E0"),
         )
         "blush" -> WidgetThemeColors(
             bgDrawable = R.drawable.dayly_widget_bg_blush,
@@ -173,6 +189,8 @@ private class DaylyRemoteViewsFactory(
             subColor = Color.parseColor("#6B7280"),
             dotColor = Color.parseColor("#A88090"),
             watermarkColor = Color.parseColor("#D0B8C0"),
+            progressFillColor = Color.parseColor("#A87088"),
+            progressTrackColor = Color.parseColor("#E0C8D0"),
         )
         else -> WidgetThemeColors( // night (기본)
             bgDrawable = R.drawable.dayly_widget_bg,
@@ -180,6 +198,8 @@ private class DaylyRemoteViewsFactory(
             subColor = Color.parseColor("#7090B0"),
             dotColor = Color.parseColor("#4060A0"),
             watermarkColor = Color.parseColor("#2A3A5A"),
+            progressFillColor = Color.parseColor("#4060A0"),
+            progressTrackColor = Color.parseColor("#1A2A4A"),
         )
     }
 

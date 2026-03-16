@@ -2,10 +2,13 @@ package juny.dayly
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.widget.*
+import android.view.LayoutInflater
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import android.content.SharedPreferences
 import org.json.JSONArray
 
 /**
@@ -43,51 +46,42 @@ class DaylyWidgetConfigActivity : AppCompatActivity() {
         val items = parseWidgetItems(jsonString)
 
         if (items.isEmpty()) {
-            // 데이터 없으면 앱 먼저 실행 안내 후 종료
             Toast.makeText(this, "dayly 앱에서 D-Day를 먼저 추가해주세요.", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        setContentView(buildLayout(items))
+        setContentView(R.layout.activity_widget_config)
+        populateItems(items)
     }
 
-    private fun buildLayout(items: List<Pair<String, String>>): LinearLayout {
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 80, 48, 48)
-        }
+    private fun populateItems(items: List<ConfigItem>) {
+        val container = findViewById<LinearLayout>(R.id.config_items_container)
+        val inflater = LayoutInflater.from(this)
 
-        val title = TextView(this).apply {
-            text = getString(R.string.widget_config_title)
-            textSize = 18f
-            setPadding(0, 0, 0, 32)
-        }
-        layout.addView(title)
+        items.forEach { item ->
+            val card = inflater.inflate(R.layout.item_widget_config, container, false)
 
-        items.forEach { (id, label) ->
-            val btn = Button(this).apply {
-                text = label
-                setOnClickListener { onItemSelected(id) }
-            }
-            layout.addView(btn)
-        }
+            card.findViewById<TextView>(R.id.config_item_sentence).text = item.sentence
+            card.findViewById<TextView>(R.id.config_item_meta).text =
+                listOf(item.countdown, item.dateLabel).filter { it.isNotEmpty() }.joinToString("  ")
+            card.findViewById<android.view.View>(R.id.config_item_theme_bar)
+                .setBackgroundColor(themeBarColor(item.themePreset))
 
-        return layout
+            card.setOnClickListener { onItemSelected(item.id) }
+            container.addView(card)
+        }
     }
 
     private fun onItemSelected(selectedWidgetId: String) {
-        // 인스턴스별 선택 ID 저장
         DaylyAppWidget.instancePrefs(this)
             .edit()
             .putString(DaylyAppWidget.instanceKey(appWidgetId), selectedWidgetId)
             .apply()
 
-        // 위젯 즉시 갱신
         val manager = AppWidgetManager.getInstance(this)
         DaylyAppWidget.updateWidget(this, manager, appWidgetId)
 
-        // 성공 결과 반환
         val resultIntent = Intent().apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         }
@@ -95,18 +89,35 @@ class DaylyWidgetConfigActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun parseWidgetItems(jsonString: String?): List<Pair<String, String>> {
+    private fun themeBarColor(preset: String): Int = when (preset) {
+        "paper"    -> Color.parseColor("#9B8B78")
+        "fog"      -> Color.parseColor("#607898")
+        "lavender" -> Color.parseColor("#7868A8")
+        "blush"    -> Color.parseColor("#A87088")
+        else       -> Color.parseColor("#4060A0") // night
+    }
+
+    private data class ConfigItem(
+        val id: String,
+        val sentence: String,
+        val countdown: String,
+        val dateLabel: String,
+        val themePreset: String,
+    )
+
+    private fun parseWidgetItems(jsonString: String?): List<ConfigItem> {
         if (jsonString.isNullOrEmpty()) return emptyList()
         return try {
             val array = JSONArray(jsonString)
             (0 until array.length()).map { i ->
                 val obj = array.getJSONObject(i)
-                val id = obj.optString("id", "")
-                val sentence = obj.optString("sentence", "–")
-                val countdown = obj.optString("countdownText", "")
-                val date = obj.optString("targetDateLabel", "")
-                val label = "$sentence  $countdown  $date"
-                id to label
+                ConfigItem(
+                    id = obj.optString("id", ""),
+                    sentence = obj.optString("sentence", "–"),
+                    countdown = obj.optString("countdownText", ""),
+                    dateLabel = obj.optString("targetDateLabel", ""),
+                    themePreset = obj.optString("themePreset", "night"),
+                )
             }
         } catch (_: Exception) {
             emptyList()

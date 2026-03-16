@@ -16,16 +16,33 @@
         android:layout_height="match_parent"
         android:loopViews="true" />
 
-    <!-- 이벤트가 없을 때 표시되는 빈 상태 뷰 -->
-    <TextView
+    <!-- 이벤트가 없을 때 표시되는 빈 상태 뷰 (탭 시 앱 실행) -->
+    <LinearLayout
         android:id="@+id/widget_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center"
-        android:text="dayly"
-        android:textColor="#7090B0"
-        android:textSize="16sp"
         android:background="@drawable/dayly_widget_bg"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="dayly"
+            android:textColor="#4060A0"
+            android:textSize="18sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="앱에서 첫 D-Day를&#10;추가해보세요 →"
+            android:textColor="#2A3A5A"
+            android:textSize="12sp"
+            android:gravity="center" />
+
+    </LinearLayout>
 
 </FrameLayout>

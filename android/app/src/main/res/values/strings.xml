@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">dayly</string>
     <string name="dayly_widget_description">D-Day 카운트다운을 홈화면에서 바로 확인하세요.</string>
-    <string name="widget_config_title">표시할 D-Day를 선택하세요</string>
+    <string name="widget_config_title">표시할 D-Day를 선택해주세요</string>
 </resources>

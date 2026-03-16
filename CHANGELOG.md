@@ -2,6 +2,26 @@
 
 ---
 
+## 1.6.0 — 2026-03-16
+
+### Fixed — Android 위젯 디자인 완성도 (SCOPE EXPANSION)
+
+- **[CRITICAL] ProgressBar 테마 색상 고정 버그 수정**: Medium/Large 위젯의 ProgressBar가 밝은 테마(paper/fog/lavender/blush)에서도 항상 night 테마 파란색(`#4060A0`)으로 표시되던 문제 수정. RemoteViews의 tint 제약으로 인해 ProgressBar를 `FrameLayout + View` 2-레이어 방식으로 교체. 진행 너비는 `setFloat("setPivotX", 0f)` + `setFloat("setScaleX", fillFraction)` 으로 구현 (`setViewPadding`은 View 배경에 무효 — draw 단계 canvas 변환이 필요).
+- **Small 위젯 날짜 라벨 색상 미적용 수정**: Small 크기에서 `widget_date_label` 색상이 항상 XML 기본값(`#7090B0`, night 색상)으로 고정되던 문제 수정. 모든 크기에서 테마 색상(`theme.subColor`) 적용.
+
+### Added
+
+- **지난 이벤트 반투명 처리**: `isPast=true`인 D-Day 카드 전체에 alpha 0.5 적용. 종료된 이벤트를 진행 중인 이벤트와 시각적으로 구분.
+- **EmptyView CTA 개선**: D-Day가 없을 때 표시되는 빈 상태 뷰 개선. "dayly" 텍스트만 있던 것을 크기별 안내 문구 추가(Medium: "D-Day를 추가해보세요 →", Large: "앱에서 첫 D-Day를 추가해보세요 →"). EmptyView 탭 시 앱 실행 PendingIntent 추가.
+- **ConfigActivity UI 재설계**: 홈화면에서 위젯 추가 시 실행되는 D-Day 선택 화면을 기본 Android 버튼 목록에서 감성 카드 스타일로 재설계. Night 테마 배경 + 테마별 색상 바 + 반투명 카드 레이아웃 적용.
+- **배경 Drawable Highlight 레이어 추가**: 5개 테마 배경 drawable에 상단 반투명 흰색 → 투명 그라데이션 레이어 추가(night 6%, fog/lavender 11%, paper/blush 10-12%). Flutter 앱 카드의 Highlight 효과와 시각적 일관성 확보.
+
+### Improved
+
+- **`WidgetThemeColors` 확장**: `progressFillColor`, `progressTrackColor` 필드 추가. 5개 테마 각각에 어울리는 진행 바 색상 정의.
+
+---
+
 ## 1.5.0 — 2026-03-16
 
 ### Fixed — Android 위젯 AlarmManager 아키텍처 강화
