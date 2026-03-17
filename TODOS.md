@@ -76,3 +76,27 @@ P1 테스트와 동일한 디렉터리(`android/app/src/test/kotlin/juny/dayly/`
 
 **Effort:** S | **Priority:** P3
 **Depends on:** v1.8.0 iOS 위젯 배경 이미지 지원
+
+---
+
+## P3 — iOS Swift 위젯 순수 함수 유닛테스트 추가
+
+**What:** `buildCountdownText()` 와 `calcProgress()` XCTest 유닛테스트 추가
+
+**Why:** Android P1/P2 테스트(buildCountdownText, fillFraction)와 대칭 커버리지가 없음.
+두 함수 모두 외부 의존성 없는 순수 함수로 XCTest에서 즉시 테스트 가능.
+D-Day 계산 로직 변경 시 회귀를 자동으로 감지할 수단이 없음.
+
+**Pros:** dayDiff 경계값(D-Day 당일, 과거, weeksDays remainder=0),
+calcProgress 클램핑(createdAt > targetDate, total=0) 회귀 방지.
+
+**Cons:** Swift Package / XCTest 타겟 설정 필요 (초기 셋업 S 수준).
+WidgetKit SwiftUI 렌더링 레이어는 테스트 불가 — 순수 계산 레이어만 커버.
+
+**Context:** 대상 함수: `DaylyWidget.swift`의 `buildCountdownText(targetDateIso:countdownMode:)`
+와 `calcProgress(createdAtIso:targetDateIso:)`.
+시작점: `ios/DaylyWidgetTests/` 타겟 생성 후 `CountdownTextTests.swift`,
+`ProgressTests.swift` 추가. Android `BuildCountdownTextTest.kt` 경계값을 참고.
+
+**Effort:** S | **Priority:** P3
+**Depends on:** 없음

@@ -173,7 +173,7 @@ private func loadWidgetBackgroundImage(path: String?) -> UIImage? {
         fileURL = URL(fileURLWithPath: path)
     } else {
         guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroup: appGroupId
+            forSecurityApplicationGroupIdentifier: appGroupId
         ) else {
             logger.warning("App Group container not available")
             return nil

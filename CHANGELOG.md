@@ -2,6 +2,15 @@
 
 ---
 
+## 1.8.1 — 2026-03-18
+
+### Fixed
+
+- **iOS 위젯 빌드 에러 수정**: `FileManager.containerURL` argument label 오타 수정.
+  `forSecurityApplicationGroup:` → `forSecurityApplicationGroupIdentifier:`
+
+---
+
 ## 1.8.0 — 2026-03-17
 
 ### Added
