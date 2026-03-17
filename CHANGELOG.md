@@ -2,6 +2,71 @@
 
 ---
 
+## 1.7.4 — 2026-03-17
+
+### Fixed
+
+- **Android 홈 위젯 이미지 로딩 로그 추가**: `resolveImagePath()` / `loadScaledBitmap()` catch 블록에 `Log.w` / `Log.e` 추가. 파일 미존재, I/O 오류, OOM 등 이미지 로딩 실패 시 Logcat에 흔적 없이 무음 처리되던 문제 개선.
+- **TODOS.md**: `P2 — Android 홈 위젯에 배경 이미지 표시` 완료 항목 삭제.
+
+---
+
+## 1.7.3 — 2026-03-17
+
+### Added
+
+- **Android 홈화면 위젯 배경 이미지 지원 (Medium/Large)**:
+  - `HomeWidgetData`에 `backgroundImagePath` 필드 추가 및 `toJson()`/`fromJson()` 직렬화 반영.
+  - `HomeWidgetService._toHomeWidgetData()`에서 `model.backgroundImagePath` 전달.
+  - Kotlin `WidgetDisplayData`에 `backgroundImagePath` 필드 추가 및 `fromJson()` 파싱.
+  - `DaylyWidgetRemoteViewsService`에 `resolveImagePath()` / `loadScaledBitmap()` 헬퍼 추가. 400px 이내로 다운샘플링하여 메모리 절약.
+  - `getViewAt()`에서 Medium/Large 위젯에 한해 Bitmap을 `widget_bg_image`에 적용하고 `widget_bg_overlay`(ARGB 140 어두운 오버레이)로 텍스트 가독성 보호.
+  - `dayly_widget_stack_item_medium.xml` / `dayly_widget_stack_item_large.xml`: 루트를 `FrameLayout`으로 변경, `widget_bg_image` · `widget_bg_overlay` ImageView 추가 (기본 `GONE`).
+  - Small 위젯은 공간 협소로 이미지 미지원(변경 없음).
+
+---
+
+## 1.7.2 — 2026-03-17
+
+### Added
+
+- **DaylyWidgetCard 배경 이미지 지원**: `resolvedImagePath` 파라미터 추가. 이미지를 opacity 0.30으로 카드 위에 오버레이, 중앙 RadialGradient 오버레이로 D-Day 숫자 가독성 보호.
+- **_DysmorphicCard 배경 이미지 지원**: 그리드 화면 카드에 opacity 0.20 이미지 표시. BackdropFilter blur 밖에 배치해 자연스럽게 스며드는 효과.
+- **`lib/utils/dayly_image_utils.dart` 신규**: 경로 해석 공통 유틸 `resolveWidgetBackgroundImagePath()`. 절대/상대 경로 처리 + 파일 존재 확인 + 예외 시 null 반환.
+- **WidgetGridScreen 이미지 일괄 resolve**: 로드/편집 후 `_resolveAllImagePaths()` 호출, `Map<widgetId, absPath>`로 카드에 전달.
+- **isMicro 모드**: 40px 이하 타일에서 이미지 레이어 미표시.
+- **TODOS.md**: Android 홈 위젯 배경 이미지 표시 P2 태스크 추가.
+
+---
+
+## 1.7.1 — 2026-03-17
+
+### Fixed
+
+- **Medium/Large 위젯 "Can't load widget" / "Couldn't add widget" 수정**:
+  - 위젯 피커 프리뷰 전용 레이아웃 `dayly_widget_preview_medium.xml` / `dayly_widget_preview_large.xml` 신규 생성 (RelativeLayout 루트, `layout_weight` 없음, 정적 샘플 콘텐츠). 일부 런처 피커가 `layout_weight` 기반 레이아웃을 inflate하지 못하는 문제 해결.
+  - `dayly_widget_info_medium.xml` / `dayly_widget_info_large.xml`의 `previewLayout`을 새 레이아웃으로 교체.
+  - `dayly_widget_stack_item_medium.xml` / `dayly_widget_stack_item_large.xml`의 진행 바 `<View>` → `<ImageView>`로 교체. RemoteViews 공식 지원 뷰 목록에 순수 `<View>`가 없어 일부 Android 버전에서 inflate 실패하던 문제 해결.
+  - Large 프리뷰 `preview_date_label`의 `layout_centerVertical` → `layout_alignParentTop`으로 수정 (콘텐츠 하단 집중 방지).
+  - Medium/Large stack item ImageView에 `contentDescription=""` 추가 (Android Lint 접근성 경고 억제).
+
+---
+
+## 1.7.0 — 2026-03-17
+
+### Refactored
+- **테마 색상 중앙화**: `DaylyWidgetTheme.kt` 신설 — `WidgetThemeColors` + `themeColors()` 단일 진실 공급원. `DaylyWidgetConfigActivity.themeBarColor()` DRY 위반 제거.
+
+### Added
+- **fillFraction() 추출**: `DaylyWidgetRemoteViewsService.kt` 내 인라인 계산 → `internal fun fillFraction()` 추출. ASCII 다이어그램 주석 포함.
+- **BuildCountdownTextTest.kt**: `buildCountdownText()` 14개 케이스 JVM 단위 테스트 추가.
+- **WidgetProgressTest.kt**: `fillFraction()` 6개 케이스 (경계값 포함) JVM 단위 테스트 추가.
+
+### Removed
+- TODOS.md P0 항목 삭제 (AndroidManifest에서 ConfigActivity 제거로 이미 수정됨)
+
+---
+
 ## 1.6.0 — 2026-03-16
 
 ### Fixed — Android 위젯 디자인 완성도 (SCOPE EXPANSION)

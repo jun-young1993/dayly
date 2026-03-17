@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:dayly/models/dayly_widget_model.dart';
@@ -13,10 +14,16 @@ enum DaylyWidgetSize { small, medium, large }
 
 @immutable
 class DaylyWidgetCard extends StatelessWidget {
-  const DaylyWidgetCard({super.key, required this.model, required this.size});
+  const DaylyWidgetCard({
+    super.key,
+    required this.model,
+    required this.size,
+    this.resolvedImagePath,
+  });
 
   final DaylyWidgetModel model;
   final DaylyWidgetSize size;
+  final String? resolvedImagePath;
 
   @override
   Widget build(BuildContext context) {
@@ -119,14 +126,12 @@ class DaylyWidgetCard extends StatelessWidget {
             : <Shadow>[
                 Shadow(
                   offset: const Offset(0, 1),
-                  blurRadius: 10,
+                  blurRadius: resolvedImagePath != null ? 16 : 10,
                   color: _withOpacity(
+                    Colors.black,
                     model.style.themePreset == DaylyThemePreset.night
-                        ? Colors.black
-                        : Colors.black,
-                    model.style.themePreset == DaylyThemePreset.night
-                        ? 0.22
-                        : 0.08,
+                        ? 0.28
+                        : 0.12,
                   ),
                 ),
               ];
@@ -233,9 +238,39 @@ class DaylyWidgetCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
+              // 1. 배경 solid/gradient
               DecoratedBox(decoration: baseDecoration),
+              // 2. 배경 이미지 (isMicro 제외, errorBuilder로 안전 처리)
+              if (!isMicro && resolvedImagePath != null)
+                Positioned.fill(
+                  child: Image.file(
+                    File(resolvedImagePath!),
+                    fit: BoxFit.cover,
+                    opacity: const AlwaysStoppedAnimation(0.30),
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                ),
+              // 3. 중앙 D-Day 보호 오버레이 (이미지 있을 때만)
+              if (!isMicro && resolvedImagePath != null)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 0.85,
+                        colors: <Color>[
+                          Colors.black.withValues(alpha: 0.20),
+                          Colors.black.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              // 4. highlight (좌상단 글로우)
               if (!isMicro) highlight,
+              // 5. vignette (엣지 다크)
               if (!isMicro) vignette,
+              // 6. 컨텐츠
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: horizontalPadding,

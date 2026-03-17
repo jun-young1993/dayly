@@ -2,27 +2,6 @@
 
 ---
 
-## P0 — "Could not add widget" 에러 원인 파악 및 수정
-
-**What:** ProgressBar → FrameLayout 교체 후 홈화면 위젯 추가 시 "Could not add widget" 에러 발생
-
-**Why:** 위젯이 추가되지 않으면 핵심 기능 자체가 동작하지 않음.
-
-**Pros:** 수정 시 v1.6.0 변경사항이 정상 배포 가능.
-
-**Cons:** 원인 파악 전까지 v1.6.0은 위젯 추가 불가 상태. 롤백 또는 핫픽스 필요.
-
-**Context:** v1.6.0에서 `dayly_widget_stack_item_medium.xml`, `dayly_widget_stack_item_large.xml`의 `<ProgressBar id="widget_progress">`를 `<FrameLayout id="widget_progress_container">` + 2개 View로 교체. 에러 발생 시점이 위젯 추가 직후이므로 `DaylyWidgetRemoteViewsService.getViewAt()` 또는 레이아웃 inflate 단계에서 R.id 미스매치 또는 crash 가능성이 높음. 확인 포인트:
-- `R.id.widget_progress_container` / `widget_progress_track` / `widget_progress_fill` ID가 빌드 후 R.java에 생성되었는지
-- 기존 `R.id.widget_progress`를 참조하는 코드가 다른 파일에 남아있는지 (`grep -r "widget_progress[^_]"`)
-- `setFloat("setPivotX", 0f)` / `setFloat("setScaleX", ...)` 가 해당 API 레벨에서 예외를 던지는지 (logcat 확인)
-- `activity_widget_config.xml`의 `@string/widget_config_title` 참조가 올바른지
-
-**Effort:** S | **Priority:** P0
-**Depends on:** 없음
-
----
-
 ## P1 — Android 위젯 Kotlin 유닛테스트 추가
 
 **What:** WidgetUpdateManager 로직 검증을 위한 Kotlin 유닛테스트 추가
@@ -39,6 +18,9 @@
 `buildCountdownText()`는 LocalDate 연산이므로 JVM 단에서 바로 테스트 가능.
 시작점: `android/app/src/test/kotlin/juny/dayly/` 디렉터리 생성 후
 `WidgetUpdateManagerTest.kt`, `BuildCountdownTextTest.kt` 추가.
+
+**진행 상황:** JVM 단계 완료 (BuildCountdownTextTest.kt). Robolectric 단계 (cancelIfNone, scheduleIfNeeded) 는 별도 추진.
+**Depends on 업데이트:** P1-Robolectric은 build.gradle.kts Robolectric 의존성 추가에 depend.
 
 **Effort:** M | **Priority:** P1
 **Depends on:** v1.5.0 WidgetUpdateManager 구현 완료
@@ -59,7 +41,7 @@
 P1 테스트와 동일한 디렉터리(`android/app/src/test/kotlin/juny/dayly/`)에 `WidgetProgressTest.kt` 추가 권장.
 
 **Effort:** S | **Priority:** P2
-**Depends on:** P1 테스트 셋업 완료 (Robolectric 또는 JVM 환경)
+**Depends on:** P1 테스트 셋업 완료 → ✅ build.gradle.kts JUnit 4 추가로 해소됨
 
 ---
 

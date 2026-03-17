@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:dayly/utils/dayly_image_utils.dart';
+
 import 'package:dayly/models/dayly_widget_model.dart';
 import 'package:dayly/utils/dayly_time.dart';
 import 'package:dayly/theme/dayly_theme_presets.dart';
@@ -30,11 +32,20 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
   final GlobalKey _captureKey = GlobalKey();
   late DaylyWidgetModel _model;
   var _isSharing = false;
+  String? _resolvedImagePath;
 
   @override
   void initState() {
     super.initState();
     _model = widget.initialModel;
+    _resolveImage();
+  }
+
+  Future<void> _resolveImage() async {
+    final resolved = await resolveWidgetBackgroundImagePath(
+      _model.backgroundImagePath,
+    );
+    if (mounted) setState(() => _resolvedImagePath = resolved);
   }
 
   Future<void> _shareCurrentPreview() async {
@@ -466,6 +477,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                                       child: DaylyWidgetCard(
                                         model: _model,
                                         size: DaylyWidgetSize.large,
+                                        resolvedImagePath: _resolvedImagePath,
                                       ),
                                     ),
                                   ),

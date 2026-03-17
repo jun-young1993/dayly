@@ -20,6 +20,7 @@ import 'package:flutter_ui_kit_setting/flutter_ui_kit_setting.dart';
 import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dayly/screens/setting_screen.dart';
+import 'package:dayly/utils/dayly_image_utils.dart';
 
 /// 글래스모피즘 다크/라이트 대시보드 — "YOUR MOMENTS" 리스트/그리드 뷰.
 ///
@@ -43,6 +44,7 @@ class WidgetGridScreen extends StatefulWidget {
 class _WidgetGridScreenState extends State<WidgetGridScreen> {
   var _isLoading = true;
   List<DaylyWidgetModel> _widgets = const <DaylyWidgetModel>[];
+  Map<String, String?> _resolvedImagePaths = const {};
   DsThemeController get _themeController => widget.themeController;
   
 
@@ -112,6 +114,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       _widgets = widgets;
       _isLoading = false;
     });
+    _resolveAllImagePaths(widgets);
 
     // 앱 시작 시 pending 알림과 Hive 상태 동기화.
     // Android 재부팅 후 AlarmManager가 초기화되므로 반드시 복원 필요.
@@ -132,6 +135,19 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
         ? UiKitLocalizations.of(context).custom((l) => l.languageCode)
         : null;
     await saveDaylyWidgets(_widgets, languageCode: lang);
+  }
+
+  Future<void> _resolveAllImagePaths(List<DaylyWidgetModel> widgets) async {
+    final entries = await Future.wait(
+      widgets.map((w) async {
+        final resolved = await resolveWidgetBackgroundImagePath(
+          w.backgroundImagePath,
+        );
+        return MapEntry(w.id, resolved);
+      }),
+    );
+    if (!mounted) return;
+    setState(() => _resolvedImagePaths = Map.fromEntries(entries));
   }
 
   Future<void> _openDetail(int index) async {
@@ -169,6 +185,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       }
     }
     unawaited(_persist());
+    _resolveAllImagePaths(_widgets);
   }
 
   Future<void> _openAddWidgetSheet() async {
@@ -446,6 +463,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
         gradient: _gradients[index % _gradients.length],
         iconData: _iconData[index % _iconData.length],
         onTap: () => _openDetail(index),
+        resolvedImagePath: _resolvedImagePaths[_widgets[index].id],
       ),
     );
   }
@@ -467,6 +485,7 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
         iconData: _iconData[index % _iconData.length],
         onTap: () => _openDetail(index),
         isTablet: true,
+        resolvedImagePath: _resolvedImagePaths[_widgets[index].id],
       ),
     );
   }
@@ -591,6 +610,7 @@ class _DysmorphicCard extends StatelessWidget {
     required this.iconData,
     required this.onTap,
     this.isTablet = false,
+    this.resolvedImagePath,
   });
 
   final DaylyWidgetModel model;
@@ -598,6 +618,7 @@ class _DysmorphicCard extends StatelessWidget {
   final IconData iconData;
   final VoidCallback onTap;
   final bool isTablet;
+  final String? resolvedImagePath;
 
   String _formatDDay(int dayDiff) {
     if (dayDiff == 0) return 'D-Day';
@@ -652,8 +673,20 @@ class _DysmorphicCard extends StatelessWidget {
           padding: EdgeInsets.all(edgePad),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.r),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Stack(
+              children: <Widget>[
+                // 배경 이미지 (BackdropFilter 밖 — blur로 자연스럽게 스며듦)
+                if (resolvedImagePath != null)
+                  Positioned.fill(
+                    child: Image.file(
+                      File(resolvedImagePath!),
+                      fit: BoxFit.cover,
+                      opacity: const AlwaysStoppedAnimation(0.70),
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    ),
+                  ),
+                BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: hPad,
@@ -727,6 +760,8 @@ class _DysmorphicCard extends StatelessWidget {
                 ),
               ),
             ),
+              ],           // Stack children
+            ),             // Stack
           ),
         ),
       ),

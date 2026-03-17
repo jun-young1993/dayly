@@ -2,7 +2,6 @@ package juny.dayly
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.LinearLayout
@@ -66,7 +65,7 @@ class DaylyWidgetConfigActivity : AppCompatActivity() {
             card.findViewById<TextView>(R.id.config_item_meta).text =
                 listOf(item.countdown, item.dateLabel).filter { it.isNotEmpty() }.joinToString("  ")
             card.findViewById<android.view.View>(R.id.config_item_theme_bar)
-                .setBackgroundColor(themeBarColor(item.themePreset))
+                .setBackgroundColor(themeColors(item.themePreset).progressFillColor)
 
             card.setOnClickListener { onItemSelected(item.id) }
             container.addView(card)
@@ -87,14 +86,6 @@ class DaylyWidgetConfigActivity : AppCompatActivity() {
         }
         setResult(RESULT_OK, resultIntent)
         finish()
-    }
-
-    private fun themeBarColor(preset: String): Int = when (preset) {
-        "paper"    -> Color.parseColor("#9B8B78")
-        "fog"      -> Color.parseColor("#607898")
-        "lavender" -> Color.parseColor("#7868A8")
-        "blush"    -> Color.parseColor("#A87088")
-        else       -> Color.parseColor("#4060A0") // night
     }
 
     private data class ConfigItem(

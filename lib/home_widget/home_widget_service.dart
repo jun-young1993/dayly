@@ -106,6 +106,7 @@ class HomeWidgetService {
       targetDate: DateFormat('yyyy-MM-dd').format(model.targetDate),
       countdownMode: model.style.countdownMode.name,
       languageCode: lang,
+      backgroundImagePath: model.backgroundImagePath,
     );
   }
 

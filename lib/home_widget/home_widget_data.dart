@@ -16,6 +16,7 @@ class HomeWidgetData {
     required this.targetDate,
     required this.countdownMode,
     this.languageCode = 'en',
+    this.backgroundImagePath,
   });
 
   /// 앱 내 DaylyWidgetModel.id 와 동일
@@ -48,6 +49,9 @@ class HomeWidgetData {
   /// 앱 언어 코드 (ko / ja / en). Android 네이티브 카운트다운 텍스트 언어 결정에 사용.
   final String languageCode;
 
+  /// 배경 이미지 경로 (절대 경로 또는 앱 파일디렉토리 기준 상대 경로). nullable.
+  final String? backgroundImagePath;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'sentence': sentence,
@@ -59,6 +63,7 @@ class HomeWidgetData {
         'targetDate': targetDate,
         'countdownMode': countdownMode,
         'languageCode': languageCode,
+        'backgroundImagePath': backgroundImagePath,
       };
 
   String toJsonString() => jsonEncode(toJson());
@@ -74,6 +79,7 @@ class HomeWidgetData {
         targetDate: (json['targetDate'] as String?) ?? '',
         countdownMode: (json['countdownMode'] as String?) ?? 'dMinus',
         languageCode: (json['languageCode'] as String?) ?? 'en',
+        backgroundImagePath: json['backgroundImagePath'] as String?,
       );
 
   static HomeWidgetData? fromJsonString(String? raw) {

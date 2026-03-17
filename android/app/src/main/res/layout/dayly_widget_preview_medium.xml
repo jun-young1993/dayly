@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  위젯 피커 프리뷰 전용 — Medium (4×2)
+  RelativeLayout 루트로 layout_weight 없이 안전하게 렌더링된다.
+  정적 샘플 콘텐츠만 포함. 진행 바 같은 동적 요소는 제외.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@drawable/dayly_widget_bg">
+
+    <!-- 날짜 레이블 -->
+    <TextView
+        android:id="@+id/preview_date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="2026.06.01"
+        android:textSize="10sp"
+        android:textColor="#7090B0"
+        android:letterSpacing="0.08"
+        android:maxLines="1" />
+
+    <!-- D-Day 카운트다운 -->
+    <TextView
+        android:id="@+id/preview_countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/preview_date_label"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="2dp"
+        android:text="D-23"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#F4F6FA"
+        android:fontFamily="monospace"
+        android:maxLines="1" />
+
+    <!-- 감성 문구 -->
+    <TextView
+        android:id="@+id/preview_sentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/preview_countdown"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="8dp"
+        android:text="곧 다가올 그날을\n기대하고 있어요"
+        android:textSize="13sp"
+        android:textColor="#7090B0"
+        android:gravity="start"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <!-- dayly 워터마크 (우측 하단) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="dayly"
+        android:textSize="9sp"
+        android:textColor="#2A3A5A"
+        android:fontFamily="monospace" />
+
+</RelativeLayout>

@@ -34,7 +34,9 @@
       "mcp__ide__getDiagnostics",
       "Bash(bash \"C:/Users/junyoung/.claude/skills/gstack/setup\" 2>&1)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Skill(plan-ceo-review)",
+      "Bash(grep:*)"
     ]
   }
 }

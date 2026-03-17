@@ -207,6 +207,7 @@ data class WidgetDisplayData(
     val currentIndex: Int = 0,
     val totalCount: Int = 1,
     val isPast: Boolean = false,
+    val backgroundImagePath: String? = null,
 ) {
     companion object {
         fun empty() = WidgetDisplayData("", "dayly", "–", "", "night", 0, 1)
@@ -234,6 +235,7 @@ data class WidgetDisplayData(
                 currentIndex = index,
                 totalCount = total,
                 isPast = isPast,
+                backgroundImagePath = obj.optString("backgroundImagePath", "").ifEmpty { null },
             )
         }
     }

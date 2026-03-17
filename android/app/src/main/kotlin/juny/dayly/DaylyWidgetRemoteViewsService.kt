@@ -2,12 +2,28 @@ package juny.dayly
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import org.json.JSONArray
+
+/**
+ * StackView 내 현재 아이템의 진행 비율.
+ *
+ * currentIndex | totalCount | result
+ * -------------|------------|-------
+ *            0 |          1 | 1.0f    (단일 아이템)
+ *            0 |          5 | 0.2f    (5개 중 1번째)
+ *            4 |          5 | 1.0f    (5개 중 마지막)
+ *            * |          0 | 1.0f    (÷0 방어: 단일로 간주)
+ *           -1 |          5 | 0.0f    (음수: 클램프 없음, 호출자 책임)
+ */
+internal fun fillFraction(currentIndex: Int, totalCount: Int): Float =
+    if (totalCount > 0) (currentIndex + 1).toFloat() / totalCount else 1f
 
 /**
  * StackView 기반 컬렉션 위젯용 RemoteViewsService.
@@ -26,15 +42,31 @@ class DaylyWidgetRemoteViewsService : RemoteViewsService() {
     }
 }
 
-private data class WidgetThemeColors(
-    val bgDrawable: Int,
-    val textColor: Int,
-    val subColor: Int,
-    val dotColor: Int,
-    val watermarkColor: Int,
-    val progressFillColor: Int,
-    val progressTrackColor: Int,
-)
+private fun resolveImagePath(context: Context, path: String?): String? {
+    if (path.isNullOrEmpty()) return null
+    return try {
+        val file = if (java.io.File(path).isAbsolute) java.io.File(path)
+                   else java.io.File(context.filesDir, path)
+        if (file.exists()) file.absolutePath
+        else { Log.w("DaylyWidget", "Image file not found: $path"); null }
+    } catch (e: Exception) {
+        Log.e("DaylyWidget", "resolveImagePath failed: $path", e)
+        null
+    }
+}
+
+private fun loadScaledBitmap(absPath: String): android.graphics.Bitmap? {
+    return try {
+        val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(absPath, opts)
+        var sample = 1
+        while (opts.outWidth / sample > 400 || opts.outHeight / sample > 400) sample *= 2
+        BitmapFactory.decodeFile(absPath, BitmapFactory.Options().apply { inSampleSize = sample })
+    } catch (e: Exception) {
+        Log.e("DaylyWidget", "loadScaledBitmap failed: $absPath", e)
+        null
+    }
+}
 
 private class DaylyRemoteViewsFactory(
     private val context: Context,
@@ -97,14 +129,29 @@ private class DaylyRemoteViewsFactory(
                 if (data.isPast) {
                     setViewVisibility(R.id.widget_progress_container, View.GONE)
                 } else {
-                    val fillFraction = if (data.totalCount > 0)
-                        (data.currentIndex + 1).toFloat() / data.totalCount else 1f
+                    val fraction = fillFraction(data.currentIndex, data.totalCount)
                     setInt(R.id.widget_progress_track, "setBackgroundColor", theme.progressTrackColor)
                     setInt(R.id.widget_progress_fill, "setBackgroundColor", theme.progressFillColor)
                     // scaleX: draw 단계에서 canvas 변환 → 배경색도 스케일됨 (setViewPadding은 background에 무효)
                     setFloat(R.id.widget_progress_fill, "setPivotX", 0f)
-                    setFloat(R.id.widget_progress_fill, "setScaleX", fillFraction)
+                    setFloat(R.id.widget_progress_fill, "setScaleX", fraction)
                     setViewVisibility(R.id.widget_progress_container, View.VISIBLE)
+                }
+            }
+
+            // 배경 이미지 처리 (Medium/Large only)
+            if (size != WidgetSize.SMALL) {
+                val absPath = resolveImagePath(context, data.backgroundImagePath)
+                val bitmap = absPath?.let { loadScaledBitmap(it) }
+                if (bitmap != null) {
+                    setImageViewBitmap(R.id.widget_bg_image, bitmap)
+                    setViewVisibility(R.id.widget_bg_image, View.VISIBLE)
+                    setViewVisibility(R.id.widget_bg_overlay, View.VISIBLE)
+                    setInt(R.id.widget_bg_overlay, "setBackgroundColor",
+                        Color.argb(140, 0, 0, 0))
+                } else {
+                    setViewVisibility(R.id.widget_bg_image, View.GONE)
+                    setViewVisibility(R.id.widget_bg_overlay, View.GONE)
                 }
             }
 
@@ -153,54 +200,6 @@ private class DaylyRemoteViewsFactory(
         } catch (_: Exception) {
             emptyList()
         }
-    }
-
-    private fun themeColors(preset: String): WidgetThemeColors = when (preset) {
-        "paper" -> WidgetThemeColors(
-            bgDrawable = R.drawable.dayly_widget_bg_paper,
-            textColor = Color.parseColor("#0B1220"),
-            subColor = Color.parseColor("#6B7280"),
-            dotColor = Color.parseColor("#9090A8"),
-            watermarkColor = Color.parseColor("#C0C8D0"),
-            progressFillColor = Color.parseColor("#9B8B78"),
-            progressTrackColor = Color.parseColor("#D8CEBC"),
-        )
-        "fog" -> WidgetThemeColors(
-            bgDrawable = R.drawable.dayly_widget_bg_fog,
-            textColor = Color.parseColor("#0B1220"),
-            subColor = Color.parseColor("#6B7280"),
-            dotColor = Color.parseColor("#8090A8"),
-            watermarkColor = Color.parseColor("#B8C8D8"),
-            progressFillColor = Color.parseColor("#607898"),
-            progressTrackColor = Color.parseColor("#C0D0DF"),
-        )
-        "lavender" -> WidgetThemeColors(
-            bgDrawable = R.drawable.dayly_widget_bg_lavender,
-            textColor = Color.parseColor("#0B1220"),
-            subColor = Color.parseColor("#6B7280"),
-            dotColor = Color.parseColor("#9080B0"),
-            watermarkColor = Color.parseColor("#C0B8D0"),
-            progressFillColor = Color.parseColor("#7868A8"),
-            progressTrackColor = Color.parseColor("#C8B8E0"),
-        )
-        "blush" -> WidgetThemeColors(
-            bgDrawable = R.drawable.dayly_widget_bg_blush,
-            textColor = Color.parseColor("#0B1220"),
-            subColor = Color.parseColor("#6B7280"),
-            dotColor = Color.parseColor("#A88090"),
-            watermarkColor = Color.parseColor("#D0B8C0"),
-            progressFillColor = Color.parseColor("#A87088"),
-            progressTrackColor = Color.parseColor("#E0C8D0"),
-        )
-        else -> WidgetThemeColors( // night (기본)
-            bgDrawable = R.drawable.dayly_widget_bg,
-            textColor = Color.parseColor("#F4F6FA"),
-            subColor = Color.parseColor("#7090B0"),
-            dotColor = Color.parseColor("#4060A0"),
-            watermarkColor = Color.parseColor("#2A3A5A"),
-            progressFillColor = Color.parseColor("#4060A0"),
-            progressTrackColor = Color.parseColor("#1A2A4A"),
-        )
     }
 
     companion object {

@@ -10,7 +10,7 @@
     android:targetCellHeight="4"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/dayly_widget_large"
-    android:previewLayout="@layout/dayly_widget_stack_item_large"
+    android:previewLayout="@layout/dayly_widget_preview_large"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/dayly_widget_description" />
