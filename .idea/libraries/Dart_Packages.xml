@@ -159,21 +159,28 @@
         <entry key="flutter_local_notifications">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-21.0.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_local_notifications_linux">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-8.0.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_local_notifications_platform_interface">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-8.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-11.0.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_local_notifications_windows">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_windows-3.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -215,35 +222,35 @@
         <entry key="flutter_ui_kit_google_mobile_ads">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-6119be4783596a43ca12a17578d7b425506399ff/packages/flutter_ui_kit_google_mobile_ads/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_google_mobile_ads-0.1.16/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_ui_kit_l10n">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_l10n/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_l10n-0.0.13+1/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_ui_kit_setting">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-a544c5869f473dcf4125e7a3a06feddd82dec61e/packages/flutter_ui_kit_setting/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_setting-0.1.17/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_ui_kit_theme">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_theme/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_theme-0.1.17/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_ui_kit_widget">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_widget/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_widget-0.0.4/lib" />
             </list>
           </value>
         </entry>
@@ -264,7 +271,7 @@
         <entry key="google_fonts">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_fonts-7.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_fonts-8.0.2/lib" />
             </list>
           </value>
         </entry>
@@ -292,7 +299,7 @@
         <entry key="home_widget">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/home_widget-0.7.0+1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/home_widget-0.9.0/lib" />
             </list>
           </value>
         </entry>
@@ -663,7 +670,7 @@
         <entry key="timezone">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/timezone-0.10.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/timezone-0.11.0/lib" />
             </list>
           </value>
         </entry>
@@ -817,11 +824,6 @@
       </option>
     </properties>
     <CLASSES>
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-6119be4783596a43ca12a17578d7b425506399ff/packages/flutter_ui_kit_google_mobile_ads/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-a544c5869f473dcf4125e7a3a06feddd82dec61e/packages/flutter_ui_kit_setting/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_l10n/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_theme/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_ui_kit-dd4e86c58944ee0006fa9915583143b820269b53/packages/flutter_ui_kit_widget/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/args-2.7.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/async-2.13.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/boolean_selector-2.1.2/lib" />
@@ -843,18 +845,24 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fixnum-1.1.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-8.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-21.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-8.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-11.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_windows-3.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_screenutil-5.9.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-5.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_google_mobile_ads-0.1.16/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_l10n-0.0.13+1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_setting-0.1.17/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_theme-0.1.17/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_ui_kit_widget-0.0.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/glob-2.1.3/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_fonts-7.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_fonts-8.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_mobile_ads-7.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hive-2.2.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hive_flutter-1.1.0/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/home_widget-0.7.0+1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/home_widget-0.9.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hooks-1.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-1.6.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.1.2/lib" />
@@ -906,7 +914,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/string_scanner-1.4.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/term_glyph-1.2.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/test_api-0.7.9/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/timezone-0.10.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/timezone-0.11.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/typed_data-1.4.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher-6.3.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.28/lib" />

@@ -36,7 +36,17 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Skill(plan-ceo-review)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(bash ~/.claude/skills/gstack/setup)",
+      "Bash(curl -fsSL https://bun.sh/install | bash)",
+      "Bash(find /Users/junyoungkim/Desktop/junyoung/app/source/dayly/android -name \"DaylyWidget*\" -o -name \"dayly_widget*\" 2>/dev/null | head -20)",
+      "Bash(find /Users/junyoungkim/Desktop/junyoung/app/source/dayly/lib -name \"*widget*\" 2>/dev/null | head -20)",
+      "Bash(find /Users/junyoungkim/Desktop/junyoung/app/source/dayly/ios -name \"*.swift\" -o -name \"*.entitlements\" -o -name \"*.plist\" 2>/dev/null | head -20)",
+      "Bash(find /Users/junyoungkim/Desktop/junyoung/app/source/dayly -path \"*/home_widget-*\" -name \"*.dart\" 2>/dev/null | head -10)",
+      "Bash(find /Users/junyoungkim/Desktop/junyoung/app/source/dayly -path */.pub-cache/* -name *.dart)",
+      "Bash(find /Users/junyoungkim/.pub-cache/hosted/pub.dev/path_provider_foundation-* -name \"*.dart\" -maxdepth 3 2>/dev/null | head -5)",
+      "Bash(brew install:*)",
+      "Bash(gh pr:*)"
     ]
   }
 }

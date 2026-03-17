@@ -2,6 +2,22 @@
 
 ---
 
+## 1.8.0 — 2026-03-17
+
+### Added
+
+- **iOS Large(4×4) 홈화면 위젯 추가**: `DaylyLargeView` 신규 생성. 카운트다운 44pt, 문구 16pt (3줄), 넉넉한 여백. `supportedFamilies`에 `.systemLarge` 추가.
+- **iOS 위젯 시간 기반 진행 바 (Medium/Large)**: `createdAt → targetDate` 기간 대비 경과 비율을 시각적 진행 바로 표시. Android의 페이지 위치 방식 대신 D-Day 앱에 더 의미있는 시간 기반 방식 채택. `DaylyProgressBar` 공통 컴포넌트로 추출.
+- **iOS 위젯 배경 이미지 지원 (Medium/Large)**: `loadWidgetBackgroundImage()` 헬퍼 — App Group 컨테이너에서 이미지 로드, ImageIO 기반 400×400 다운샘플링 (WidgetKit 메모리 제한 대응). `Color.black.opacity(0.55)` 오버레이로 텍스트 가독성 보호.
+- **배경 이미지 시 자동 흰색 텍스트**: 배경 이미지가 있을 때 테마 무관하게 `text=white`, `sub=white(70%)` 자동 전환. paper/fog 등 밝은 테마에서도 가독성 보장.
+- **iOS 위젯 테마 진행 바 색상**: `Color.progressColors(for:)` — Android `DaylyWidgetTheme.kt`와 동일한 5개 테마별 fill/track 색상.
+- **`HomeWidgetData.createdAt` 필드 추가**: iOS 네이티브에서 시간 기반 진행률 실시간 계산용. `toJson()`/`fromJson()` 직렬화 반영.
+- **Flutter iOS 이미지 공유 파이프라인**: `_resolveImageForWidget()` — iOS에서 배경 이미지를 App Group 공유 컨테이너(`group.juny.dayly`)로 복사. `path_provider_foundation` 패키지의 `getContainerPath()` 사용.
+- **공통 뷰 컴포넌트 추출**: `DaylyProgressBar`, `DaylyDots`, `DaylyTapZones`를 재사용 가능한 SwiftUI 컴포넌트로 분리. Small/Medium/Large 뷰에서 공유.
+- **os.Logger 도입**: 위젯 Extension에 구조화된 로깅 추가 (`juny.dayly.widget` subsystem). 이미지 로드 실패 시 경고 로그.
+
+---
+
 ## 1.7.4 — 2026-03-17
 
 ### Fixed

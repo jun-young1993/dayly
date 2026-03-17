@@ -59,3 +59,20 @@ P1 테스트와 동일한 디렉터리(`android/app/src/test/kotlin/juny/dayly/`
 
 **Effort:** S | **Priority:** P3
 **Depends on:** 없음
+
+---
+
+## P3 — iOS App Group 공유 컨테이너 오래된 배경 이미지 정리
+
+**What:** 사용자가 배경 이미지를 변경/제거할 때 App Group 컨테이너(`group.juny.dayly/backgrounds/`)에 남아 있는 이전 이미지 파일 자동 삭제
+
+**Why:** v1.8.0에서 iOS 위젯 배경 이미지 지원 추가 시, Flutter가 이미지를 App Group 공유 컨테이너로 복사하지만, 이전 이미지는 삭제하지 않음. 시간이 지나면 디스크 공간을 불필요하게 차지.
+
+**Pros:** 디스크 공간 절약. 오래된 파일이 쌓이지 않음.
+
+**Cons:** `updateAll()` 실행 시마다 현재 위젯이 참조하는 이미지 목록을 비교해야 함. 약간의 복잡도 증가.
+
+**Context:** `HomeWidgetService.updateAll()` 실행 시, 현재 위젯들의 `backgroundImagePath` 목록을 수집하고, `$containerPath/backgrounds/` 디렉터리의 파일 중 참조되지 않는 것을 삭제하는 cleanup 로직 추가. iOS에서만 실행 (`Platform.isIOS`).
+
+**Effort:** S | **Priority:** P3
+**Depends on:** v1.8.0 iOS 위젯 배경 이미지 지원

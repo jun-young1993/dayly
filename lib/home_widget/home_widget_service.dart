@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dayly/home_widget/home_widget_config.dart';
 import 'package:dayly/home_widget/home_widget_data.dart';
@@ -7,6 +8,9 @@ import 'package:dayly/utils/dayly_countdown_phrase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:path_provider_foundation/path_provider_foundation.dart';
 
 /// iOS / Android 홈화면 위젯에 데이터를 전달하고 갱신을 트리거하는 서비스.
 ///
@@ -39,7 +43,9 @@ class HomeWidgetService {
   }) async {
     try {
       final lang = languageCode ?? PlatformDispatcher.instance.locale.languageCode;
-      final dataList = widgets.map((w) => _toHomeWidgetData(w, lang)).toList();
+      final dataList = await Future.wait(
+        widgets.map((w) => _toHomeWidgetDataAsync(w, lang)),
+      );
       final jsonString = jsonEncode(dataList.map((d) => d.toJson()).toList());
 
       await HomeWidget.saveWidgetData(
@@ -78,7 +84,12 @@ class HomeWidgetService {
 
   // ── 내부 헬퍼 ──────────────────────────────────────────────────
 
-  static HomeWidgetData _toHomeWidgetData(DaylyWidgetModel model, [String lang = 'en']) {
+  static final _isoDateFormat = DateFormat('yyyy-MM-dd');
+
+  static Future<HomeWidgetData> _toHomeWidgetDataAsync(
+    DaylyWidgetModel model, [
+    String lang = 'en',
+  ]) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(
@@ -95,6 +106,9 @@ class HomeWidgetService {
       dayDiff: days,
     );
 
+    final resolvedImagePath =
+        await _resolveImageForWidget(model.backgroundImagePath);
+
     return HomeWidgetData(
       id: model.id,
       sentence: model.primarySentence,
@@ -103,11 +117,50 @@ class HomeWidgetService {
       targetDateLabel: _dateFormat.format(model.targetDate),
       themePreset: model.style.themePreset.name,
       isPast: isPast,
-      targetDate: DateFormat('yyyy-MM-dd').format(model.targetDate),
+      targetDate: _isoDateFormat.format(model.targetDate),
       countdownMode: model.style.countdownMode.name,
       languageCode: lang,
-      backgroundImagePath: model.backgroundImagePath,
+      backgroundImagePath: resolvedImagePath,
+      createdAt: _isoDateFormat.format(model.createdAt),
     );
+  }
+
+  /// iOS: 배경 이미지를 App Group 공유 컨테이너로 복사하고 절대 경로를 반환.
+  /// Android: 원본 경로를 그대로 반환 (앱과 위젯이 같은 프로세스).
+  static Future<String?> _resolveImageForWidget(String? imagePath) async {
+    if (imagePath == null || imagePath.isEmpty) return imagePath;
+    if (!Platform.isIOS) return imagePath;
+
+    try {
+      // 원본 파일 해석
+      final appDir = await getApplicationDocumentsDirectory();
+      final srcPath = p.isAbsolute(imagePath)
+          ? imagePath
+          : p.join(appDir.path, imagePath);
+      final srcFile = File(srcPath);
+      if (!await srcFile.exists()) return null;
+
+      // App Group 공유 컨테이너 경로 획득
+      final provider = PathProviderFoundation();
+      final containerPath = await provider.getContainerPath(
+        appGroupIdentifier: HomeWidgetConfig.appGroupId,
+      );
+      if (containerPath == null) return null;
+
+      // 공유 컨테이너 내 backgrounds 디렉터리에 복사
+      final fileName = p.basename(srcPath);
+      final destDir = Directory(p.join(containerPath, 'backgrounds'));
+      if (!await destDir.exists()) {
+        await destDir.create(recursive: true);
+      }
+      final destPath = p.join(destDir.path, fileName);
+      await srcFile.copy(destPath);
+
+      return destPath;
+    } catch (e) {
+      debugPrint('[HomeWidget] _resolveImageForWidget failed: $e');
+      return null;
+    }
   }
 
   static DaylyWidgetModel _nearestWidget(List<DaylyWidgetModel> widgets) {

@@ -27,7 +27,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f4c5c9f-3cc1-4a7d-afaa-113adca9b4d5" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dayly.iml" beforeDir="false" afterPath="$PROJECT_DIR$/dayly.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/DaylyWidget/DaylyWidget.swift" beforeDir="false" afterPath="$PROJECT_DIR$/ios/DaylyWidget/DaylyWidget.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home_widget/home_widget_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home_widget/home_widget_data.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home_widget/home_widget_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home_widget/home_widget_service.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,8 +127,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
       </set>
     </attachedChunks>
   </component>
