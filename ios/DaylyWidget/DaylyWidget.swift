@@ -1,6 +1,7 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import UIKit
 
 // MARK: - 데이터 모델
 
@@ -15,6 +16,7 @@ struct DaylyWidgetEntry: TimelineEntry {
     let isPast: Bool
     let currentIndex: Int
     let totalCount: Int
+    let backgroundImagePath: String?
 }
 
 extension DaylyWidgetEntry {
@@ -28,7 +30,8 @@ extension DaylyWidgetEntry {
             themePreset: "night",
             isPast: false,
             currentIndex: 0,
-            totalCount: 1
+            totalCount: 1,
+            backgroundImagePath: nil
         )
     }
 }
@@ -118,7 +121,8 @@ private func entryFromItem(_ item: [String: Any], index: Int, total: Int) -> Day
         themePreset: item["themePreset"] as? String ?? "night",
         isPast: item["isPast"] as? Bool ?? false,
         currentIndex: index,
-        totalCount: total
+        totalCount: total,
+        backgroundImagePath: item["backgroundImagePath"] as? String
     )
 }
 
@@ -215,6 +219,15 @@ extension Color {
     }
 }
 
+// MARK: - 이미지 헬퍼
+
+private func loadBgImage(_ relativePath: String?) -> UIImage? {
+    guard let rel = relativePath,
+          let groupURL = FileManager.default.containerURL(
+              forSecurityApplicationGroupIdentifier: appGroupId) else { return nil }
+    return UIImage(contentsOfFile: groupURL.appendingPathComponent(rel).path)
+}
+
 // MARK: - SwiftUI Views
 
 /// Small 위젯 뷰 (systemSmall) — 좌우 탭 존으로 네비게이션
@@ -223,7 +236,16 @@ struct DaylySmallView: View {
     var body: some View {
         let theme = Color.forTheme(entry.themePreset)
         ZStack {
-            // 배경 + 메인 콘텐츠
+            // 1. 배경 이미지 (가장 하위)
+            if let img = loadBgImage(entry.backgroundImagePath) {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+                    .opacity(0.30)
+                Color.black.opacity(0.15)
+            }
+
+            // 2. 메인 콘텐츠
             VStack(spacing: 4) {
                 Text(entry.countdownText)
                     .font(.system(size: 14, weight: .bold, design: .monospaced))
@@ -241,11 +263,12 @@ struct DaylySmallView: View {
                         .font(.system(size: 9, weight: .medium, design: .monospaced))
                         .foregroundColor(theme.sub.opacity(0.6))
                         .padding(.top, 2)
+                        .shadow(color: .black.opacity(entry.backgroundImagePath != nil ? 0.6 : 0), radius: 2)
                 }
             }
             .padding(12)
 
-            // 3분할 탭 존: 좌(이전) / 중앙(앱 열기) / 우(다음)
+            // 3. 탭 존 (최상위): 좌(이전) / 중앙(앱 열기) / 우(다음)
             if entry.totalCount > 1 {
                 HStack(spacing: 0) {
                     Button(intent: PrevEventIntent()) {
@@ -269,6 +292,7 @@ struct DaylySmallView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg)
+        .clipped()
         .widgetURL(entry.totalCount <= 1 ? URL(string: "dayly://detail/\(entry.id)") : nil)
     }
 }
@@ -279,7 +303,16 @@ struct DaylyMediumView: View {
     var body: some View {
         let theme = Color.forTheme(entry.themePreset)
         ZStack {
-            // 메인 콘텐츠
+            // 1. 배경 이미지 (가장 하위)
+            if let img = loadBgImage(entry.backgroundImagePath) {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+                    .opacity(0.30)
+                Color.black.opacity(0.15)
+            }
+
+            // 2. 메인 콘텐츠
             VStack(spacing: 0) {
                 Text(entry.dateLabel)
                     .font(.system(size: 10, weight: .regular))
@@ -327,6 +360,7 @@ struct DaylyMediumView: View {
                                 .font(.system(size: 8, weight: .medium))
                         }
                         .foregroundColor(theme.sub.opacity(0.5))
+                        .shadow(color: .black.opacity(entry.backgroundImagePath != nil ? 0.6 : 0), radius: 2)
                     }
                     Spacer()
                     // 워터마크
@@ -361,6 +395,7 @@ struct DaylyMediumView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg)
+        .clipped()
         .widgetURL(entry.totalCount <= 1 ? URL(string: "dayly://detail/\(entry.id)") : nil)
     }
 }

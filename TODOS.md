@@ -45,6 +45,20 @@ P1 테스트와 동일한 디렉터리(`android/app/src/test/kotlin/juny/dayly/`
 
 ---
 
+## P2 — `EventDetailScreen` 실시간 변경 시 알림 재예약
+
+**What:** `onWidgetChanged` 콜백 내에서 `_notifRepo.schedule(updatedModel)` 호출 추가
+
+**Why:** `_openEdit`(SharePreviewScreenV2)에서 targetDate 변경 후 홈 버튼 이탈 시, 위젯은 즉시 갱신되지만 알림 스케줄은 앱 재진입 + 뒤로가기까지 갱신되지 않음.
+
+**How to apply:** `WidgetGridScreen._openDetail()` 내 `onWidgetChanged` 콜백에 `_notifRepo.schedule(updatedModel, languageCode: lang)` 추가. languageCode는 `UiKitLocalizations.of(context)` 로 획득 필요 (mounted 확인 후).
+
+**Depends on:** v1.7.5 홈화면 위젯 즉시 갱신 버그 수정 완료
+
+**Effort:** S | **Priority:** P2
+
+---
+
 ## P3 — 테마 색상 중앙화
 
 **What:** `themeBarColor()` (ConfigActivity)와 `progressFillColor` (RemoteViewsService) 중복 색상 상수 제거

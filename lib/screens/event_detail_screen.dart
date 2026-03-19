@@ -28,17 +28,20 @@ class EventDetailScreen extends StatefulWidget {
     required this.model,
     required this.gradient,
     required this.iconData,
+    this.onWidgetChanged,
   });
 
   final DaylyWidgetModel model;
   final List<Color> gradient;
   final IconData iconData;
+  final void Function(DaylyWidgetModel)? onWidgetChanged;
 
   @override
   State<EventDetailScreen> createState() => _EventDetailScreenState();
 }
 
-class _EventDetailScreenState extends State<EventDetailScreen> {
+class _EventDetailScreenState extends State<EventDetailScreen>
+    with WidgetsBindingObserver {
   late DaylyWidgetModel _model;
   late Timer _timer;
   Duration _remaining = Duration.zero;
@@ -53,6 +56,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _model = widget.model;
     _backgroundImagePath = widget.model.backgroundImagePath;
     _resolveImagePath();
@@ -112,8 +116,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _notifyChanged();
+    }
+  }
+
+  void _notifyChanged() {
+    widget.onWidgetChanged?.call(
+      _model.copyWith(backgroundImagePath: _backgroundImagePath),
+    );
   }
 
   // ── 계산 헬퍼 ───────────────────────────────────────────────
@@ -152,6 +170,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final ms = List<DaylyMilestone>.of(_model.milestones);
     ms[index] = ms[index].copyWith(isDone: !ms[index].isDone);
     setState(() => _model = _model.copyWith(milestones: ms));
+    _notifyChanged();
   }
 
   void _deleteMilestone(int index) {
@@ -159,6 +178,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final ms = List<DaylyMilestone>.of(_model.milestones);
     ms.removeAt(index);
     setState(() => _model = _model.copyWith(milestones: ms));
+    _notifyChanged();
   }
 
   Future<void> _addMilestone() async {
@@ -171,6 +191,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final ms = List<DaylyMilestone>.of(_model.milestones);
     ms.add(DaylyMilestone(title: result.trim()));
     setState(() => _model = _model.copyWith(milestones: ms));
+    _notifyChanged();
   }
 
   Future<void> _openEdit() async {
@@ -182,6 +203,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     );
     if (updated == null) return;
     setState(() => _model = updated);
+    _notifyChanged();
   }
 
   Future<void> _openShare() async {
@@ -193,6 +215,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     );
     if (updated != null) {
       setState(() => _model = updated);
+      _notifyChanged();
     }
   }
 
@@ -204,6 +227,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     );
     if (result == null) return;
     setState(() => _model = _model.copyWith(note: result));
+    _notifyChanged();
   }
 
   void _confirmDelete() {
@@ -245,6 +269,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               _backgroundImagePath = null;
               _resolvedImagePath = null;
             });
+            _notifyChanged();
           },
         ),
       );
@@ -258,6 +283,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
+      maxWidth: 1024,
+      maxHeight: 1024,
     );
     if (picked == null) return;
 
@@ -270,10 +297,26 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final relativePath = 'backgrounds/$fileName';
     await File(picked.path).copy('${appDir.path}/$relativePath');
 
+    // iOS: App Group 컨테이너에도 복사하여 홈 위젯에서 접근 가능하게 함
+    if (Platform.isIOS) {
+      try {
+        const appGroupChannel = MethodChannel('juny.dayly/app_group');
+        final appGroupDir = await appGroupChannel.invokeMethod<String>('getAppGroupDirectory');
+        if (appGroupDir != null) {
+          final bgGroupDir = Directory('$appGroupDir/backgrounds');
+          await bgGroupDir.create(recursive: true);
+          await File(picked.path).copy('$appGroupDir/$relativePath');
+        }
+      } catch (e) {
+        debugPrint('[AppGroup] image copy failed: $e');
+      }
+    }
+
     setState(() {
       _backgroundImagePath = relativePath;
       _resolvedImagePath = '${appDir.path}/$relativePath';
     });
+    _notifyChanged();
   }
 
   // ── 빌드 ─────────────────────────────────────────────────────

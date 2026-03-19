@@ -163,6 +163,12 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
           model: originalModel,
           gradient: _gradients[index % _gradients.length],
           iconData: _iconData[index % _iconData.length],
+          onWidgetChanged: (updatedModel) {
+            if (!mounted) return;
+            if (index >= _widgets.length) return;
+            setState(() => _widgets[index] = updatedModel);
+            unawaited(_persist());
+          },
         ),
       ),
     );

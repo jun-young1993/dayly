@@ -2,6 +2,33 @@
 
 ---
 
+## 1.7.6 — 2026-03-19
+
+### Added
+
+- **iOS 홈화면 위젯 배경 이미지 지원**:
+  - `AppDelegate.swift`: MethodChannel `"juny.dayly/app_group"` 추가. Flutter 앱에서 App Group 컨테이너 경로(`group.juny.dayly`) 조회 가능.
+  - `EventDetailScreen._selectImageFromGallery()`: iOS에서 이미지 선택 시 Documents 복사 외에 App Group 컨테이너(`group.juny.dayly/backgrounds/`)에도 동일 파일 복사. 실패 시 무시(위젯은 배경 없이 표시).
+  - `DaylyWidget.swift`: `DaylyWidgetEntry`에 `backgroundImagePath: String?` 필드 추가. `entryFromItem`에서 JSON의 `backgroundImagePath` 키를 읽어 전달.
+  - `DaylySmallView` / `DaylyMediumView`: ZStack 최하위에 배경 이미지(opacity 0.30) + 텍스트 대비 오버레이(black 0.15) 레이어 추가. `.clipped()` 추가.
+
+### Fixed
+
+- **iOS 위젯 `< 1/N >` 인디케이터 가시성**: 배경 이미지가 있을 때 페이지 인디케이터에 `.shadow(radius: 2)` 적용하여 이미지 위에서도 선명하게 표시.
+
+---
+
+## 1.7.5 — 2026-03-19
+
+### Fixed
+
+- **홈화면 위젯 즉시 갱신 버그 수정**: `EventDetailScreen`에서 마일스톤 토글, 노트 편집, 테마/문구 변경, 배경 이미지 변경·제거 후 뒤로가기 대신 홈 버튼을 눌러도 Android 홈화면 위젯이 즉시 갱신되지 않던 문제 수정.
+  - `EventDetailScreen`에 `onWidgetChanged` 콜백 파라미터 추가. 각 변경 액션 후 즉시 호출.
+  - `WidgetsBindingObserver` 믹스인 추가. 앱이 백그라운드로 전환(`paused`)될 때도 콜백 자동 호출.
+  - `WidgetGridScreen._openDetail()`에서 콜백 주입: `setState` + `_persist()` 즉시 실행 → Android 위젯 갱신.
+
+---
+
 ## 1.7.4 — 2026-03-17
 
 ### Fixed
