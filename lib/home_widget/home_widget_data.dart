@@ -17,6 +17,7 @@ class HomeWidgetData {
     required this.countdownMode,
     this.languageCode = 'en',
     this.backgroundImagePath,
+    this.createdAt = '',
   });
 
   /// 앱 내 DaylyWidgetModel.id 와 동일
@@ -52,6 +53,9 @@ class HomeWidgetData {
   /// 배경 이미지 경로 (절대 경로 또는 앱 파일디렉토리 기준 상대 경로). nullable.
   final String? backgroundImagePath;
 
+  /// 이벤트 생성일 (yyyy-MM-dd). iOS 네이티브에서 시간 기반 진행률 계산용.
+  final String createdAt;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'sentence': sentence,
@@ -64,6 +68,7 @@ class HomeWidgetData {
         'countdownMode': countdownMode,
         'languageCode': languageCode,
         'backgroundImagePath': backgroundImagePath,
+        'createdAt': createdAt,
       };
 
   String toJsonString() => jsonEncode(toJson());
@@ -80,6 +85,7 @@ class HomeWidgetData {
         countdownMode: (json['countdownMode'] as String?) ?? 'dMinus',
         languageCode: (json['languageCode'] as String?) ?? 'en',
         backgroundImagePath: json['backgroundImagePath'] as String?,
+        createdAt: (json['createdAt'] as String?) ?? '',
       );
 
   static HomeWidgetData? fromJsonString(String? raw) {

@@ -44,7 +44,9 @@ dependencies:
 
   # 갤러리 이미지 선택
   image_picker: ^1.1.0
+  path: ^1.9.0
   path_provider: ^2.1.0
+  path_provider_foundation: ^2.6.0
 
   # 로컬 알림 시스템
   flutter_local_notifications: ^21.0.0

@@ -76,7 +76,7 @@ Future<void> main() async {
     try{
       // ── 광고 초기화 ───────────────────────────────────────────────
       await GlobalAdConfig().initialize();
-      GlobalAdConfig().setAdVisibility(false);
+      // GlobalAdConfig().setAdVisibility(false);
 
       // App Open 광고: AppLifecycleState.resumed 마다 전면 광고를 표시함.
       // 쿨다운 없이 활성화 시 포그라운드 전환마다 광고가 노출되어 UX 훼손.
