@@ -297,21 +297,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
     final relativePath = 'backgrounds/$fileName';
     await File(picked.path).copy('${appDir.path}/$relativePath');
 
-    // iOS: App Group 컨테이너에도 복사하여 홈 위젯에서 접근 가능하게 함
-    if (Platform.isIOS) {
-      try {
-        const appGroupChannel = MethodChannel('juny.dayly/app_group');
-        final appGroupDir = await appGroupChannel.invokeMethod<String>('getAppGroupDirectory');
-        if (appGroupDir != null) {
-          final bgGroupDir = Directory('$appGroupDir/backgrounds');
-          await bgGroupDir.create(recursive: true);
-          await File(picked.path).copy('$appGroupDir/$relativePath');
-        }
-      } catch (e) {
-        debugPrint('[AppGroup] image copy failed: $e');
-      }
-    }
-
     setState(() {
       _backgroundImagePath = relativePath;
       _resolvedImagePath = '${appDir.path}/$relativePath';

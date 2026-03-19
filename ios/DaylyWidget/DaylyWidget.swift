@@ -315,13 +315,6 @@ extension Color {
     }
 }
 
-// MARK: - 이미지 헬퍼
-
-private func loadBgImage(_ relativePath: String?) -> UIImage? {
-    guard let rel = relativePath,
-          let groupURL = FileManager.default.containerURL(
-              forSecurityApplicationGroupIdentifier: appGroupId) else { return nil }
-    return UIImage(contentsOfFile: groupURL.appendingPathComponent(rel).path)
 // MARK: - 공통 뷰 컴포넌트
 
 /// 시간 기반 진행 바 (createdAt → targetDate 경과 비율)
@@ -392,8 +385,8 @@ struct DaylySmallView: View {
     var body: some View {
         let theme = Color.forTheme(entry.themePreset)
         ZStack {
-            // 1. 배경 이미지 (가장 하위)
-            if let img = loadBgImage(entry.backgroundImagePath) {
+            // 배경 이미지 (가장 하위)
+            if let img = loadWidgetBackgroundImage(path: entry.backgroundImagePath) {
                 Image(uiImage: img)
                     .resizable()
                     .scaledToFill()
@@ -401,7 +394,7 @@ struct DaylySmallView: View {
                 Color.black.opacity(0.15)
             }
 
-            // 2. 메인 콘텐츠
+            // 메인 콘텐츠
             VStack(spacing: 4) {
                 Text(entry.countdownText)
                     .font(.system(size: 14, weight: .bold, design: .monospaced))
@@ -449,16 +442,6 @@ struct DaylyMediumView: View {
         let progress = calcProgress(createdAtIso: entry.createdAt, targetDateIso: entry.targetDateIso)
 
         ZStack {
-            // 1. 배경 이미지 (가장 하위)
-            if let img = loadBgImage(entry.backgroundImagePath) {
-                Image(uiImage: img)
-                    .resizable()
-                    .scaledToFill()
-                    .opacity(0.30)
-                Color.black.opacity(0.15)
-            }
-
-            // 2. 메인 콘텐츠
             // 배경 이미지 레이어
             if let bgImage = bgImage {
                 Image(uiImage: bgImage)

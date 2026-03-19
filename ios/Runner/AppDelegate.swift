@@ -13,24 +13,6 @@ import UIKit
 //     if FirebaseApp.app() == nil {
 //       FirebaseApp.configure()
 //     }
-    if let controller = window?.rootViewController as? FlutterViewController {
-      let channel = FlutterMethodChannel(
-        name: "juny.dayly/app_group",
-        binaryMessenger: controller.binaryMessenger
-      )
-      channel.setMethodCallHandler { call, result in
-        guard call.method == "getAppGroupDirectory" else {
-          result(FlutterMethodNotImplemented); return
-        }
-        if let url = FileManager.default.containerURL(
-          forSecurityApplicationGroupIdentifier: "group.juny.dayly"
-        ) {
-          result(url.path)
-        } else {
-          result(FlutterError(code: "UNAVAILABLE", message: "App Group not found", details: nil))
-        }
-      }
-    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

@@ -2,6 +2,30 @@
 
 ---
 
+## 1.7.8 — 2026-03-19
+
+### Fixed
+
+- **[P0] Small 위젯 배경 이미지 수정**: `DaylySmallView`에서 절대 경로를 처리 못하는 `loadBgImage()`를 `loadWidgetBackgroundImage(path:)`로 교체. Small 위젯에서 배경 이미지가 전혀 표시되지 않던 버그 수정.
+- **[Dead Code] Medium 위젯 Layer 1 제거**: `DaylyMediumView`의 ZStack에서 항상 nil을 반환하던 `loadBgImage()` 기반 Layer 1 블록 제거. Layer 2(`loadWidgetBackgroundImage()`)가 정상 동작하므로 기능 변화 없음.
+
+### Removed
+
+- **`loadBgImage()` 함수 제거**: 절대 경로 미지원으로 항상 nil을 반환하던 불완전한 헬퍼 함수 삭제. `loadWidgetBackgroundImage(path:)`가 절대/상대 경로 모두 처리하므로 대체 불필요.
+- **중복 App Group 복사 인프라 제거**: `EventDetailScreen._selectImageFromGallery()`의 iOS MethodChannel 복사 블록 및 `AppDelegate.swift`의 `juny.dayly/app_group` 채널 핸들러 삭제. `HomeWidgetService._resolveImageForWidget()`이 `updateAll()` 호출 시마다 App Group 복사를 단독 처리하므로 중복 불필요.
+
+---
+
+## 1.7.7 — 2026-03-19
+
+### Fixed
+
+- **iOS App Group 채널 등록 타이밍 수정**: `AppDelegate`의 MethodChannel(`juny.dayly/app_group`) 등록 위치를 `didFinishLaunchingWithOptions`에서 `didInitializeImplicitFlutterEngine`으로 이동. Flutter 엔진 초기화 전에 `rootViewController`가 nil일 경우 채널이 무음 실패하던 문제 해결.
+- **App Group 복사 실패 로그 추가**: `_selectImageFromGallery()`의 `catch (_) {}` → `catch (e) { debugPrint('[AppGroup] image copy failed: $e'); }`. 채널 미등록, 디스크 풀 등 실패 시 원인을 확인할 수 없던 문제 개선.
+- **배경 이미지 크기 제한 추가**: `pickImage`에 `maxWidth: 1024, maxHeight: 1024` 추가. 4K 이미지가 App Group에 그대로 저장되어 위젯 렌더 지연 및 스토리지 낭비를 유발하던 문제 예방.
+
+---
+
 ## 1.7.6 — 2026-03-19
 
 ### Added
