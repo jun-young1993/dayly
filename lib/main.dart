@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:dayly/firebase_options.dart';
 import 'package:dayly/home_widget/home_widget_service.dart';
 import 'package:dayly/repositories/notification_repository.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_ui_kit_google_mobile_ads/flutter_ui_kit_google_mobile_ads.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -17,6 +20,13 @@ import 'package:dayly/app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
+
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Google Sigin
+  await GoogleSignIn.instance.initialize();
+  
 
   // ── 타임존 초기화 ─────────────────────────────────────────────
   // 반드시 runApp() 이전에 초기화해야 한다.

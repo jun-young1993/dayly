@@ -59,7 +59,12 @@ dependencies:
   flutter_ui_kit_google_mobile_ads: ^0.1.16
   flutter_ui_kit_setting: ^0.1.16
   flutter_ui_kit_l10n: ^0.0.13
+  flutter_ui_kit_firebase_auth_gate: ^0.0.3
+
+  # firebase
   firebase_core: ^4.5.0
+  google_sign_in: ^7.2.0
+  firebase_auth: ^6.2.0
 
 dev_dependencies:
   flutter_test:

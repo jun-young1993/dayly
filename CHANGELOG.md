@@ -6,7 +6,16 @@
 
 ### Added
 
-- **BUSINESS.md CEO Review 반영**: 수익 전략 광고 우선으로 업데이트, 성장 플라이휠 다이어그램 추가, 액션 아이템 테이블 재정렬 (iOS 링크·Analytics·광고 쿨다운 P0 추가)
+- **BUSINESS.md CEO Review 2차 반영 (SCOPE EXPANSION)**:
+  - 시장 우선순위 재편: 한국·일본 → **한국(1) → 미국(2) → 일본(3)**. 미국 2.8억 시장 독립 섹션 신설, 감성 카운트다운 공백 기회 명시.
+  - 포지셔닝 재정의: "D-Day 앱"에서 **"날짜에 이름을 붙이는 앱"** 으로 카테고리 재정의. ASO 롱테일 전략 추가.
+  - 프리미엄 가치 제안 정의: **역바이럴(Reverse Viral) 모델** — 프리미엄 공유 카드 프레임 + Premium 배지. 워터마크 제거 명시적 금지.
+  - North Star Metric 추가: **위젯 설치수 (`home_widget_installed`)** 단일 핵심 지표 선정.
+  - 플라이휠 파손 지점 명시: iOS 공유 → Play Store 링크 (TODO-BIZ-3 미구현) 경고 추가.
+  - 버전 표기 정정: "앱 버전: 1.8.x" → CHANGELOG.md 단일 소스오브트루스 명시.
+  - 일본 시장 상세 추가: iOS 70%·LINE 85%·Apple ¥ 티어·계절 이벤트 명시.
+  - 액션 아이템 재정렬: 프리미엄 역바이럴 구현·시즌 테마 팩·미국 ASO P2 추가.
+- **BUSINESS.md CEO Review 1차 반영**: 수익 전략 광고 우선으로 업데이트, 성장 플라이휠 다이어그램 추가, 액션 아이템 테이블 재정렬 (iOS 링크·Analytics·광고 쿨다운 P0 추가)
 - **TODOS.md 비즈니스 TODO 4개 추가**: TODO-BIZ-1 (Firebase Analytics), TODO-BIZ-2 (App Open 쿨다운), TODO-BIZ-3 (iOS 공유 링크), TODO-BIZ-4 (기념일 반복 이벤트)
 - **TODOS.md Eng Review 반영**: BIZ-2 명세 수정(패키지 cooldown API, Effort S→XS), BIZ-1에서 app_open 제거(Firebase 자동수집) + Firebase init 위치 명시, BIZ-4에 DaylyRecurringType enum + Leap day 처리 + 즉시 저장 + Kotlin/Swift 테스트 범위 추가
 
