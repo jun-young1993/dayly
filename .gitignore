@@ -32,3 +32,6 @@ doc/api/
 lib/firebase_options.dart
 
 android/app/src/google-service.json
+
+**/google-services.json
+**/GoogleService-Info.plist
