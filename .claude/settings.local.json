@@ -46,7 +46,9 @@
       "Bash(find /Users/junyoungkim/Desktop/junyoung/app/source/dayly -path */.pub-cache/* -name *.dart)",
       "Bash(find /Users/junyoungkim/.pub-cache/hosted/pub.dev/path_provider_foundation-* -name \"*.dart\" -maxdepth 3 2>/dev/null | head -5)",
       "Bash(brew install:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Skill(gstack-upgrade)",
+      "Skill(review)"
     ]
   }
 }

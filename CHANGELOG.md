@@ -2,6 +2,16 @@
 
 ---
 
+## docs — 2026-03-20
+
+### Added
+
+- **BUSINESS.md CEO Review 반영**: 수익 전략 광고 우선으로 업데이트, 성장 플라이휠 다이어그램 추가, 액션 아이템 테이블 재정렬 (iOS 링크·Analytics·광고 쿨다운 P0 추가)
+- **TODOS.md 비즈니스 TODO 4개 추가**: TODO-BIZ-1 (Firebase Analytics), TODO-BIZ-2 (App Open 쿨다운), TODO-BIZ-3 (iOS 공유 링크), TODO-BIZ-4 (기념일 반복 이벤트)
+- **TODOS.md Eng Review 반영**: BIZ-2 명세 수정(패키지 cooldown API, Effort S→XS), BIZ-1에서 app_open 제거(Firebase 자동수집) + Firebase init 위치 명시, BIZ-4에 DaylyRecurringType enum + Leap day 처리 + 즉시 저장 + Kotlin/Swift 테스트 범위 추가
+
+---
+
 ## 1.7.8 — 2026-03-19
 
 ### Fixed

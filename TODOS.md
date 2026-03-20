@@ -2,6 +2,150 @@
 
 ---
 
+## TODO-BIZ-3 — iOS 공유 텍스트 App Store 링크 추가 (P0, XS)
+
+**What:** `share_preview_screen_v2.dart:73`의 `shareText`에 OS별 링크 분기 추가
+
+**Why:** iOS 유저가 공유받으면 Play Store로 이동해 설치 불가. 바이럴 공유의 iOS 전환이 완전히 막혀 있는 상태.
+
+**Context:**
+```dart
+// 현재
+'dayly - https://play.google.com/store/apps/details?id=juny.dayly'
+
+// 변경
+Platform.isIOS
+  ? 'dayly - https://apps.apple.com/app/id6760478559'
+  : 'dayly - https://play.google.com/store/apps/details?id=juny.dayly'
+```
+`dart:io`의 `Platform.isIOS` 사용. `import 'dart:io';` 추가 필요.
+
+**Effort:** XS (~30분) | **Priority:** P0
+**Depends on:** 없음
+
+---
+
+## TODO-BIZ-1 — Firebase Analytics 추가 (P0, S)
+
+**What:** `firebase_analytics` 패키지 추가 + 핵심 이벤트 4개 심기
+- `first_widget_created`, `share_tapped`, `home_widget_installed`, `premium_tapped`
+- ~~`app_open`~~ 제외 — Firebase가 자동 수집하므로 직접 로그하면 이중 카운팅 발생
+
+**Why:** 현재 유저 행동 데이터 전무. 광고 수익 검증·IAP 가격 설정·리텐션 개선 포인트 파악 모두 불가능한 상태.
+
+**Context:**
+`pubspec.yaml`에 `firebase_analytics` 추가 (`firebase_core`는 이미 있음, `firebase_auth` 제외).
+v1.2.4에서 auth 크래시로 Firebase 전체 제거했으나 analytics는 별도이므로 안전.
+
+`main.dart`에서 `Firebase.initializeApp()`을 **`runApp()` 전에 `await`로 복원**:
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('[main] Firebase init failed: $e');
+    // analytics 없이 앱 계속 실행
+  }
+  runApp(...);
+}
+```
+`firebase_core`는 로컬 `google-services.json` 파싱이므로 네트워크 없이 즉시 완료 — 앱 시작 지연 없음.
+
+이벤트는 `lib/utils/dayly_analytics.dart`로 중앙화. **`unawaited`는 유틸 내부에서 처리**:
+```dart
+class DaylyAnalytics {
+  static const _kFirstWidgetCreated = 'first_widget_created';
+  // ...
+  static void logShareTapped() =>
+      unawaited(FirebaseAnalytics.instance.logEvent(name: _kShareTapped));
+}
+// 호출 지점: DaylyAnalytics.logShareTapped(); // await 불필요
+```
+
+**Effort:** S | **Priority:** P0
+**Depends on:** 없음
+
+---
+
+## TODO-BIZ-2 — App Open 광고 쿨다운 구현 (P0, XS)
+
+**What:** `AppOpenAdManager.cooldown`을 24시간으로 설정 → 광고 재활성화
+
+**Why:** App Open 광고가 쿨다운 없이 모든 `AppLifecycleState.resumed`에서 노출되어 UX 훼손. 쿨다운 설정만으로 즉시 수익 발생 가능.
+
+**Context:**
+`flutter_ui_kit_google_mobile_ads ^0.1.16` 패키지에 `cooldown` public 필드가 이미 있음.
+패키지 내부에서 `_lastShownTime`으로 쿨다운을 관리하므로 `SharedPreferences` 직접 구현 불필요.
+
+`main.dart`에 1줄 추가 (`configure()` 호출 전):
+```dart
+AppOpenAdManager.instance.cooldown = const Duration(hours: 24);
+AppOpenAdManager.instance.configure(
+  androidId: 'ca-app-pub-4656262305566191/4017810905',
+  iosId: 'ca-app-pub-4656262305566191/9437357221',
+);
+AppOpenAdManager.instance.loadAd();
+```
+
+아울러 stale 주석 제거:
+```dart
+// 제거: "TODO: flutter_ui_kit_google_mobile_ads에 쿨다운(1h) 추가 후 재활성화."
+// 패키지에 이미 구현됨.
+```
+
+**Effort:** XS (~15분) | **Priority:** P0
+**Depends on:** TODO-BIZ-1 (Firebase Analytics — 광고 노출 이벤트 추적)
+
+---
+
+## TODO-BIZ-4 — 기념일 자동 반복 이벤트 (P1, M)
+
+**What:** D-Day 생성 시 "매년 반복" 옵션 추가. D-Day 지나면 자동으로 다음 해 같은 날로 갱신.
+
+**Why:** D-Day 지나면 앱 사용 이유가 없어지는 구조적 리텐션 문제 해소. 커플 기념일·생일·입사일 등 반복 이벤트에 필수 기능.
+
+**Context:**
+1. `DaylyWidgetModel`에 필드 추가:
+   - `isRecurring: bool` (기본 `false`)
+   - `recurringType: DaylyRecurringType?` — **String 아닌 enum** (오타 방지, explicit 선호)
+   ```dart
+   enum DaylyRecurringType { annual }
+   // fromJson: DaylyRecurringType.values.byName(json['recurringType'])
+   ```
+2. `DaylyWidgetStorage` 직렬화/역직렬화 업데이트 (`DaylyWidgetModel.copyWith()` 포함)
+3. `WidgetUpdateManager` (Android Kotlin) + iOS Swift 위젯 업데이트 로직:
+   - `targetDate < today && isRecurring == true`이면 다음 해로 갱신
+   - **Leap day 처리 필수**: `2월 29일` + 비윤년 → `2월 28일` (Dart/Kotlin 오버플로 방지)
+   ```kotlin
+   fun advanceToNextYear(date: LocalDate): LocalDate {
+       val nextYear = date.year + 1
+       return if (date.monthValue == 2 && date.dayOfMonth == 29
+                  && !Year.isLeap(nextYear.toLong())) {
+           LocalDate.of(nextYear, 2, 28)
+       } else {
+           date.withYear(nextYear)
+       }
+   }
+   ```
+   - **갱신 후 즉시 `DaylyWidgetStorage.save()` 호출 필수** (이중 갱신 방지)
+4. `add_widget_bottom_sheet.dart`에 "매년 반복" 토글 UI 추가
+5. **테스트 (Kotlin)** — `WidgetUpdateManagerTest.kt` 또는 신규 `RecurringEventTest.kt`:
+   - `testRecurringNormalDate`: 2025-01-15 → 2026-01-15
+   - `testRecurringLeapDay`: 2024-02-29 (비윤년) → 2025-02-28
+   - `testRecurringFutureDate`: 미래 날짜 → 변경 없음
+   - `testRecurringIdempotency`: 갱신 후 재실행 → no-op
+6. **테스트 (iOS Swift)** — `ios/DaylyWidgetTests/RecurringEventTests.swift`:
+   - `testAdvanceToNextYearNormal`, `testAdvanceLeapDayToNonLeap`, `testDoNotAdvanceFutureDate`
+   - *iOS XCTest 인프라 미구현 시 P3 TODO(iOS Swift 유닛테스트) 먼저 완료*
+
+**Effort:** M | **Priority:** P1
+**Depends on:** 없음
+
+---
+
 ## P1 — Android 위젯 Kotlin 유닛테스트 추가
 
 **What:** WidgetUpdateManager 로직 검증을 위한 Kotlin 유닛테스트 추가
