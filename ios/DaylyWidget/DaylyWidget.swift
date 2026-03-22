@@ -538,8 +538,6 @@ struct DaylyMediumView: View {
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer()
-
                 // 하단 바: 인디케이터 + 워터마크
                 HStack {
                     if entry.totalCount > 1 {
