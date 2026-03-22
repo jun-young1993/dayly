@@ -90,6 +90,9 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     final loaded = await loadDaylyWidgets();
     debugPrint('[dayly] _load() loaded ${loaded.length} widgets');
 
+    // 반복 이벤트: 과거 targetDate를 다음 주기로 진행
+    final (widgets: advanced, :anyChanged) = advanceRecurringAll(loaded);
+
     // 구버전 데이터(id 없음) 마이그레이션: id가 새로 생성된 경우 즉시 저장.
     // fromJson()에서 id가 없으면 generateWidgetId()로 생성하므로
     // 로드 후 다시 저장하면 id가 영속된다.
@@ -97,17 +100,18 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       final json = w.toJson();
       return (json['id'] as String?)?.isEmpty ?? true;
     });
-    if (hasMigration) {
-      unawaited(saveDaylyWidgets(loaded));
+    // hasMigration 또는 anyChanged 중 하나라도 true면 한 번만 저장
+    if (hasMigration || anyChanged) {
+      unawaited(saveDaylyWidgets(advanced));
     }
 
     final List<DaylyWidgetModel> widgets;
-    if (loaded.isEmpty) {
+    if (advanced.isEmpty) {
       widgets = <DaylyWidgetModel>[DaylyWidgetModel.defaults()];
       // 기본 위젯을 최초 1회 persist — 앱 재시작마다 재생성되지 않도록.
       unawaited(saveDaylyWidgets(widgets));
     } else {
-      widgets = List<DaylyWidgetModel>.of(loaded);
+      widgets = List<DaylyWidgetModel>.of(advanced);
     }
 
     if (!mounted) return;

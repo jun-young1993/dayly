@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dayly/home_widget/home_widget_service.dart';
+import 'package:dayly/repositories/notification_repository.dart';
 import 'package:dayly/screens/widget_grid_screen.dart';
 import 'package:dayly/storage/dayly_widget_storage.dart';
 import 'package:dayly/utils/dayly_analytics.dart';
@@ -50,9 +51,19 @@ class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      loadDaylyWidgets().then(HomeWidgetService.updateAll).catchError(
-            (e) => debugPrint('[App] widget refresh failed: $e'),
-          );
+      loadDaylyWidgets().then((widgets) async {
+        final (widgets: advanced, :anyChanged) = advanceRecurringAll(widgets);
+        if (anyChanged) {
+          // saveDaylyWidgets 내부에서 HomeWidgetService.updateAll 호출
+          await saveDaylyWidgets(advanced);
+          // 반복 이벤트 날짜 갱신 시 알림도 재예약
+          unawaited(NotificationRepository.instance.syncOnAppStart(advanced));
+        } else {
+          await HomeWidgetService.updateAll(widgets);
+        }
+      }).catchError(
+        (e) => debugPrint('[App] widget refresh failed: $e'),
+      );
     }
   }
 
