@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:dayly/theme/dayly_palette.dart';
 import 'package:dayly/theme/dayly_theme_presets.dart';
+import 'package:dayly/utils/dayly_time.dart';
 
 /// widgetId 생성 — 타임스탬프 + 랜덤으로 충돌 가능성 최소화.
 /// 재설치 후에도 SharedPreferences에 저장된 id가 복원되므로
@@ -256,6 +257,8 @@ class DaylyWidgetModel {
     this.note = '',
     this.milestones = const <DaylyMilestone>[],
     this.backgroundImagePath,
+    this.isRecurring = false,
+    this.recurringType,
   });
 
   /// Rule-aligned starter content.
@@ -305,6 +308,12 @@ class DaylyWidgetModel {
   /// 상세 화면 배경 사진 파일 경로 (null이면 기본 배경)
   final String? backgroundImagePath;
 
+  /// 반복 이벤트 여부. true이면 targetDate가 지나면 자동으로 다음 주기로 갱신.
+  final bool isRecurring;
+
+  /// 반복 주기. isRecurring=true일 때만 유효.
+  final DaylyRecurringType? recurringType;
+
   Map<String, Object?> toJson() {
     return <String, Object?>{
       'id': id,
@@ -315,6 +324,8 @@ class DaylyWidgetModel {
       'note': note,
       'milestones': milestones.map((m) => m.toJson()).toList(),
       'backgroundImagePath': backgroundImagePath,
+      'isRecurring': isRecurring,
+      'recurringType': recurringType?.name,
     };
   }
 
@@ -341,6 +352,11 @@ class DaylyWidgetModel {
           .map((m) => DaylyMilestone.fromJson(m.cast<String, Object?>()))
           .toList(),
       backgroundImagePath: json['backgroundImagePath'] as String?,
+      // 구버전 데이터 호환: 필드 없으면 false/null 기본값
+      isRecurring: (json['isRecurring'] as bool?) ?? false,
+      recurringType: DaylyRecurringType.values
+          .where((v) => v.name == json['recurringType'])
+          .firstOrNull,
     );
   }
 
@@ -355,6 +371,8 @@ class DaylyWidgetModel {
     String? note,
     List<DaylyMilestone>? milestones,
     Object? backgroundImagePath = _absent,
+    bool? isRecurring,
+    Object? recurringType = _absent,
   }) {
     return DaylyWidgetModel(
       id: id ?? this.id,
@@ -367,6 +385,10 @@ class DaylyWidgetModel {
       backgroundImagePath: identical(backgroundImagePath, _absent)
           ? this.backgroundImagePath
           : backgroundImagePath as String?,
+      isRecurring: isRecurring ?? this.isRecurring,
+      recurringType: identical(recurringType, _absent)
+          ? this.recurringType
+          : recurringType as DaylyRecurringType?,
     );
   }
 }
