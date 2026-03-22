@@ -2,6 +2,22 @@
 
 ---
 
+## 1.8.2+7 — 2026-03-22
+
+### Added (BIZ-4)
+
+- **반복 이벤트 (매년/매월)**: D-Day 위젯 생성 시 반복 주기 선택 가능. 날짜가 지나면 앱 열릴 때 자동으로 다음 주기로 갱신.
+  - `DaylyRecurringType { annual, monthly }` enum 추가 (`lib/utils/dayly_time.dart`)
+  - `DaylyWidgetModel`에 `isRecurring: bool`, `recurringType: DaylyRecurringType?` 필드 추가. 기존 위젯 JSON 하위 호환 (`isRecurring` 없으면 `false`로 폴백).
+  - `advanceRecurringOnce()` — 윤년(Feb 29 → Feb 28), 단월(Jan 31 → Feb 28) 처리 포함.
+  - `advanceIfPast()` — 수년치 gap도 커버 (최대 1200회 guard).
+  - `advanceRecurringAll()` — 앱 시작 및 resume 시 일괄 진행. `anyChanged` 추적으로 불필요한 저장 방지.
+  - `add_widget_bottom_sheet.dart` — SegmentedButton "없음 / 매년 / 매월" UI 추가. l10n.custom() ko/ja/en 로켈리제이션.
+  - `widget_grid_screen._load()` 및 `app.didChangeAppLifecycleState(resumed)` 훅 연결.
+- **Dart 유닛테스트 11개 추가** (`test/utils/dayly_time_test.dart`): annual/monthly 기본 케이스, 윤년 처리, 단월 클램프, 멀티 사이클 advance, 구버전 JSON 호환성.
+
+---
+
 ## 1.8.1+6 — 2026-03-22
 
 ### Fixed
