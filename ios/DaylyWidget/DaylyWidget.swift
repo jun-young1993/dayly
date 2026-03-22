@@ -502,9 +502,8 @@ struct DaylyMediumView: View {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 8, weight: .medium))
                         }
-                        .foregroundColor(theme.sub.opacity(0.5))
-                        .shadow(color: .black.opacity(entry.backgroundImagePath != nil ? 0.6 : 0), radius: 2)
-                        .foregroundColor(subColor.opacity(0.5))
+                        .foregroundColor(subColor.opacity(hasImage ? 0.9 : 0.5))
+                        .shadow(color: .black.opacity(hasImage ? 0.6 : 0), radius: 2)
                     }
                     Spacer()
                     // 워터마크
@@ -604,7 +603,8 @@ struct DaylyLargeView: View {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 9, weight: .medium))
                         }
-                        .foregroundColor(subColor.opacity(0.5))
+                        .foregroundColor(subColor.opacity(hasImage ? 0.9 : 0.5))
+                        .shadow(color: .black.opacity(hasImage ? 0.6 : 0), radius: 2)
                     }
                     Spacer()
                     Text("dayly")

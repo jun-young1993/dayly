@@ -2,6 +2,43 @@
 
 ---
 
+## 1.8.1+6 — 2026-03-22
+
+### Fixed
+
+- **iOS 위젯 페이지 인디케이터 가시성 수정 (Medium / Large)**: 배경 이미지가 있을 때 `< 1 / 2 >` 페이지 인디케이터가 배경에 묻히는 문제 수정.
+  - Medium 뷰: `theme.sub.opacity(0.5)` 중복 적용 버그 제거, `subColor.opacity(hasImage ? 0.9 : 0.5)` + shadow로 일원화.
+  - Large 뷰: shadow 완전 누락이었던 문제 수정 — `shadow(color: .black.opacity(hasImage ? 0.6 : 0), radius: 2)` 추가.
+
+### Added (BIZ-3)
+
+- **공유 텍스트 플랫폼 분기**: `share_preview_screen_v2.dart` 공유 시 iOS는 App Store, Android는 Play Store 링크로 자동 분기.
+
+### Added (BIZ-2 — flutter_ui_kit_google_mobile_ads 0.1.17)
+
+- **App Open 광고 쿨다운 영속화**: `AppOpenAdManager._lastShownTime`을 `SharedPreferences`로 영속화.
+  앱 재시작 후에도 24h 쿨다운이 유지된다 (`main.dart`에서 `cooldown = const Duration(hours: 24)` 설정).
+- stale TODO 주석 2개 제거.
+
+### Added (BIZ-1)
+
+- **Firebase Analytics 이벤트 4종 추가** (`lib/utils/dayly_analytics.dart`):
+  - `first_widget_created`: 첫 위젯 생성 시
+  - `share_tapped`: 공유 버튼 탭 시
+  - `home_widget_installed`: 홈 화면 위젯 탭으로 앱 실행 시
+  - `premium_tapped`: 프리미엄 UI 탭 시 (BIZ-6 연동 예정)
+- `Firebase.initializeApp()` try/catch 추가 — 네트워크 오류 시 앱 크래시 방지.
+
+### Changed
+
+- **TODOS.md 업데이트 (CEO+Eng Review 반영)**:
+  - BIZ-2: 쿨다운 구현 명세를 `1줄 설정`에서 `flutter_ui_kit_google_mobile_ads` 패키지 SharedPreferences 영속화로 수정. Effort XS→S.
+  - BIZ-4: `DaylyRecurringType`에 `monthly` 추가, 월말 처리 명세 + 테스트 케이스 3개 추가.
+  - BIZ-5 신규: IAP 프리미엄 구매 플로우 (P1, M) — BIZ-1 4주 데이터 확보 후 진행.
+  - BIZ-6 신규: 프리미엄 공유 카드 프레임 (P1, M) — BIZ-5 이후 진행.
+
+---
+
 ## docs — 2026-03-20
 
 ### Added

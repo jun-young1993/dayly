@@ -33,4 +33,4 @@ lib/firebase_options.dart
 
 android/app/src/google-service.json
 
-.idea/
+.idea/pubspec_overrides.yaml

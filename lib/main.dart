@@ -22,7 +22,11 @@ Future<void> main() async {
   GoogleFonts.config.allowRuntimeFetching = false;
 
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    debugPrint('[main] Firebase.initializeApp failed: $e');
+  }
 
   // Google Sigin
   await GoogleSignIn.instance.initialize();
@@ -88,12 +92,7 @@ Future<void> main() async {
       await GlobalAdConfig().initialize();
       // GlobalAdConfig().setAdVisibility(false);
 
-      // App Open 광고: AppLifecycleState.resumed 마다 전면 광고를 표시함.
-      // 쿨다운 없이 활성화 시 포그라운드 전환마다 광고가 노출되어 UX 훼손.
-      // 에뮬레이터에서 GPU 렌더링 불가 시 검은 화면으로 표시되는 문제 확인.
-      // TODO: flutter_ui_kit_google_mobile_ads에 쿨다운(1h) 추가 후 재활성화.
-      // TODO: flutter_ui_kit_google_mobile_ads에 쿨다운(1h) 추가 후 재활성화.
-      // App Open Ad: 쿨다운 없이 resumed마다 전면 광고가 떠 검은 화면 유발 — 비활성화
+      AppOpenAdManager.instance.cooldown = const Duration(hours: 24);
       AppOpenAdManager.instance.configure(
         androidId: 'ca-app-pub-4656262305566191/4017810905',
         iosId: 'ca-app-pub-4656262305566191/9437357221',

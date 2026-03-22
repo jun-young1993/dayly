@@ -9,6 +9,7 @@ import 'package:dayly/screens/event_detail_screen.dart';
 import 'package:dayly/services/notification_permission_service.dart';
 import 'package:dayly/services/notification_id_registry.dart';
 import 'package:dayly/storage/dayly_widget_storage.dart';
+import 'package:dayly/utils/dayly_analytics.dart';
 import 'package:dayly/utils/dayly_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -244,7 +245,9 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
 
     final created = await showAddWidgetBottomSheet(context: context);
     if (created == null) return;
+    final isFirst = _widgets.isEmpty;
     setState(() => _widgets.add(created));
+    if (isFirst) unawaited(DaylyAnalytics.logFirstWidgetCreated());
     unawaited(_persist());
     // 새 위젯 알림 예약 (한도 초과 시 건너뜀).
     if (!skipNotification) {

@@ -2,7 +2,7 @@
 
 ---
 
-## TODO-BIZ-3 — iOS 공유 텍스트 App Store 링크 추가 (P0, XS)
+## ✅ TODO-BIZ-3 — iOS 공유 텍스트 App Store 링크 추가 (P0, XS) — DONE 2026-03-22
 
 **What:** `share_preview_screen_v2.dart:73`의 `shareText`에 OS별 링크 분기 추가
 
@@ -25,7 +25,7 @@ Platform.isIOS
 
 ---
 
-## TODO-BIZ-1 — Firebase Analytics 추가 (P0, S)
+## ✅ TODO-BIZ-1 — Firebase Analytics 추가 (P0, S) — DONE 2026-03-22
 
 **What:** `firebase_analytics` 패키지 추가 + 핵심 이벤트 4개 심기
 - `first_widget_created`, `share_tapped`, `home_widget_installed`, `premium_tapped`
@@ -70,17 +70,47 @@ class DaylyAnalytics {
 
 ---
 
-## TODO-BIZ-2 — App Open 광고 쿨다운 구현 (P0, XS)
+## ✅ TODO-BIZ-2 — App Open 광고 쿨다운 구현 (P0, S) — DONE 2026-03-22
 
-**What:** `AppOpenAdManager.cooldown`을 24시간으로 설정 → 광고 재활성화
+**What:** `AppOpenAdManager`에 SharedPreferences 기반 쿨다운 영속화 추가 → 광고 재활성화
 
-**Why:** App Open 광고가 쿨다운 없이 모든 `AppLifecycleState.resumed`에서 노출되어 UX 훼손. 쿨다운 설정만으로 즉시 수익 발생 가능.
+**Why:** App Open 광고가 쿨다운 없이 모든 `AppLifecycleState.resumed`에서 노출되어 UX 훼손. 또한 `_lastShownTime`이 메모리 필드라 앱 재시작 시 쿨다운이 리셋됨 — 진짜 24시간 쿨다운을 위해 패키지 수정 필요.
 
 **Context:**
-`flutter_ui_kit_google_mobile_ads ^0.1.16` 패키지에 `cooldown` public 필드가 이미 있음.
-패키지 내부에서 `_lastShownTime`으로 쿨다운을 관리하므로 `SharedPreferences` 직접 구현 불필요.
+**Step 1 — 패키지 수정** (`flutter_ui_kit/packages/flutter_ui_kit_google_mobile_ads/`):
+```yaml
+# pubspec.yaml에 추가
+dependencies:
+  shared_preferences: ^2.x
+```
+```dart
+// app_open_ad_manager.dart
+static const _kLastShownKey = 'flutter_ui_kit_app_open_last_shown';
 
-`main.dart`에 1줄 추가 (`configure()` 호출 전):
+void configure({required String androidId, required String iosId}) {
+  // ... 기존 코드 ...
+  unawaited(_loadLastShownTime()); // 추가
+}
+
+// onAdShowedFullScreenContent 콜백에서:
+_lastShownTime = DateTime.now();
+unawaited(_saveLastShownTime()); // 추가
+
+Future<void> _loadLastShownTime() async {
+  final prefs = await SharedPreferences.getInstance();
+  final millis = prefs.getInt(_kLastShownKey);
+  if (millis != null) _lastShownTime = DateTime.fromMillisecondsSinceEpoch(millis);
+}
+
+Future<void> _saveLastShownTime() async {
+  final prefs = await SharedPreferences.getInstance();
+  if (_lastShownTime != null) {
+    await prefs.setInt(_kLastShownKey, _lastShownTime!.millisecondsSinceEpoch);
+  }
+}
+```
+
+**Step 2 — dayly main.dart** (`configure()` 호출 전 1줄 추가):
 ```dart
 AppOpenAdManager.instance.cooldown = const Duration(hours: 24);
 AppOpenAdManager.instance.configure(
@@ -89,60 +119,105 @@ AppOpenAdManager.instance.configure(
 );
 AppOpenAdManager.instance.loadAd();
 ```
-
-아울러 stale 주석 제거:
+아울러 stale 주석 2개 제거:
 ```dart
 // 제거: "TODO: flutter_ui_kit_google_mobile_ads에 쿨다운(1h) 추가 후 재활성화."
-// 패키지에 이미 구현됨.
 ```
 
-**Effort:** XS (~15분) | **Priority:** P0
+**Effort:** S | **Priority:** P0
 **Depends on:** TODO-BIZ-1 (Firebase Analytics — 광고 노출 이벤트 추적)
 
 ---
 
-## TODO-BIZ-4 — 기념일 자동 반복 이벤트 (P1, M)
+## TODO-BIZ-4 — 기념일/일정 자동 반복 이벤트 (P1, M)
 
-**What:** D-Day 생성 시 "매년 반복" 옵션 추가. D-Day 지나면 자동으로 다음 해 같은 날로 갱신.
+**What:** D-Day 생성 시 "매년 반복" / "매월 반복" 옵션 추가. D-Day 지나면 자동으로 다음 주기로 갱신.
 
-**Why:** D-Day 지나면 앱 사용 이유가 없어지는 구조적 리텐션 문제 해소. 커플 기념일·생일·입사일 등 반복 이벤트에 필수 기능.
+**Why:** D-Day 지나면 앱 사용 이유가 없어지는 구조적 리텐션 문제 해소. 커플 기념일·생일·입사일(annual), 월세·스터디·월간 미팅(monthly) 등 반복 이벤트에 필수 기능.
 
 **Context:**
 1. `DaylyWidgetModel`에 필드 추가:
    - `isRecurring: bool` (기본 `false`)
    - `recurringType: DaylyRecurringType?` — **String 아닌 enum** (오타 방지, explicit 선호)
    ```dart
-   enum DaylyRecurringType { annual }
+   enum DaylyRecurringType { annual, monthly }
    // fromJson: DaylyRecurringType.values.byName(json['recurringType'])
    ```
 2. `DaylyWidgetStorage` 직렬화/역직렬화 업데이트 (`DaylyWidgetModel.copyWith()` 포함)
 3. `WidgetUpdateManager` (Android Kotlin) + iOS Swift 위젯 업데이트 로직:
-   - `targetDate < today && isRecurring == true`이면 다음 해로 갱신
-   - **Leap day 처리 필수**: `2월 29일` + 비윤년 → `2월 28일` (Dart/Kotlin 오버플로 방지)
+   - `targetDate < today && isRecurring == true`이면 다음 주기로 갱신
+   - **annual**: 다음 해 같은 월/일. Leap day 처리 필수: `2월 29일` + 비윤년 → `2월 28일`
+   - **monthly**: 다음 달 같은 일. 단월 처리: `1월 31일` + 1개월 → `2월 28/29일` (Kotlin `plusMonths(1)` 자동 처리)
    ```kotlin
-   fun advanceToNextYear(date: LocalDate): LocalDate {
-       val nextYear = date.year + 1
-       return if (date.monthValue == 2 && date.dayOfMonth == 29
-                  && !Year.isLeap(nextYear.toLong())) {
-           LocalDate.of(nextYear, 2, 28)
-       } else {
-           date.withYear(nextYear)
+   fun advanceDate(date: LocalDate, type: DaylyRecurringType): LocalDate = when (type) {
+       DaylyRecurringType.ANNUAL -> {
+           val nextYear = date.year + 1
+           if (date.monthValue == 2 && date.dayOfMonth == 29 && !Year.isLeap(nextYear.toLong()))
+               LocalDate.of(nextYear, 2, 28)
+           else date.withYear(nextYear)
        }
+       DaylyRecurringType.MONTHLY -> date.plusMonths(1) // 단월 자동 처리
    }
    ```
    - **갱신 후 즉시 `DaylyWidgetStorage.save()` 호출 필수** (이중 갱신 방지)
-4. `add_widget_bottom_sheet.dart`에 "매년 반복" 토글 UI 추가
+4. `add_widget_bottom_sheet.dart`에 반복 주기 선택 UI 추가 ("반복 없음" / "매년 반복" / "매월 반복")
 5. **테스트 (Kotlin)** — `WidgetUpdateManagerTest.kt` 또는 신규 `RecurringEventTest.kt`:
-   - `testRecurringNormalDate`: 2025-01-15 → 2026-01-15
-   - `testRecurringLeapDay`: 2024-02-29 (비윤년) → 2025-02-28
+   - `testRecurringAnnualNormal`: 2025-01-15 → 2026-01-15
+   - `testRecurringAnnualLeapDay`: 2024-02-29 (비윤년) → 2025-02-28
+   - `testRecurringMonthlyNormal`: 2025-01-15 → 2025-02-15
+   - `testRecurringMonthlyLastDay`: 2025-01-31 → 2025-02-28 (단월)
    - `testRecurringFutureDate`: 미래 날짜 → 변경 없음
    - `testRecurringIdempotency`: 갱신 후 재실행 → no-op
 6. **테스트 (iOS Swift)** — `ios/DaylyWidgetTests/RecurringEventTests.swift`:
-   - `testAdvanceToNextYearNormal`, `testAdvanceLeapDayToNonLeap`, `testDoNotAdvanceFutureDate`
+   - `testAdvanceAnnualNormal`, `testAdvanceAnnualLeapDay`, `testAdvanceMonthlyNormal`, `testAdvanceMonthlyLastDay`, `testDoNotAdvanceFutureDate`
    - *iOS XCTest 인프라 미구현 시 P3 TODO(iOS Swift 유닛테스트) 먼저 완료*
 
 **Effort:** M | **Priority:** P1
 **Depends on:** 없음
+
+---
+
+## TODO-BIZ-5 — IAP 프리미엄 구매 플로우 (P1, M)
+
+**What:** `in_app_purchase` 패키지로 1회성 프리미엄 잠금 해제 구현
+
+**Why:** BUSINESS.md 수익 전략의 핵심 2단계. 광고 단독 수익($1,500/월 MAU10만)의 한계를 뛰어넘는 수익원. 단, 데이터 없이 가격/트리거 설정하면 전환율 미스매치 — BIZ-1 시프 후 4주 데이터 기반으로 결정.
+
+**Context:**
+- `DaylyWidgetModel.isPremium` 필드 이미 있음 → 즉시 활용 가능
+- 구매 성공 시: `isPremium=true` 로컬 저장 + 전체 위젯 갱신
+- 가격 후보: $2.99 (한국/미국), ¥480 (일본 Apple 고정 티어)
+- 트리거 지점 (데이터 기반 결정): 위젯 6개 이상 추가 시 or 공유 3회 후
+- 복원 구매(`restorePurchases`) 필수 구현
+- BIZ-6(프리미엄 카드)이 이 TODO에 depend함
+
+**Pros:** 광고+IAP 복합 수익. 프리미엄 유저가 역바이럴 플라이휠 활성화.
+**Cons:** App Store 심사 (IAP 심사 추가 2~3일). 환불 정책 검토 필요.
+
+**Effort:** M | **Priority:** P1
+**Depends on:** TODO-BIZ-1 (Analytics — 4주 전환 트리거 데이터 확보 후)
+
+---
+
+## TODO-BIZ-6 — 프리미엄 공유 카드 프레임 (P1, M)
+
+**What:** 프리미엄 유저 공유 시 전용 카드 프레임 + subtle "dayly Premium" 배지 표시
+
+**Why:** 역바이럴(Reverse Viral) 핵심 레버. 프리미엄 카드가 SNS에 퍼질 때 수령자가 "이게 뭐야?" 반응 → 무료 유저 다운로드 유도. 워터마크(dayly)는 절대 제거 금지 — 이 배지는 추가이지 대체가 아님.
+
+**Context:**
+- `share_preview_screen_v2.dart`: `isPremium`이면 프리미엄 프레임 렌더
+  - 무료: 현재 카드 그대로 (dayly 워터마크 유지)
+  - 프리미엄: 글래스모피즘/계절 한정 프레임 + 우하단 subtle "dayly Premium" 배지
+- `dayly_share_export.dart`의 `captureBoundaryPng()` 재사용
+- `DaylyWidgetCard` 위에 Stack 레이어로 프리미엄 프레임 오버레이
+- Analytics: `DaylyAnalytics.logShareTapped(isPremium: bool)` 파라미터 추가
+
+**Pros:** IAP 전환율 상승. 공유 카드 자체가 광고 역할.
+**Cons:** 프레임 디자인 리소스 필요. 계절 한정 프레임은 주기적 업데이트 필요.
+
+**Effort:** M | **Priority:** P1
+**Depends on:** TODO-BIZ-5 (IAP — isPremium 실제 구매 연결 후)
 
 ---
 

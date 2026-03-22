@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:dayly/home_widget/home_widget_service.dart';
 import 'package:dayly/screens/widget_grid_screen.dart';
 import 'package:dayly/storage/dayly_widget_storage.dart';
+import 'package:dayly/utils/dayly_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_ui_kit_google_mobile_ads/flutter_ui_kit_google_mobile_ads.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
@@ -24,15 +28,21 @@ class DaylyApp extends StatefulWidget {
 
 class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
   DsThemeController get _themeController => widget.themeController;
+  StreamSubscription<Uri?>? _widgetClickedSub;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // 홈 화면 위젯 탭으로 앱이 열리면 home_widget_installed 이벤트 발생.
+    _widgetClickedSub = HomeWidget.widgetClicked.listen((_) {
+      unawaited(DaylyAnalytics.logHomeWidgetInstalled());
+    });
   }
 
   @override
   void dispose() {
+    _widgetClickedSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

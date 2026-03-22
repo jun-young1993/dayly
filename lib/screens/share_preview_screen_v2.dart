@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dayly/utils/dayly_image_utils.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
+import 'package:dayly/utils/dayly_analytics.dart';
 
 class SharePreviewScreenV2 extends StatefulWidget {
   const SharePreviewScreenV2({
@@ -52,6 +54,7 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
     if (_isSharing) return;
     final l10n = UiKitLocalizations.of(context);
     setState(() => _isSharing = true);
+    unawaited(DaylyAnalytics.logShareTapped());
 
     try {
       // Wait for the current frame to finish rendering before capturing.
@@ -70,7 +73,10 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
           : dayDiff > 0
               ? 'D-$dayDiff'
               : 'D+${dayDiff.abs()}';
-      final shareText = '${_model.primarySentence} ($dDayText)\n\ndayly - https://play.google.com/store/apps/details?id=juny.dayly';
+      final storeUrl = Platform.isIOS
+          ? 'https://apps.apple.com/app/id6760478559'
+          : 'https://play.google.com/store/apps/details?id=juny.dayly';
+      final shareText = '${_model.primarySentence} ($dDayText)\n\ndayly - $storeUrl';
 
       await sharePngBytes(
         pngBytes: pngBytes,
