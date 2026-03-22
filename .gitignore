@@ -36,3 +36,4 @@ android/app/src/google-service.json
 .idea/pubspec_overrides.yaml
 
 .idea/
+.claude/settings.local.json
