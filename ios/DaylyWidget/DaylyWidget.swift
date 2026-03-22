@@ -377,6 +377,49 @@ struct DaylyTapZones: View {
     }
 }
 
+/// Small 전용 2분할 탭존 (좌=이전, 우=다음, 중앙 Link 없음)
+/// Medium/Large는 기존 DaylyTapZones(3분할) 유지
+struct DaylySmallTapZones: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(intent: PrevEventIntent()) {
+                Color.clear.contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            Button(intent: NextEventIntent()) {
+                Color.clear.contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}
+
+/// Medium/Large 공유 페이지 인디케이터 (< 1 / 2 > 형태)
+struct DaylyPageIndicator: View {
+    let currentIndex: Int
+    let totalCount: Int
+    let hasImage: Bool
+    let subColor: Color
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 10, weight: .semibold))
+            Text("\(currentIndex + 1) / \(totalCount)")
+                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            Image(systemName: "chevron.right")
+                .font(.system(size: 10, weight: .semibold))
+        }
+        .foregroundColor(subColor.opacity(hasImage ? 0.95 : 0.80))
+        .padding(.horizontal, 8).padding(.vertical, 3)
+        .background(
+            Capsule()
+                .fill(hasImage
+                      ? Color.white.opacity(0.15)
+                      : Color.black.opacity(0.07))
+        )
+    }
+}
+
 // MARK: - SwiftUI Views
 
 /// Small 위젯 뷰 (systemSmall) — 좌우 탭 존으로 네비게이션
@@ -396,6 +439,7 @@ struct DaylySmallView: View {
 
             // 메인 콘텐츠
             VStack(spacing: 4) {
+                Spacer()
                 Text(entry.countdownText)
                     .font(.system(size: 14, weight: .bold, design: .monospaced))
                     .foregroundColor(theme.text)
@@ -406,20 +450,26 @@ struct DaylySmallView: View {
                     .foregroundColor(theme.sub)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-
+                Spacer()
+                // 하단 바: 인디케이터 (Small)
                 if entry.totalCount > 1 {
-                    Text("\(entry.currentIndex + 1)/\(entry.totalCount)")
-                        .font(.system(size: 9, weight: .medium, design: .monospaced))
-                        .foregroundColor(theme.sub.opacity(0.6))
-                        .padding(.top, 2)
-                        .shadow(color: .black.opacity(entry.backgroundImagePath != nil ? 0.6 : 0), radius: 2)
+                    HStack(spacing: 3) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 7, weight: .medium))
+                        Text("\(entry.currentIndex + 1) / \(entry.totalCount)")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 7, weight: .medium))
+                    }
+                    .foregroundColor(theme.text.opacity(0.65))
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(12)
 
-            // 3분할 탭 존
+            // 탭 존: 복수 위젯이면 2분할(좌=이전/우=다음), 단일이면 없음
             if entry.totalCount > 1 {
-                DaylyTapZones(entryId: entry.id)
+                DaylySmallTapZones()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -459,7 +509,6 @@ struct DaylyMediumView: View {
                     .foregroundColor(subColor)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer(minLength: 4)
 
                 Text(entry.countdownText)
                     .font(.system(size: 38, weight: .bold, design: .monospaced))
@@ -489,30 +538,25 @@ struct DaylyMediumView: View {
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer(minLength: 4)
+                Spacer()
 
+                // 하단 바: 인디케이터 + 워터마크
                 HStack {
-                    // 페이지 인디케이터
                     if entry.totalCount > 1 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 8, weight: .medium))
-                            Text("\(entry.currentIndex + 1) / \(entry.totalCount)")
-                                .font(.system(size: 9, weight: .medium, design: .monospaced))
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 8, weight: .medium))
-                        }
-                        .foregroundColor(subColor.opacity(hasImage ? 0.9 : 0.5))
-                        .shadow(color: .black.opacity(hasImage ? 0.6 : 0), radius: 2)
+                        DaylyPageIndicator(
+                            currentIndex: entry.currentIndex,
+                            totalCount: entry.totalCount,
+                            hasImage: hasImage,
+                            subColor: subColor
+                        )
                     }
                     Spacer()
-                    // 워터마크
                     Text("dayly")
                         .font(.system(size: 9, weight: .medium))
                         .foregroundColor(subColor.opacity(0.4))
                 }
+                .padding(2)
             }
-            .padding(16)
 
             // 3분할 탭 존
             if entry.totalCount > 1 {
@@ -590,21 +634,17 @@ struct DaylyLargeView: View {
                     .lineLimit(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer().frame(height: 12)
+                Spacer().frame(height: 16)
 
-                // 하단 바: 페이지 인디케이터 + 워터마크
+                // 하단 바: 인디케이터 + 워터마크
                 HStack {
                     if entry.totalCount > 1 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 9, weight: .medium))
-                            Text("\(entry.currentIndex + 1) / \(entry.totalCount)")
-                                .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 9, weight: .medium))
-                        }
-                        .foregroundColor(subColor.opacity(hasImage ? 0.9 : 0.5))
-                        .shadow(color: .black.opacity(hasImage ? 0.6 : 0), radius: 2)
+                        DaylyPageIndicator(
+                            currentIndex: entry.currentIndex,
+                            totalCount: entry.totalCount,
+                            hasImage: hasImage,
+                            subColor: subColor
+                        )
                     }
                     Spacer()
                     Text("dayly")
@@ -612,7 +652,7 @@ struct DaylyLargeView: View {
                         .foregroundColor(subColor.opacity(0.4))
                 }
             }
-            .padding(20)
+            .padding(EdgeInsets(top: 20, leading: 20, bottom: 30, trailing: 20))
 
             // 3분할 탭 존
             if entry.totalCount > 1 {
