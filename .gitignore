@@ -32,6 +32,7 @@ doc/api/
 lib/firebase_options.dart
 
 android/app/src/google-service.json
+ios/Runner/GoogleService-Info.plist
 
 .idea/pubspec_overrides.yaml
 

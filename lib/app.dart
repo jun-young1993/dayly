@@ -73,16 +73,16 @@ class _DaylyAppState extends State<DaylyApp> with WidgetsBindingObserver {
       designSize: const Size(390, 844),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (_, child) => ListenableBuilder(
-        listenable: _themeController,
+      builder: (_, child) => DsThemeBuilder(
+        controller: _themeController,
         child: child,
-        builder: (_, child) => MaterialApp(
+        builder: (theme, child) => MaterialApp(
           title: 'dayly',
           debugShowCheckedModeBanner: false,
-          themeMode: _themeController.themeMode,
-          theme: _themeController.lightTheme,
-          darkTheme: _themeController.darkTheme,
-          locale: _themeController.locale,
+          themeMode: theme.themeMode,
+          theme: theme.lightTheme,
+          darkTheme: theme.darkTheme,
+          locale: theme.locale,
           localizationsDelegates: UiKitLocalizations.localizationsDelegates,
           supportedLocales: UiKitLocalizations.supportedLocales,
           home: child,
