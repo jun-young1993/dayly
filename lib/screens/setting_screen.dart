@@ -24,7 +24,13 @@ class _AppSettingScreenState extends State<AppSettingScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    
+    if(user != null){
+      print('jwt token');
+      user.getIdToken()
+      .then((token) {
+        print(token);
+      });
+    }
     final l10n = UiKitLocalizations.of(context);
     return SettingScreen(
         title: l10n.settings,

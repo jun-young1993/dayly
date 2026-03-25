@@ -17,6 +17,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:dayly/utils/dayly_analytics.dart';
+import 'package:dayly/widgets/recurring_section.dart';
 
 class SharePreviewScreenV2 extends StatefulWidget {
   const SharePreviewScreenV2({
@@ -245,6 +246,43 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
 
     if (picked == null) return;
     setState(() => _model = _model.copyWith(style: _model.style.copyWith(countdownMode: picked)));
+  }
+
+  String _recurringLabel(DaylyRecurringType? type, BuildContext context) =>
+      type.label(Localizations.localeOf(context).languageCode);
+
+  Future<void> _pickRecurringType() async {
+    DaylyRecurringType? temp = _model.recurringType;
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, _) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                RecurringSection(
+                  selected: temp,
+                  onChanged: (v) {
+                    temp = v;
+                    Navigator.of(ctx).pop(true);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (confirmed != true) return;
+    unawaited(DaylyAnalytics.logRecurringTypeChanged(temp));
+    setState(() => _model = _model.copyWith(
+          isRecurring: temp != null,
+          recurringType: temp,
+        ));
   }
 
   Future<void> _pickThemePreset() async {
@@ -480,10 +518,22 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                                     key: _captureKey,
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(maxWidth: 300.w),
-                                      child: DaylyWidgetCard(
-                                        model: _model,
-                                        size: DaylyWidgetSize.large,
-                                        resolvedImagePath: _resolvedImagePath,
+                                      child: Stack(
+                                        children: <Widget>[
+                                          DaylyWidgetCard(
+                                            model: _model,
+                                            size: DaylyWidgetSize.large,
+                                            resolvedImagePath: _resolvedImagePath,
+                                          ),
+                                          if (_model.isRecurring && _model.recurringType != null)
+                                            Positioned(
+                                              top: 10.h,
+                                              right: 10.w,
+                                              child: _RecurringBadge(
+                                                recurringType: _model.recurringType!,
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -534,6 +584,17 @@ class _SharePreviewScreenV2State extends State<SharePreviewScreenV2> {
                             }),
                             value: _formatDate(_model.targetDate),
                             onTap: _editTargetDate,
+                          ),
+                          SizedBox(height: 8.h),
+                          _GlassEditTile(
+                            icon: Icons.repeat,
+                            label: l10n.custom((locale) => switch (locale.languageCode) {
+                              'ko' => '반복',
+                              'ja' => '繰り返し',
+                              _ => 'Repeat',
+                            }),
+                            value: _recurringLabel(_model.recurringType, context),
+                            onTap: _pickRecurringType,
                           ),
                           SizedBox(height: 8.h),
                           _GlassEditTile(
@@ -807,6 +868,55 @@ class _GlassToggleTile extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Recurring badge (공유 카드 내 반복 이벤트 표시)
+// ──────────────────────────────────────────────────────────────
+
+class _RecurringBadge extends StatelessWidget {
+  const _RecurringBadge({required this.recurringType});
+
+  final DaylyRecurringType recurringType;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = UiKitLocalizations.of(context);
+    final label = recurringType == DaylyRecurringType.annual
+        ? l10n.custom((locale) => switch (locale.languageCode) {
+              'ko' => '매년 반복',
+              'ja' => '毎年',
+              _ => 'Yearly',
+            })
+        : l10n.custom((locale) => switch (locale.languageCode) {
+              'ko' => '매월 반복',
+              'ja' => '毎月',
+              _ => 'Monthly',
+            });
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(Icons.repeat, color: Colors.white70, size: 10.sp),
+          SizedBox(width: 4.w),
+          Text(
+            label,
+            style: GoogleFonts.montserrat(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white70,
+            ),
+          ),
+        ],
       ),
     );
   }

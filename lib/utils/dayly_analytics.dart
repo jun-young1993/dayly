@@ -1,3 +1,4 @@
+import 'package:dayly/utils/dayly_time.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
@@ -45,6 +46,18 @@ class DaylyAnalytics {
       await _analytics.logEvent(name: 'premium_tapped');
     } catch (e) {
       debugPrint('[DaylyAnalytics] premium_tapped: $e');
+    }
+  }
+
+  /// 반복 타입을 변경했을 때 호출. type=null은 반복 해제를 의미.
+  static Future<void> logRecurringTypeChanged(DaylyRecurringType? type) async {
+    try {
+      await _analytics.logEvent(
+        name: 'recurring_type_changed',
+        parameters: <String, String>{'type': type?.name ?? 'none'},
+      );
+    } catch (e) {
+      debugPrint('[DaylyAnalytics] recurring_type_changed: $e');
     }
   }
 }

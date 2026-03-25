@@ -62,12 +62,29 @@ class HomeWidgetService {
         );
       }
 
-      await HomeWidget.updateWidget(
-        iOSName: HomeWidgetConfig.iOSWidgetName,
-        androidName: HomeWidgetConfig.androidWidgetName,
-        qualifiedAndroidName:
-            'juny.dayly.${HomeWidgetConfig.androidWidgetName}',
-      );
+      // SMALL / MEDIUM / LARGE 위젯 모두 갱신 — 각 호출을 독립 try/catch로 격리
+      // (어느 한 위젯 실패 시 나머지 갱신이 스킵되는 silent failure 방지)
+      try {
+        await HomeWidget.updateWidget(
+          iOSName: HomeWidgetConfig.iOSWidgetName,
+          androidName: HomeWidgetConfig.androidWidgetName,
+          qualifiedAndroidName:
+              'juny.dayly.${HomeWidgetConfig.androidWidgetName}',
+        );
+      } catch (e) {
+        debugPrint('[HomeWidget] updateWidget(Small) failed: $e');
+      }
+      // MEDIUM / LARGE
+      for (final name in HomeWidgetConfig.androidAdditionalWidgetNames) {
+        try {
+          await HomeWidget.updateWidget(
+            androidName: name,
+            qualifiedAndroidName: 'juny.dayly.$name',
+          );
+        } catch (e) {
+          debugPrint('[HomeWidget] updateWidget($name) failed: $e');
+        }
+      }
     } catch (e) {
       debugPrint('[HomeWidget] updateAll failed: $e');
     }

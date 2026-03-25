@@ -9,6 +9,10 @@ class HomeWidgetConfig {
 
   static const String appGroupId = 'group.juny.dayly';
   static const String androidWidgetName = 'DaylyAppWidget';
+  static const List<String> androidAdditionalWidgetNames = [
+    'DaylyAppWidgetMedium',
+    'DaylyAppWidgetLarge',
+  ];
   static const String iOSWidgetName = 'DaylyWidget';
 
   // SharedPreferences / UserDefaults 저장 키

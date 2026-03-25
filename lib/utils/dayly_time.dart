@@ -65,3 +65,31 @@ DateTime advanceIfPast(
   return result;
 }
 
+// ──────────────────────────────────────────────────────────────
+// DaylyRecurringType 레이블 (T1/T2 — 순수 함수, 테스트 가능)
+// ──────────────────────────────────────────────────────────────
+
+/// `DaylyRecurringType?` 값을 언어 코드에 맞는 표시 문자열로 변환.
+///
+/// null = "없음 / None / なし", annual = "매년 / Yearly / 毎年",
+/// monthly = "매월 / Monthly / 毎月"
+extension DaylyRecurringTypeX on DaylyRecurringType? {
+  String label(String languageCode) => switch (this) {
+        DaylyRecurringType.annual => switch (languageCode) {
+            'ko' => '매년',
+            'ja' => '毎年',
+            _ => 'Yearly',
+          },
+        DaylyRecurringType.monthly => switch (languageCode) {
+            'ko' => '매월',
+            'ja' => '毎月',
+            _ => 'Monthly',
+          },
+        null => switch (languageCode) {
+            'ko' => '없음',
+            'ja' => 'なし',
+            _ => 'None',
+          },
+      };
+}
+

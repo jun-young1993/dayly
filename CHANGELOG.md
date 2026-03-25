@@ -2,6 +2,19 @@
 
 ---
 
+## 1.8.3+8 — 2026-03-25
+
+### Added (TODO-T1, TODO-T2)
+
+- **반복 이벤트 배지 (T1)**: 공유 카드에 `isRecurring=true`인 위젯 공유 시 "매년 반복" / "매월 반복" 배지 표시. RepaintBoundary 내부에 포함되어 공유 PNG에도 반영.
+- **편집 화면 반복 타입 변경 (T2)**: `share_preview_screen_v2.dart` 편집 옵션에 "반복" 타일 추가. 클릭 시 모달로 없음 / 매년 / 매월 선택 가능. ko/ja/en 로켈리제이션.
+- `RecurringSection` 위젯 분리 (`lib/widgets/recurring_section.dart`): `add_widget_bottom_sheet.dart`와 공유 화면 모두에서 재사용 가능한 public 위젯으로 추출.
+- `DaylyRecurringTypeX.label(languageCode)` extension 추가 (`lib/utils/dayly_time.dart`): 반복 타입→표시 문자열 변환 순수 함수. `_recurringLabel()` 단순화에 활용.
+- `DaylyAnalytics.logRecurringTypeChanged(type)` 추가: 반복 타입 변경 이벤트 측정.
+- 유닛테스트 9개 추가 (`DaylyRecurringTypeX.label` — null/annual/monthly × ko/en/ja).
+
+---
+
 ## 1.8.2+7 — 2026-03-22
 
 ### Added (BIZ-4)

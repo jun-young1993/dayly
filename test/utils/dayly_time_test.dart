@@ -156,4 +156,29 @@ void main() {
       expect(model.recurringType, isNull);
     });
   });
+
+  group('DaylyRecurringTypeX.label', () {
+    test('null → 없음(ko)', () {
+      const DaylyRecurringType? t = null;
+      expect(t.label('ko'), '없음');
+    });
+
+    test('null → None(en)', () {
+      const DaylyRecurringType? t = null;
+      expect(t.label('en'), 'None');
+    });
+
+    test('null → なし(ja)', () {
+      const DaylyRecurringType? t = null;
+      expect(t.label('ja'), 'なし');
+    });
+
+    test('annual → 매년(ko)', () => expect(DaylyRecurringType.annual.label('ko'), '매년'));
+    test('annual → Yearly(en)', () => expect(DaylyRecurringType.annual.label('en'), 'Yearly'));
+    test('annual → 毎年(ja)', () => expect(DaylyRecurringType.annual.label('ja'), '毎年'));
+
+    test('monthly → 매월(ko)', () => expect(DaylyRecurringType.monthly.label('ko'), '매월'));
+    test('monthly → Monthly(en)', () => expect(DaylyRecurringType.monthly.label('en'), 'Monthly'));
+    test('monthly → 毎月(ja)', () => expect(DaylyRecurringType.monthly.label('ja'), '毎月'));
+  });
 }
