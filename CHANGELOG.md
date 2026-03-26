@@ -2,6 +2,30 @@
 
 ---
 
+## 1.8.5+10 — 2026-03-26
+
+### Fixed
+
+- **Android 위젯 배경 이미지 미표시 버그 수정**:
+  - `HomeWidgetService._resolveImageForWidget()`: Android에서 상대 경로(`"backgrounds/bg_xxx.jpg"`)를 그대로 전달하던 것을 `resolveWidgetBackgroundImagePath()`를 통해 절대 경로로 변환 후 전달하도록 수정. 기기/OEM에 따라 `context.filesDir`와 Flutter `getApplicationDocumentsDirectory()` 경로가 달라질 수 있는 문제 해소.
+  - `DaylyWidgetRemoteViewsService.getViewAt()`: 배경 이미지 alpha를 65%(`setFloat "setAlpha" 0.65f`)로 설정하고 오버레이 투명도를 55%→27%(`Color.argb(70,0,0,0)`)로 축소하여 이미지가 실제로 보이도록 수정.
+  - `_resolveImageForWidget` 주석 오탈자 수정 ("원본 경로를 그대로 반환" → "절대 경로로 변환 후 반환").
+  - 단위 테스트 추가 (`test/utils/dayly_image_utils_test.dart`): `resolveWidgetBackgroundImagePath` — null 입력, 절대/상대 경로 × 파일 존재/없음 5가지 케이스 커버.
+
+---
+
+## 1.8.4+9 — 2026-03-26
+
+### Fixed
+
+- **Android 위젯 배경 이미지 없을 때 검정 화면 버그 수정**: 배경 이미지 파일이 삭제되거나 존재하지 않을 때 위젯이 검정으로 나오던 문제 해결.
+  - `resolveImagePath`: Android `JSONObject.optString`이 JSON null을 `"null"` 문자열로 반환하는 버그 방어 처리 (`path == "null"` 조기 return 추가).
+  - 이미지 없을 때(bitmap = null) 이전에 캐싱된 비트맵을 명시적으로 제거(`setImageViewBitmap(null)`) 후 뷰 숨김 처리.
+  - 이미지 없는 경우 테마 배경 drawable을 재확인 적용하여 검정 화면 방지.
+  - Medium/Large 위젯 레이아웃(`dayly_widget_stack_item_medium.xml`, `dayly_widget_stack_item_large.xml`)에 XML 기본 배경(`@drawable/dayly_widget_bg`) 추가 — Kotlin 동적 적용 실패 시 night 테마가 fallback으로 표시.
+
+---
+
 ## 1.8.3+8 — 2026-03-25
 
 ### Added (TODO-T1, TODO-T2)

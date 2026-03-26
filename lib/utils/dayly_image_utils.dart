@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -17,7 +18,8 @@ Future<String?> resolveWidgetBackgroundImagePath(String? path) async {
     final appDir = await getApplicationDocumentsDirectory();
     final absPath = '${appDir.path}/$path';
     return await File(absPath).exists() ? absPath : null;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('[ImageUtils] resolveWidgetBackgroundImagePath failed: $e');
     return null;
   }
 }

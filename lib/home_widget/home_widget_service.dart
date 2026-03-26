@@ -5,6 +5,7 @@ import 'package:dayly/home_widget/home_widget_config.dart';
 import 'package:dayly/home_widget/home_widget_data.dart';
 import 'package:dayly/models/dayly_widget_model.dart';
 import 'package:dayly/utils/dayly_countdown_phrase.dart';
+import 'package:dayly/utils/dayly_image_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
@@ -143,10 +144,13 @@ class HomeWidgetService {
   }
 
   /// iOS: 배경 이미지를 App Group 공유 컨테이너로 복사하고 절대 경로를 반환.
-  /// Android: 원본 경로를 그대로 반환 (앱과 위젯이 같은 프로세스).
+  /// Android: 절대 경로로 변환 후 반환. 파일이 존재하지 않으면 null.
   static Future<String?> _resolveImageForWidget(String? imagePath) async {
     if (imagePath == null || imagePath.isEmpty) return imagePath;
-    if (!Platform.isIOS) return imagePath;
+    if (!Platform.isIOS) {
+      // Android: 절대 경로로 변환하여 네이티브 위젯의 context.filesDir 의존 해석 제거
+      return resolveWidgetBackgroundImagePath(imagePath);
+    }
 
     try {
       // 원본 파일 해석

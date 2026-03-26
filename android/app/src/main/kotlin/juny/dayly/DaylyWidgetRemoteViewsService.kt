@@ -43,7 +43,7 @@ class DaylyWidgetRemoteViewsService : RemoteViewsService() {
 }
 
 private fun resolveImagePath(context: Context, path: String?): String? {
-    if (path.isNullOrEmpty()) return null
+    if (path.isNullOrEmpty() || path == "null") return null
     return try {
         val file = if (java.io.File(path).isAbsolute) java.io.File(path)
                    else java.io.File(context.filesDir, path)
@@ -145,13 +145,18 @@ private class DaylyRemoteViewsFactory(
                 val bitmap = absPath?.let { loadScaledBitmap(it) }
                 if (bitmap != null) {
                     setImageViewBitmap(R.id.widget_bg_image, bitmap)
+                    setFloat(R.id.widget_bg_image, "setAlpha", 0.65f)
                     setViewVisibility(R.id.widget_bg_image, View.VISIBLE)
                     setViewVisibility(R.id.widget_bg_overlay, View.VISIBLE)
                     setInt(R.id.widget_bg_overlay, "setBackgroundColor",
-                        Color.argb(140, 0, 0, 0))
+                        Color.argb(70, 0, 0, 0))
                 } else {
+                    // 이전에 렌더된 비트맵이 남아 있을 수 있으므로 명시적으로 제거
+                    setImageViewBitmap(R.id.widget_bg_image, null)
                     setViewVisibility(R.id.widget_bg_image, View.GONE)
                     setViewVisibility(R.id.widget_bg_overlay, View.GONE)
+                    // 테마 배경이 반드시 적용되도록 재확인
+                    setInt(R.id.widget_container, "setBackgroundResource", theme.bgDrawable)
                 }
             }
 

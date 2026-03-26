@@ -274,6 +274,7 @@ emulator -avd Pixel_6_API_34
 
 ```shell
 emulator -avd Small_Phone
+emulator -avd Pixel_7
 ```
 
 일괄 업그레이드

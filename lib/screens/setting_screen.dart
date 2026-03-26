@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_ui_kit_setting/flutter_ui_kit_setting.dart';
 import 'package:flutter_ui_kit_theme/flutter_ui_kit_theme.dart';
 import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
 
 class AppSettingScreen extends StatefulWidget {
   const AppSettingScreen({super.key,
@@ -23,58 +25,84 @@ class _AppSettingScreenState extends State<AppSettingScreen> {
   DsThemeController get _ctrl => widget.controller;
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    if(user != null){
-      print('jwt token');
-      user.getIdToken()
-      .then((token) {
-        print(token);
-      });
-    }
     final l10n = UiKitLocalizations.of(context);
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.userChanges(),
+      initialData: FirebaseAuth.instance.currentUser,
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+          if(user != null){
+            user.getIdToken()
+            .then((jwt){
+              log(jwt??'-');
+            })
+            .catchError((error){
+              print(error);
+            });
+                                  
+          }
+        return _buildScreen(context, l10n, user);
+      },
+    );
+  }
+
+  Widget _buildScreen(BuildContext context, UiKitLocalizations l10n, User? user) {
     return SettingScreen(
         title: l10n.settings,
         sections: [
           SettingSection(
             title: 'Profile',
             items: [
-              NavigationTile(
-                label: user != null ? (user.displayName  ?? '-') :l10n.custom((locale) => switch(locale.languageCode) {
-                'ko' =>  '로그인',
-                'ja' => 'ログイン',
-                _ => 'Login'
-              }), onTap: () { 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AuthGate(
-                      signedIn: Builder(
-                        builder: (context) {
-                          final currentUser = FirebaseAuth.instance.currentUser!;
-                          final isDark = Theme.of(context).brightness == Brightness.dark;
-                          return AuthProfileScreen(
-                            user: currentUser,
-                            authTheme: isDark ? AuthTheme.dark() : AuthTheme.light(),
-                            showEdit: true,
-                            useEditDisplayName: true,
-                            onSignOut: () async {
-                               Navigator.of(context).pop();
-                               await FirebaseAuth.instance.signOut();
-                            },
-                            onSave: (String displayName, String? photoUrl) async {
-                              await currentUser.updateDisplayName(displayName);
-                              await currentUser.updatePhotoURL(photoUrl);
-                              await currentUser.reload();
-                              return FirebaseAuth.instance.currentUser;
-                            },
-                          );
-                        },
-                      ),
-                      signedOut: const _SignInEntry(),
+              SettingAppNavigationAuthTile<User>(
+                user: user, 
+                loginLabel: l10n.custom((locale) => switch(locale.languageCode) {
+                  'ko' =>  '로그인',
+                  'ja' => 'ログイン',
+                  _ => 'Login'
+                }),
+                loginSubtitle: l10n.custom((locale) => switch(locale.languageCode) {
+                  'ko' =>  '탭 하여 로그인 하세요.',
+                  'ja' => 'タップしてログイン',
+                  _ => 'Tap to log in'
+                }),
+                displayName: (u) => u.displayName ?? '-', 
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AuthGate(
+                        signedIn: Builder(
+                          builder: (context) {
+                         
+                              
+                            if(user == null){
+                              return Text('hi');
+                            }
+                            return AuthProfileScreen(
+                              user: user,
+                              showEdit: true,
+                              useEditDisplayName: true,
+                              onSignOut: () async {
+                                Navigator.of(context).pop();
+                                await FirebaseAuth.instance.signOut();
+                              },
+                              onSave: (String displayName, String? photoUrl) async {
+                                await user.updateDisplayName(displayName);
+                                await user.updatePhotoURL(photoUrl);
+                                await user.reload();
+                                return FirebaseAuth.instance.currentUser;
+                              },
+                            );
+                          },
+                        ),
+                        signedOut: const _SignInEntry(),
+                      )
                     )
-                  )
-                );
-              },)
+                  );
+                }, 
+                
+              ),
+
             ]
           ),
           SettingSection(
@@ -110,11 +138,13 @@ class _AppSettingScreenState extends State<AppSettingScreen> {
 class _SignInEntry extends StatelessWidget {
   const _SignInEntry();
 
-  Future<void> _googleSignIn() async {
+  Future<void> _googleSignIn(BuildContext context) async {
     final account = await GoogleSignIn.instance.authenticate();
     final idToken = account.authentication.idToken;
+
     final credential = GoogleAuthProvider.credential(idToken: idToken);
     await FirebaseAuth.instance.signInWithCredential(credential);
+    Navigator.pop(context);
   }
 
   @override
@@ -125,7 +155,9 @@ class _SignInEntry extends StatelessWidget {
         email: email,
         password: pw,
       ),
-      onGoogleSignIn: _googleSignIn,
+      onGoogleSignIn: () async {
+        await _googleSignIn(context);
+      },
       onNavigateToSignUp: () => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const _SignUpEntry()),
