@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:app_links/app_links.dart';
 import 'package:dayly/models/dayly_widget_model.dart';
 import 'package:dayly/repositories/notification_repository.dart';
 import 'package:dayly/screens/add_widget_bottom_sheet.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_ui_kit_l10n/flutter_ui_kit_l10n.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dayly/screens/setting_screen.dart';
 import 'package:dayly/utils/dayly_image_utils.dart';
+
 
 /// 글래스모피즘 다크/라이트 대시보드 — "YOUR MOMENTS" 리스트/그리드 뷰.
 ///
@@ -44,6 +46,7 @@ class WidgetGridScreen extends StatefulWidget {
 
 class _WidgetGridScreenState extends State<WidgetGridScreen> {
   var _isLoading = true;
+  final _appLinks = AppLinks();
   List<DaylyWidgetModel> _widgets = const <DaylyWidgetModel>[];
   Map<String, String?> _resolvedImagePaths = const {};
   DsThemeController get _themeController => widget.themeController;
@@ -83,6 +86,63 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       FlutterLocalNotificationsPlugin(),
     );
     unawaited(_load());
+    _initDeepLinkListener();
+  }
+
+  @override
+  void dispose() {
+
+    super.dispose();
+  }
+
+  Future<void> _moveDetail(){
+    
+  }
+
+    // 1. 앱이 종료된 상태에서 딥링크로 열렸을 때 처리
+  Future<void> _initDeepLinkListener() async {
+    try {
+      final initialLink = await _appLinks.getInitialLink();
+      if(initialLink != null){
+        print('앱이 켜저있음 딥링크 처리');
+        // scheme (dayly)
+        final scheme = initialLink.scheme;
+
+        // host (detail)
+        final host = initialLink.host;
+
+        // 마지막 숫자 (123)
+        final id = initialLink.pathSegments.isNotEmpty ? initialLink.pathSegments.last : null;
+        print(scheme);
+        print(host);
+        print(id);
+        return;
+      }
+      _appLinks.uriLinkStream.listen((uri){
+        print('앱이 꺼져있음 켜질떄 딥링크 처리');
+        // scheme (dayly)
+        final scheme = uri.scheme;
+
+        // host (detail)
+        final host = uri.host;
+
+        // 마지막 숫자 (123)
+        final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+        print(scheme);
+        print(host);
+        print(id);
+        return;
+      });
+
+    } catch (e) {
+      print("딥링크 에러: $e");
+    }
+  }
+
+  void _handleLink(Uri uri) {
+    print("딥링크 접속: ${uri.path}");
+    print("url host: ${uri.host}");
+    print(uri.queryParameters);
   }
 
   Future<void> _load() async {
