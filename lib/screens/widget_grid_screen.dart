@@ -50,7 +50,9 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   List<DaylyWidgetModel> _widgets = const <DaylyWidgetModel>[];
   Map<String, String?> _resolvedImagePaths = const {};
   DsThemeController get _themeController => widget.themeController;
-  
+
+  Uri? _pendingDeepLink;
+  StreamSubscription<Uri>? _deepLinkSub;
 
   final _notifRepo = NotificationRepository.instance;
   late final NotificationPermissionService _permissionService;
@@ -91,58 +93,49 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
 
   @override
   void dispose() {
-
+    _deepLinkSub?.cancel();
     super.dispose();
   }
 
-  Future<void> _moveDetail(){
-    
-  }
-
-    // 1. 앱이 종료된 상태에서 딥링크로 열렸을 때 처리
+  // 앱 cold start / warm start 모두 대응하는 딥링크 리스너 초기화.
+  // - cold start(앱 종료 후 딥링크로 실행): getInitialLink()로 수신 → _pendingDeepLink에 보류.
+  //   위젯 로드 완료(_load() 끝) 후 _processPendingDeepLink()에서 처리.
+  // - warm start(앱 실행 중 딥링크 수신): uriLinkStream에서 수신 → 이미 위젯 로드됨, 바로 처리.
   Future<void> _initDeepLinkListener() async {
     try {
+      // 스트림은 항상 등록 (warm start 대응)
+      _deepLinkSub = _appLinks.uriLinkStream.listen(_handleDeepLink);
+
+      // cold start 초기 링크는 위젯 로드 후 처리하기 위해 보류
       final initialLink = await _appLinks.getInitialLink();
-      if(initialLink != null){
-        print('앱이 켜저있음 딥링크 처리');
-        // scheme (dayly)
-        final scheme = initialLink.scheme;
-
-        // host (detail)
-        final host = initialLink.host;
-
-        // 마지막 숫자 (123)
-        final id = initialLink.pathSegments.isNotEmpty ? initialLink.pathSegments.last : null;
-        print(scheme);
-        print(host);
-        print(id);
-        return;
+      if (initialLink != null) {
+        _pendingDeepLink = initialLink;
       }
-      _appLinks.uriLinkStream.listen((uri){
-        print('앱이 꺼져있음 켜질떄 딥링크 처리');
-        // scheme (dayly)
-        final scheme = uri.scheme;
-
-        // host (detail)
-        final host = uri.host;
-
-        // 마지막 숫자 (123)
-        final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
-        print(scheme);
-        print(host);
-        print(id);
-        return;
-      });
-
     } catch (e) {
-      print("딥링크 에러: $e");
+      debugPrint('딥링크 에러: $e');
     }
   }
 
-  void _handleLink(Uri uri) {
-    print("딥링크 접속: ${uri.path}");
-    print("url host: ${uri.host}");
-    print(uri.queryParameters);
+  void _processPendingDeepLink() {
+    if (_pendingDeepLink == null) return;
+    final uri = _pendingDeepLink!;
+    _pendingDeepLink = null;
+    _handleDeepLink(uri);
+  }
+
+  void _handleDeepLink(Uri uri) {
+    final host = uri.host;
+    final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+    debugPrint('딥링크 수신: host=$host, id=$id');
+
+    if (host == 'detail' && id != null) {
+      final index = _widgets.indexWhere((w) => w.id == id);
+      if (index != -1) {
+        _openDetail(index);
+      } else {
+        debugPrint('딥링크: id=$id 에 해당하는 위젯 없음');
+      }
+    }
   }
 
   Future<void> _load() async {
@@ -185,11 +178,13 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     // Android 재부팅 후 AlarmManager가 초기화되므로 반드시 복원 필요.
     unawaited(_notifRepo.syncOnAppStart(widgets));
 
-    // 앱 시작 시 권한 상태 확인 (프레임 렌더링 완료 후).
+    // 앱 시작 시 권한 상태 확인 + cold start 딥링크 처리 (프레임 렌더링 완료 후).
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _widgets.isNotEmpty) {
+      if (!mounted) return;
+      if (_widgets.isNotEmpty) {
         _permissionService.request(context);
       }
+      _processPendingDeepLink();
     });
 
     debugPrint('[dayly] _load() done, _isLoading=$_isLoading');
