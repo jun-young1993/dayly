@@ -18,11 +18,12 @@
         android:visibility="gone"
         android:contentDescription="" />
 
-    <!-- 텍스트 가독성 보호 오버레이 (사진 설정 시에만 VISIBLE) -->
+    <!-- 텍스트 가독성 보호 오버레이 (사진 설정 시에만 VISIBLE): 상단 그라디언트 스크림 -->
     <ImageView
         android:id="@+id/widget_bg_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/widget_bg_gradient_scrim_top"
         android:visibility="gone"
         android:contentDescription="" />
 
@@ -50,7 +51,11 @@
                 android:textSize="10sp"
                 android:textColor="#7090B0"
                 android:letterSpacing="0.08"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:shadowColor="#99000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="6" />
 
             <!-- D-Day 카운트다운 숫자 (핵심) -->
             <TextView
@@ -64,7 +69,11 @@
                 android:textColor="#F4F6FA"
                 android:fontFamily="monospace"
                 android:maxLines="1"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:shadowColor="#99000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="8" />
 
             <!-- 진행 바: 현재 위치 / 전체 개수 (테마별 색상은 Kotlin에서 동적 적용) -->
             <FrameLayout
@@ -101,7 +110,11 @@
                 android:textColor="#7090B0"
                 android:gravity="start"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:shadowColor="#99000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="6" />
 
         </LinearLayout>
 

@@ -3,7 +3,6 @@ package juny.dayly
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.net.Uri
 import android.util.Log
 import android.view.View
@@ -163,8 +162,6 @@ private class DaylyRemoteViewsFactory(
                 setFloat(R.id.widget_bg_image, "setAlpha", 0.65f)
                 setViewVisibility(R.id.widget_bg_image, View.VISIBLE)
                 setViewVisibility(R.id.widget_bg_overlay, View.VISIBLE)
-                setInt(R.id.widget_bg_overlay, "setBackgroundColor",
-                    Color.argb(70, 0, 0, 0))
             } else {
                 // 이전에 렌더된 비트맵이 남아 있을 수 있으므로 명시적으로 제거
                 setImageViewBitmap(R.id.widget_bg_image, null)
