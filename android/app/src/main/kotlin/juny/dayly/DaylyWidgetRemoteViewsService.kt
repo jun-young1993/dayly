@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import org.json.JSONArray
+import androidx.exifinterface.media.ExifInterface
 
 /**
  * StackView 내 현재 아이템의 진행 비율.
@@ -61,7 +62,21 @@ private fun loadScaledBitmap(absPath: String): android.graphics.Bitmap? {
         BitmapFactory.decodeFile(absPath, opts)
         var sample = 1
         while (opts.outWidth / sample > 400 || opts.outHeight / sample > 400) sample *= 2
-        BitmapFactory.decodeFile(absPath, BitmapFactory.Options().apply { inSampleSize = sample })
+        var bitmap = BitmapFactory.decodeFile(absPath, BitmapFactory.Options().apply { inSampleSize = sample })
+          // EXIF 회전 보정
+          val exif = ExifInterface(absPath)
+          val orientation = exif.getAttributeInt(
+              ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+          val matrix = android.graphics.Matrix()
+          when (orientation) {
+              ExifInterface.ORIENTATION_ROTATE_90  -> matrix.postRotate(90f)
+              ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+              ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+              ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+          }
+          android.graphics.Bitmap.createBitmap(
+              bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
     } catch (e: Exception) {
         Log.e("DaylyWidget", "loadScaledBitmap failed: $absPath", e)
         null
@@ -122,7 +137,7 @@ private class DaylyRemoteViewsFactory(
             setTextColor(R.id.widget_date_label, theme.subColor)
 
             // 지난 이벤트: 반투명 처리
-            setFloat(R.id.widget_container, "setAlpha", if (data.isPast) 0.5f else 1.0f)
+            // setFloat(R.id.widget_container, "setAlpha", if (data.isPast) 0.5f else 1.0f)
 
             if (size != WidgetSize.SMALL) {
                 // 커스텀 진행 바 (ProgressBar 대신 FrameLayout+View 방식으로 테마 색상 지원)
@@ -140,25 +155,25 @@ private class DaylyRemoteViewsFactory(
             }
 
             // 배경 이미지 처리 (Medium/Large only)
-            if (size != WidgetSize.SMALL) {
-                val absPath = resolveImagePath(context, data.backgroundImagePath)
-                val bitmap = absPath?.let { loadScaledBitmap(it) }
-                if (bitmap != null) {
-                    setImageViewBitmap(R.id.widget_bg_image, bitmap)
-                    setFloat(R.id.widget_bg_image, "setAlpha", 0.65f)
-                    setViewVisibility(R.id.widget_bg_image, View.VISIBLE)
-                    setViewVisibility(R.id.widget_bg_overlay, View.VISIBLE)
-                    setInt(R.id.widget_bg_overlay, "setBackgroundColor",
-                        Color.argb(70, 0, 0, 0))
-                } else {
-                    // 이전에 렌더된 비트맵이 남아 있을 수 있으므로 명시적으로 제거
-                    setImageViewBitmap(R.id.widget_bg_image, null)
-                    setViewVisibility(R.id.widget_bg_image, View.GONE)
-                    setViewVisibility(R.id.widget_bg_overlay, View.GONE)
-                    // 테마 배경이 반드시 적용되도록 재확인
-                    setInt(R.id.widget_container, "setBackgroundResource", theme.bgDrawable)
-                }
+            // if (size != WidgetSize.SMALL) {
+            val absPath = resolveImagePath(context, data.backgroundImagePath)
+            val bitmap = absPath?.let { loadScaledBitmap(it) }
+            if (bitmap != null) {
+                setImageViewBitmap(R.id.widget_bg_image, bitmap)
+                setFloat(R.id.widget_bg_image, "setAlpha", 0.65f)
+                setViewVisibility(R.id.widget_bg_image, View.VISIBLE)
+                setViewVisibility(R.id.widget_bg_overlay, View.VISIBLE)
+                setInt(R.id.widget_bg_overlay, "setBackgroundColor",
+                    Color.argb(70, 0, 0, 0))
+            } else {
+                // 이전에 렌더된 비트맵이 남아 있을 수 있으므로 명시적으로 제거
+                setImageViewBitmap(R.id.widget_bg_image, null)
+                setViewVisibility(R.id.widget_bg_image, View.GONE)
+                setViewVisibility(R.id.widget_bg_overlay, View.GONE)
+                // 테마 배경이 반드시 적용되도록 재확인
+                setInt(R.id.widget_container, "setBackgroundResource", theme.bgDrawable)
             }
+            // }
 
             // 페이지 인디케이터 (복수 위젯일 때만 표시)
             if (data.totalCount > 1) {
