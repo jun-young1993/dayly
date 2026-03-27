@@ -2,6 +2,16 @@
 
 ---
 
+## 1.8.6+11 — 2026-03-27
+
+### Fixed
+
+- **cold start 흰 화면 제거**: `main()`에서 `runApp()` 이전에 모든 초기화(`Firebase`, `Hive`, 알림 등)를 `await`하던 구조를 개선. `runApp()`을 즉시 호출하고 초기화를 `Future`로 전달, `FutureBuilder`로 완료 전까지 스플래시 화면을 표시하도록 변경.
+- **스플래시 화면 추가** (`app.dart` `_SplashScreen`): "dayly" 로고 + 페이드인 애니메이션 + 미니 로딩 인디케이터. 초기화 완료 시 메인 화면으로 자동 전환.
+- **딥링크 cold start 대응** (`widget_grid_screen.dart`): 위젯 로드 전 딥링크 수신 시 `_pendingDeepLink`에 보류, `_load()` 완료 후 처리. 스트림 구독을 항상 등록해 warm start 딥링크 누락 버그도 수정.
+
+---
+
 ## 1.8.5+10 — 2026-03-26
 
 ### Fixed

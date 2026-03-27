@@ -21,6 +21,20 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
 
+  final themeController = DsThemeController();
+
+  // runApp()을 먼저 호출해 스플래시 화면을 즉시 표시.
+  // 초기화는 백그라운드 Future로 전달해 FutureBuilder가 완료 시 전환한다.
+  runApp(DaylyApp(
+    themeController: themeController,
+    initFuture: _initialize(themeController),
+  ));
+}
+
+Future<void> _initialize(DsThemeController themeController) async {
+  // 광고 초기화를 가장 먼저 fire-and-forget으로 시작.
+  // 나머지 init과 병렬로 진행해 스플래시가 끝날 때쯤 광고가 로드되도록 한다.
+  unawaited(_initAds());
 
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -28,23 +42,14 @@ Future<void> main() async {
     debugPrint('[main] Firebase.initializeApp failed: $e');
   }
 
-  // Google Sigin
   await GoogleSignIn.instance.initialize();
-  
 
-  // ── 타임존 초기화 ─────────────────────────────────────────────
-  // 반드시 runApp() 이전에 초기화해야 한다.
-  // tz.TZDateTime을 쓰려면 최신 타임존 DB 로드가 선행되어야 함.
   tz.initializeTimeZones();
-  // flutter_timezone 5.x: getLocalTimezone()은 TimezoneInfo를 반환.
-  // .identifier = IANA 표준 이름 (예: "Asia/Seoul")
   final tzInfo = await FlutterTimezone.getLocalTimezone();
   tz.setLocalLocation(tz.getLocation(tzInfo.identifier));
 
-  // ── Hive 초기화 ───────────────────────────────────────────────
   await Hive.initFlutter();
 
-  // ── flutter_local_notifications 초기화 ───────────────────────
   final plugin = FlutterLocalNotificationsPlugin();
   await plugin.initialize(
     settings: const InitializationSettings(
@@ -53,13 +58,8 @@ Future<void> main() async {
     ),
   );
 
-  final themeController = DsThemeController();
   await themeController.init();
 
-
-
-  // ── NotificationRepository 초기화 ────────────────────────────
-  // Hive 박스가 이전 세션에서 비정상 종료된 경우 삭제 후 재시도.
   try {
     await NotificationRepository.instance.init(plugin);
   } catch (e) {
@@ -67,40 +67,30 @@ Future<void> main() async {
     await Hive.deleteBoxFromDisk('dayly_notif_v1');
     await NotificationRepository.instance.init(plugin);
   }
-  try{
-    // ── 홈화면 위젯 초기화 (iOS App Group ID 등록) ─────────────────
+
+  try {
     await HomeWidgetService.init();
-  }catch(e){
+  } catch (e) {
     debugPrint('[main] Home widget Service: $e');
   }
-  
-  
-
-  
-  
 
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
     debugPrint('FlutterError: ${details.exception}\n${details.stack}');
   };
+}
 
-  runApp(DaylyApp(themeController: themeController));
-
-  unawaited(() async {
-    try{
-      // ── 광고 초기화 ───────────────────────────────────────────────
-      await GlobalAdConfig().initialize();
-      // GlobalAdConfig().setAdVisibility(false);
-
-      AppOpenAdManager.instance.cooldown = const Duration(hours: 24);
-      AppOpenAdManager.instance.configure(
-        androidId: 'ca-app-pub-4656262305566191/4017810905',
-        iosId: 'ca-app-pub-4656262305566191/9437357221',
-      );
-      AppOpenAdManager.instance.loadAd();
-    }catch(e){
-      debugPrint('[main] AdMob: $e');
-    }
-  }());
-  
+Future<void> _initAds() async {
+  try {
+    await GlobalAdConfig().initialize();
+    GlobalAdConfig().setAdVisibility(false);
+    AppOpenAdManager.instance.cooldown = const Duration(hours: 24);
+    AppOpenAdManager.instance.configure(
+      androidId: 'ca-app-pub-4656262305566191/4017810905',
+      iosId: 'ca-app-pub-4656262305566191/9437357221',
+    );
+    AppOpenAdManager.instance.loadAd();
+  } catch (e) {
+    debugPrint('[main] AdMob: $e');
+  }
 }
