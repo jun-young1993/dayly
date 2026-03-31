@@ -259,6 +259,7 @@ class DaylyWidgetModel {
     this.backgroundImagePath,
     this.isRecurring = false,
     this.recurringType,
+    this.iconIndex,
   });
 
   /// Rule-aligned starter content.
@@ -314,6 +315,9 @@ class DaylyWidgetModel {
   /// 반복 주기. isRecurring=true일 때만 유효.
   final DaylyRecurringType? recurringType;
 
+  /// 생성 시 선택한 아이콘 인덱스 (null이면 리스트 위치로 fallback).
+  final int? iconIndex;
+
   Map<String, Object?> toJson() {
     return <String, Object?>{
       'id': id,
@@ -326,6 +330,7 @@ class DaylyWidgetModel {
       'backgroundImagePath': backgroundImagePath,
       'isRecurring': isRecurring,
       'recurringType': recurringType?.name,
+      'iconIndex': iconIndex,
     };
   }
 
@@ -357,6 +362,7 @@ class DaylyWidgetModel {
       recurringType: DaylyRecurringType.values
           .where((v) => v.name == json['recurringType'])
           .firstOrNull,
+      iconIndex: json['iconIndex'] as int?,
     );
   }
 
@@ -373,6 +379,7 @@ class DaylyWidgetModel {
     Object? backgroundImagePath = _absent,
     bool? isRecurring,
     Object? recurringType = _absent,
+    Object? iconIndex = _absent,
   }) {
     return DaylyWidgetModel(
       id: id ?? this.id,
@@ -389,6 +396,9 @@ class DaylyWidgetModel {
       recurringType: identical(recurringType, _absent)
           ? this.recurringType
           : recurringType as DaylyRecurringType?,
+      iconIndex: identical(iconIndex, _absent)
+          ? this.iconIndex
+          : iconIndex as int?,
     );
   }
 }

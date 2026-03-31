@@ -175,6 +175,7 @@ class _AddMomentScreenState extends State<_AddMomentScreen> {
         createdAt: DateTime.now(),
         isRecurring: _selectedRecurring != null,
         recurringType: _selectedRecurring,
+        iconIndex: _selectedIconIndex,
       ),
     );
   }

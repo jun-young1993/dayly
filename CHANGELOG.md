@@ -2,6 +2,17 @@
 
 ---
 
+## 1.8.7+12 — 2026-03-31
+
+### Fixed
+
+- **아이콘 선택 버그 수정**: 이벤트 생성 시 선택한 아이콘이 리스트에서 항상 순서대로 표시되던 버그 수정.
+  - `DaylyWidgetModel`에 `iconIndex` 필드 추가 — 생성 시 선택한 아이콘 인덱스를 저장.
+  - `widget_grid_screen.dart` 리스트/그리드/상세 진입 모두 `model.iconIndex`를 우선 사용, 구버전 데이터는 `index % length` fallback 유지.
+  - `_iconData` 배열 순서를 `_kIconOptions`와 일치하도록 수정 (`edit_note_outlined`가 index 2→7로 이동, `favorite_outline`이 정상 위치로).
+
+---
+
 ## 1.8.6+11 — 2026-03-27
 
 ### Fixed

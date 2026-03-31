@@ -60,12 +60,12 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
   static const _iconData = <IconData>[
     Icons.cake_outlined,
     Icons.flight_outlined,
-    Icons.edit_note_outlined,
     Icons.favorite_outline,
     Icons.star_outline,
     Icons.celebration_outlined,
     Icons.school_outlined,
     Icons.music_note_outlined,
+    Icons.edit_note_outlined,
   ];
 
   static const _gradients = <List<Color>>[
@@ -221,8 +221,8 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
       MaterialPageRoute(
         builder: (_) => EventDetailScreen(
           model: originalModel,
-          gradient: _gradients[index % _gradients.length],
-          iconData: _iconData[index % _iconData.length],
+          gradient: _gradients[(originalModel.iconIndex ?? index) % _gradients.length],
+          iconData: _iconData[(originalModel.iconIndex ?? index) % _iconData.length],
           onWidgetChanged: (updatedModel) {
             if (!mounted) return;
             if (index >= _widgets.length) return;
@@ -526,13 +526,17 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 100.h),
       itemCount: _widgets.length,
-      itemBuilder: (context, index) => _DysmorphicCard(
-        model: _widgets[index],
-        gradient: _gradients[index % _gradients.length],
-        iconData: _iconData[index % _iconData.length],
-        onTap: () => _openDetail(index),
-        resolvedImagePath: _resolvedImagePaths[_widgets[index].id],
-      ),
+      itemBuilder: (context, index) {
+        final model = _widgets[index];
+        final iconIdx = (model.iconIndex ?? index) % _iconData.length;
+        return _DysmorphicCard(
+          model: model,
+          gradient: _gradients[iconIdx % _gradients.length],
+          iconData: _iconData[iconIdx],
+          onTap: () => _openDetail(index),
+          resolvedImagePath: _resolvedImagePaths[model.id],
+        );
+      },
     );
   }
 
@@ -547,14 +551,18 @@ class _WidgetGridScreenState extends State<WidgetGridScreen> {
         childAspectRatio: 3.6,
       ),
       itemCount: _widgets.length,
-      itemBuilder: (context, index) => _DysmorphicCard(
-        model: _widgets[index],
-        gradient: _gradients[index % _gradients.length],
-        iconData: _iconData[index % _iconData.length],
-        onTap: () => _openDetail(index),
-        isTablet: true,
-        resolvedImagePath: _resolvedImagePaths[_widgets[index].id],
-      ),
+      itemBuilder: (context, index) {
+        final model = _widgets[index];
+        final iconIdx = (model.iconIndex ?? index) % _iconData.length;
+        return _DysmorphicCard(
+          model: model,
+          gradient: _gradients[iconIdx % _gradients.length],
+          iconData: _iconData[iconIdx],
+          onTap: () => _openDetail(index),
+          isTablet: true,
+          resolvedImagePath: _resolvedImagePaths[model.id],
+        );
+      },
     );
   }
 
