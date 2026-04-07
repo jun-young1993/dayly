@@ -83,7 +83,7 @@ Future<void> _initialize(DsThemeController themeController) async {
 Future<void> _initAds() async {
   try {
     await GlobalAdConfig().initialize();
-    GlobalAdConfig().setAdVisibility(false);
+    // GlobalAdConfig().setAdVisibility(false);
     AppOpenAdManager.instance.cooldown = const Duration(hours: 24);
     AppOpenAdManager.instance.configure(
       androidId: 'ca-app-pub-4656262305566191/4017810905',
